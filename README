@@ -1,7 +1,16 @@
 Note: The code files listed below were developed using Python 2.6.2. They will
  require at least Python 2.5, but will not run with Python 3x.
 
-TestDataGenerator.py:
+
+ballotInfoClasses.py:
+
+   This contains a definition of the ballot_info data structure used by
+    testDataGenerator.py and tabulator.py. This implementation simply mimics the
+    specs given here:
+    https://wiki.trustthevote.org/index.php/BallotInfo
+   
+
+testDataGenerator.py:
 
    The purpose of TestDataGenerator.py is to allow a user to generate a random
     election template, and also allow them to generate random vote counts using
@@ -9,7 +18,7 @@ TestDataGenerator.py:
     I'll demonstrate them by example:
 
    1.) python testDataGenerator.py election election.yaml:
-       Generates a sample election template, and outputs the results into a
+       This generates a sample election template, and outputs the results into a
        file in yaml format. By "template", I mean that all of the members in
        the ballot_info data structure like dist_id, voting_method_id, name,
        etc. are initialized . . . with the exception of the actual vote
@@ -17,16 +26,24 @@ TestDataGenerator.py:
        created/overwritten.
 
    2.) python testDataGenerator.py counts 2 election.yaml sampleballots.yaml
-       This form uses a template election (which will have been generated
-       already by the other syntactical form) to generate a given number of
-       ballot_info records that fit the election template but have random
-       values assigned to the vote counts and output the results into a file
-       in yaml. In this example, the number of records generated in the output
-       file is 2, the election template is stored in `election.yaml`, and the
-       results are outputted into file `sampleballots.yaml`.
+       This syntax uses an election template (which will have been generated
+       already by the first syntactical form) to generate a given number of
+       ballot_info records that fit the template, with random values
+       given to each candidate's counts field. The results are outputted
+       into a file in yaml format. In this example, the number of records
+       generated in the output file is 2, the election template is stored in
+       `election.yaml`, and the results are outputted into file
+       `sampleballots.yaml`.
 
 
-Tabulator.py:
+helloWorldTabulator.py:
+
+   This app is a precursor to a fully functional tabulator. It simply takes four
+    command line arguments; the last argument will be treated as a filename that
+    receives the output "Hello world."
+
+
+tabulator.py:
 
    Tabulator.py is the implementation of the initial tabulator. It is called
     from the command line with 5 arguments, like this:
@@ -42,7 +59,7 @@ Tabulator.py:
     terminates. If the sample ballot files are valid, this information is also
     recorded in `report`, and all of the records of both files are merged
     together into one record in one file, `merge.yaml`. A list of the cumulative
-    vote counts found for each candidate is outputted into `report`.
+    vote counts found for each candidate is also outputted into `report`.
 
 
 Here is an example of how testDataGenerator.py and tabulator.py can be used
@@ -54,10 +71,10 @@ Here is an example of how testDataGenerator.py and tabulator.py can be used
    python tabulator.py election.yaml sampleballots1.yaml sampleballots2.yaml
     merge.yaml report
 
-   These commands generate a sample election, then generate two ballot record
+   These commands generate an election template, then generate two ballot record
     files that conform to the format of that sample election, then merge the two
     ballot record files together and generate a report.
 
 
 Last updated by Mike Anderson.
-Last updated on Aug 15, 2009.
+Last updated on Aug 21, 2009.
