@@ -6,7 +6,7 @@
 # Purpose: To define a class that merges multiple ballot records
 #  together into one record.
 
-import ballotInfoClasses, yaml, sys
+import ballotInfoClasses, yaml, sys, uuid
 
 # Checks validity of two ballot record files against some election
 #  specs, merges them together, and generates a report.
@@ -55,6 +55,7 @@ class Tabulator(object):
 		# Add the vote counts of candidates with the same ID# using
 		#  merge(), and output the results to the given merge file name
 		m = self.merge()
+		m.GUID = uuid.uuid1() # Give the merged result its own GUID
 		stream = open(merge_output_file, 'w')
 		yaml.dump(m, stream)
 
@@ -162,7 +163,7 @@ def main():
 	print "Successfully merged " + sys.argv[2] + " and " + sys.argv[3],
 	print "together\n The results are stored in " + sys.argv[4]
 	print "A report describing the features of the merge was created",
-	print " in " + sys.argv[5]	
+	print "in " + sys.argv[5]	
 	
 	return 0
 	

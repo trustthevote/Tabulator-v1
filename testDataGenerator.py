@@ -5,7 +5,7 @@
 # Created: Jul 30, 2009
 # Purpose: To generate test files for the ballot tabulator
 
-import ballotInfoClasses, random, yaml, sys, copy
+import ballotInfoClasses, random, yaml, sys, copy, uuid
 
 # Provides random election specs or random ballot counts
 class Provide_random_ballots(object):
@@ -41,6 +41,7 @@ class Provide_random_ballots(object):
 			b_list = []
 			for i in range(0, int(args[0])):
 				b = copy.deepcopy(e)
+				b.GUID = uuid.uuid1() # Give each sample its own GUID
 				for j in range(0, len(b.get_contest_list())):
 					for k in range(0, len(b.get_contest_list()[j].get_candidate_list())):
 						r = random.randint(0,99)

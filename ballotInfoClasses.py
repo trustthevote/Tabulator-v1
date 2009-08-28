@@ -9,9 +9,13 @@
 # Define getter and setter methods for the data members of a ballot info class,
 #  namely the ballot info type, the name of the election, and the list of
 #  contests.
+
+import uuid
+
 class Ballot_info(object):
 	def __init__(self):
 		self.contest_list = []
+		self.GUID = uuid.uuid1()
 
 	def get_type(self):
 		return self.type
@@ -26,6 +30,7 @@ class Ballot_info(object):
 	def get_contest_list(self):
 		return self.contest_list
 	def set_contest_list(self, value):
+		self.contest_list = []
 		self.contest_list = value
 
 
@@ -35,7 +40,7 @@ class Ballot_info(object):
 class Contest(object):
 	def __init__(self):
 		self.candidate_list = []
-	
+
 	def get_candidate_list(self):
 		return self.candidate_list
 	def set_candidate_list(self, value):
