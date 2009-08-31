@@ -46,9 +46,11 @@
                         alreadyExists = true;
                         overw = confirm("Overwrite file " + fname + "?");
                     }
-                    if((alreadyExists == false) || (overw == true)) {                       
-                        $.post(".", {'arguments':args});
-                        location.reload(true);
+                    if((alreadyExists == false) || (overw == true)) {                        
+                        args = JSON.stringify(args)
+                        $.post(".", {'arguments':args}, function(){
+                            location.reload(true);
+                        });                        
                     }
                 });
                 

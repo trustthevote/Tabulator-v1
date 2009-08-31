@@ -9,10 +9,13 @@ def TDGhome(request):
     DATA_PARENT = '/var/lib/'
     DATA_FOLDER = 'testDataGenerator'
     DATA_PATH = DATA_PARENT + '/' + DATA_FOLDER + '/'
-    if request.method == 'POST': # If the form has been submitted...        
-        if request.POST.has_key('arguments'):
-            # Pass the provided arguments to the test data generator
-            args = request.POST.getlist('arguments')            
+    if request.method == 'POST': # If the form has been submitted...
+        if request.POST.has_key('arguments'):            
+            # Pass the provided arguments to the test data generator,
+            #  and deserialize from JSON
+            args = request.POST.getlist('arguments')
+            args = json.loads(args[0])
+            print args
 
             # The file arguments will be loaded from and outputted to
             #  the directory /var/lib/testDataGenerator.
