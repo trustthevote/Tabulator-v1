@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # Python 2.6.2
 # Name: ballotInfoClasses.py
 # Author: Mike Anderson
@@ -10,12 +10,9 @@
 #  namely the ballot info type, the name of the election, and the list of
 #  contests.
 
-import uuid
-
 class Ballot_info(object):
 	def __init__(self):
-		self.contest_list = []
-		self.GUID = uuid.uuid1()
+		self.contest_list = []		
 
 	def get_type(self):
 		return self.type
