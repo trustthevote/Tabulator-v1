@@ -24,7 +24,7 @@
                 // generated file when the name of that file is clicked.
                 $("a.fileLinks").click( function() {
                     fname = $(this).attr("name");                   
-                    $.post(".", {'displayThis':fname}, function(data){
+                    $.post(".", {'display_this':fname}, function(data){
                             //Make spaces and newlines in the file
                             // consistent with HTML
                             data = data.replace(/\n/g, "<br/>");

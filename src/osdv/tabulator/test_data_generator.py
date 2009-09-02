@@ -29,7 +29,8 @@ class ProvideRandomBallots(object):
         
         if type == 'election':
             # Generate a sample election and output it to the location
-            #  specified by the user in the command line, in yaml format.        
+            #  specified by the user in the command line, in yaml
+            #  format.        
             b = ballot_info_classes.BallotInfo()
             stream = open(args[0], 'w') 
             
@@ -132,9 +133,9 @@ class ProvideRandomBallots(object):
         elif r == 2:
             cont.set_display_name("State Representative")
             
-            # Generate random values for the House number until an unused
-            #  number is generated. Once this is successful, use the
-            #  unused number and add it to a list of used numbers.
+            # Generate random values for the House number until an
+            #  unused number is generated. Once this is successful, use
+            #  the unused number and add it to a list of used numbers.
             while True:
                 r = random.randint(1,9)
                 if self.already_used_streps.count(r) == 0:

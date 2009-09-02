@@ -3,8 +3,8 @@
 # Name: tabulator.py
 # Author: Mike Anderson
 # Created: Aug 5, 2009
-# Purpose: To define a class that merges multiple ballot records
-#  together into one record.
+# Purpose: To define a class that merges two ballot record files
+#  together into one file.
 
 import yaml
 import sys

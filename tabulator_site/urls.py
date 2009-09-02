@@ -7,7 +7,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',    
     (r'^tdg/$', 'tabulator.views.TDG_home'),
-	(r'^tabulator/$', 'tabulator.views.tabulator_home'),
+    (r'^tabulator/$', 'tabulator.views.tabulator_home'),
 
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
