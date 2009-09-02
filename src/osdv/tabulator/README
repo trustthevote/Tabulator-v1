@@ -2,22 +2,22 @@ Note: The code files listed below were developed using Python 2.6.2. They will
  require at least Python 2.5, but will not run with Python 3x.
 
 
-ballotInfoClasses.py:
+ballot_info_classes.py:
 
    This contains a definition of the ballot_info data structure used by
-    testDataGenerator.py and tabulator.py. This implementation simply mimics the
-    specs given here:
+    test_data_generator.py and tabulator.py. This implementation simply mimics
+    the specs given here:
     https://wiki.trustthevote.org/index.php/BallotInfo
    
 
-testDataGenerator.py:
+test_data_generator.py:
 
-   The purpose of TestDataGenerator.py is to allow a user to generate a random
+   The purpose of test_data_generator.py is to allow a user to generate a random
     election template, and also allow them to generate random vote counts using
     that election. There are two syntactical forms for command line arguments,
     I'll demonstrate them by example:
 
-   1.) python testDataGenerator.py election election.yaml:
+   1.) python test_data_denerator.py election election.yaml:
        This generates a sample election template, and outputs the results into a
        file in yaml format. By "template", I mean that all of the members in
        the ballot_info data structure like dist_id, voting_method_id, name,
@@ -25,7 +25,7 @@ testDataGenerator.py:
        counts. In this example `election.yaml` is the name of the output file
        created/overwritten.
 
-   2.) python testDataGenerator.py counts 2 election.yaml sampleballots.yaml
+   2.) python test_data_generator.py counts 2 election.yaml sampleballots.yaml
        This syntax uses an election template (which will have been generated
        already by the first syntactical form) to generate a given number of
        ballot_info records that fit the template, with random values
@@ -36,7 +36,7 @@ testDataGenerator.py:
        `sampleballots.yaml`.
 
 
-helloWorldTabulator.py:
+hello_world_tabulator.py:
 
    This app is a precursor to a fully functional tabulator. It simply takes four
     command line arguments; the last argument will be treated as a filename that
@@ -62,12 +62,12 @@ tabulator.py:
     vote counts found for each candidate is also outputted into `report`.
 
 
-Here is an example of how testDataGenerator.py and tabulator.py can be used
+Here is an example of how test_data_generator.py and tabulator.py can be used
  together with a sequence of commands:
 
-   python testDataGenerator.py election election.yaml
-   python testDataGenerator.py counts 2 election.yaml sampleballots1.yaml
-   python testDataGenerator.py counts 2 election.yaml sampleballots2.yaml
+   python test_data_generator.py election election.yaml
+   python test_data_generator.py counts 2 election.yaml sampleballots1.yaml
+   python test_data_generator.py counts 2 election.yaml sampleballots2.yaml
    python tabulator.py election.yaml sampleballots1.yaml sampleballots2.yaml
     merge.yaml report
 
