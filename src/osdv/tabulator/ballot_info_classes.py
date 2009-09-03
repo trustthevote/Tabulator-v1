@@ -5,9 +5,9 @@
 # Created: Jul 30, 2009
 # Purpose: To define the classes pertinent to a ballot_info record
 
-# Define getter and setter methods for the data members of a ballot info class,
-#  namely the ballot info type, the name of the election, and the list of
-#  contests.
+# Define getter and setter methods for the data members of a ballot info
+#  class, namely the ballot info type, the name of the election, and the
+#  list of contests.
 class BallotInfo(object):
     def __init__(self):
         self.contest_list = []      

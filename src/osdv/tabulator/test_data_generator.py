@@ -12,6 +12,7 @@ import copy
 import uuid
 
 import ballot_info_classes
+import audit_header
 
 # Provides random election specs or random ballot counts
 class ProvideRandomBallots(object):
@@ -28,25 +29,28 @@ class ProvideRandomBallots(object):
         self.already_used_supreme = False
         
         if type == 'election':
-            # Generate a sample election and output it to the location
-            #  specified by the user in the command line, in yaml
-            #  format.        
+        # Generate a sample election and output it to the location
+        #  specified by the user in the command line, in yaml
+        #  format.        
             b = ballot_info_classes.BallotInfo()
             stream = open(args[0], 'w') 
             
-            # Give each file its own GUID header            
-            stream.write("GUID: " + str(uuid.uuid1()) + '\n\n')
+            # Give each file its own audit header            
+            a = audit_header.AuditHeader('precinct_contestlist',
+                'Pito Salas', 'TTV Tabulator TAB02', 
+                'TTV Tabulator 1.2 JUL-1-2008', [])
+            stream.write(a.serialize())
             
             b = self.random_elec()
-            b.set_type("election")
+            b.set_type('precinct_contestlist')
             yaml.dump(b, stream)
         elif type == 'counts':
             # Load election specs from given file in yaml format     
             stream = open(args[1], 'r')
-            stream.readline()
-            stream.readline() # Skip past the audit header
+            for i in range(0,7):  # Skip past the audit header
+                stream.readline()
             e = yaml.load(stream)
-            e.set_type("precinct_contestlist")
+            e.set_type('ballot_counter_total')
         
             # Make the number of random ballot_info records specified by
             #  the user. Use the loaded election specs as a template,
@@ -66,8 +70,11 @@ class ProvideRandomBallots(object):
             #  overwritten.
             stream = open(args[2], 'w')
 
-            # Give each file its own GUID header
-            stream.write("GUID: " + str(uuid.uuid1()) + '\n\n')
+            # Give each file its own audit header            
+            a = audit_header.AuditHeader('ballot_counter_total',
+                'Pito Salas', 'TTV Tabulator TAB02', 
+                'TTV Tabulator 1.2 JUL-1-2008', [])
+            stream.write(a.serialize())
 
             yaml.dump_all(b_list, stream)
         else:

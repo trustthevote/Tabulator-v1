@@ -11,6 +11,7 @@ import sys
 import uuid
 
 import ballot_info_classes
+import audit_header
 
 # Checks validity of two ballot record files against some election
 #  specs, merges them together, and generates a report.
@@ -29,11 +30,17 @@ class Tabulator(object):
             print('Unable to open ' + record_file1 + '\n')
             exit()
         else:
+            # Grab the GUIDs and provenances of this file from the audit
+            #  header, ignore the rest.            
+            guid1 = stream.readline().split(' ')[1]            
+            for i in range(0,5):
+                stream.readline()
+            temp = stream.readline()
+            prov1_str = temp[temp.index(' ') + 1:]
+            prov1_list = prov1_str.replace(',','').split()
+            
             self.b1 = []
-            stream.readline()
-            stream.readline() # Ignore the audit header
-            self.b1 = yaml.load_all(stream)
-        
+            self.b1 = yaml.load_all(stream)        
         try:
             stream = open(record_file2, 'r')
         except:
@@ -41,15 +48,22 @@ class Tabulator(object):
             print('Unable to open ' + record_file2 + '\n')
             exit()
         else:
+            # Grab the GUIDs and provenances of this file from the audit
+            #  header, ignore the rest.
+            guid2 = stream.readline().split(' ')[1]            
+            for i in range(0,5):
+                stream.readline()
+            temp = stream.readline()
+            prov2_str = temp[temp.index(' ') + 1:]
+            prov2_list = prov2_str.replace(',','').split()            
+            
             self.b2 = []
-            stream.readline()
-            stream.readline() # Ignore the audit header
             self.b2 = yaml.load_all(stream)
         
         # Get the election specs from file
         stream = open(election_file, 'r')
-        stream.readline()
-        stream.readline() # Ignore the audit header
+        for i in range(0,7):  # Ignore the audit header
+            stream.readline()
         self.e = yaml.load(stream)
             
         # Verify that ballot records match the election specs in file
@@ -58,33 +72,53 @@ class Tabulator(object):
         # Generators were already iterated over by verify_match_record,
         #  so reload.
         stream = open(record_file1, 'r')
-        stream.readline()
-        stream.readline() # Ignore the audit header
+        for i in range(0,7):  # Ignore the audit header
+            stream.readline()
         self.b1 = yaml.load_all(stream)
         stream = open(record_file2, 'r')
-        stream.readline()
-        stream.readline() # Ignore the audit header
+        for i in range(0,7):  # Ignore the audit header
+            stream.readline()
         self.b2 = yaml.load_all(stream)
         
-        # Add the vote counts of candidates with the same ID#  using
-        #  merge(), and output the results to the given merge file name
-        m = self.merge()        
-        stream = open(merge_output_file, 'w')
+        stream = open(merge_output_file, 'w')    
         
-        # Give each file its own GUID header.            
-        stream.write("GUID: " + str(uuid.uuid1()) + '\n\n')
+        # Combine provenances and guids from input files
+        new_prov = []
+        new_prov.extend(prov1_list)
+        new_prov.extend(prov2_list)
+        new_prov.append(guid1.strip())
+        new_prov.append(guid2.strip())
         
-        yaml.dump(m, stream)
+        # If the same GUID appears twice, then abort the merge
+        for guid in new_prov:
+            if new_prov.count(guid) > 1:
+                print "Input files contain the same ballot record, merge aborted\n"
+                self.rstream.write("Input files contain the same ballot record, merge aborted\n")
+                exit()
+                
+        
+        a = audit_header.AuditHeader('tabulator_aggregation',
+            'Pito Salas', 'TTV Tabulator TAB02', 
+            'TTV Tabulator 1.2 JUL-1-2008', new_prov)
+        stream.write(a.serialize())        
 
-        # Write the vote totals for each candidate to the report stream
+        # Concatenate the two input files, minus their headers, into the
+        #  output file.        
+        yaml.dump_all(self.b1, stream)
+        stream.write('--- ')
+        yaml.dump_all(self.b2, stream)
+
+        # Add the vote counts of candidates with the same ID# using
+        #  merge(). Write the vote totals for each candidate to the
+        #  report stream.
+        m = self.merge()
         self.rstream.write('\n')
         for i in range(len(m.get_contest_list())):
             for j in range(len(m.get_contest_list()[i].get_candidate_list())):
                 tot = m.get_contest_list()[i].get_candidate_list()[j].get_count()
                 name = m.get_contest_list()[i].get_candidate_list()[j].get_display_name()
                 self.rstream.write(str(tot) + ' votes found for ' + name + '\n')
-        
-        # Close any open streams
+                
         stream.close()
         self.rstream.close()
         
@@ -178,8 +212,8 @@ def main():
                   sys.argv[5])
     
     print "Successfully merged " + sys.argv[2] + " and " + sys.argv[3],
-    print "together\n The results are stored in " + sys.argv[4]
-    print "A report describing the features of the merge was created",
+    print "together\n The result is stored in " + sys.argv[4]
+    print "A report describing attributes of the merge was created",
     print "in " + sys.argv[5]   
     
     return 0
