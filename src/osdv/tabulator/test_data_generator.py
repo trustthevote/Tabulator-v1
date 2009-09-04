@@ -47,7 +47,7 @@ class ProvideRandomBallots(object):
         elif type == 'counts':
             # Load election specs from given file in yaml format     
             stream = open(args[1], 'r')
-            for i in range(0,7):  # Skip past the audit header
+            for i in range(0,8):  # Ignore the audit header
                 stream.readline()
             e = yaml.load(stream)
             e.set_type('ballot_counter_total')

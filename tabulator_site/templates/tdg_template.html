@@ -9,9 +9,9 @@
                 //Hide or show the appropriate fields when the user
                 // chooses to generate either an election template or
                 // random vote counts.
-                $("#generationMode").change( function() {
-                    idx = generationMode.selectedIndex;
-                    val = generationMode[idx].value;
+                $("#genMode").change( function() {
+                    idx = document.getElementById("genMode").selectedIndex;
+                    val = document.getElementById("genMode")[idx].value;
                     if(val=="election") {
                         $(".hideUs").addClass('noDisplay');                     
                     }
@@ -43,15 +43,15 @@
                     //Gather a list of arguments, the size of which
                     // depends on the type of data to generate.
                     args = new Array();
-                    idx = generationMode.selectedIndex;
-                    val = generationMode[idx].value;
+                    idx = document.getElementById("genMode").selectedIndex;
+                    val = document.getElementById("genMode")[idx].value;
                     if(val=="election") {                       
-                        args.push(outputFilename.value);                        
+                        args.push(document.getElementById("outputFilename").value);                        
                     }                   
                     if(val=="counts") {                     
-                        args.push(howMany.value);
-                        args.push(electionTemplate.value);
-                        args.push(outputFilename.value);
+                        args.push(document.getElementById("howMany").value);
+                        args.push(document.getElementById("electionTemplate").value);
+                        args.push(document.getElementById("outputFilename").value);
                     }
                     
                     //Check to see if the user gave an output filename
@@ -69,7 +69,7 @@
                     // arguments to the server.
                     if((alreadyExists == false) || (overw == true)) {                        
                         args = JSON.stringify(args)
-                        $.post(".", {'arguments':args}, function(){
+                        $.post(".", {'arguments':args}, function(){                            
                             location.reload(true);
                         });                        
                     }
@@ -149,8 +149,8 @@
     <body>
         <h2>Generate New Files</h2>
         <div id=args>
-            <div><label for="generationMode">Data type:</label>
-            <select id="generationMode" class="argInputs">
+            <div><label for="genMode">Data type:</label>
+            <select id="genMode" class="argInputs">
                 <option value="election">Random election template</option>
                 <option value="counts">Random vote counts</option>
             </select></div>

@@ -23,13 +23,14 @@ class AuditHeader(object):
     
     # Convert audit header data into a specific string format
     def serialize(self):
-        return 'file_id: ' + self.file_id + '\n' + \
-            'create_date: ' + self.stringify_date(self.create_date) + '\n' + \
-            'type: ' + self.type + '\n' + \
-            'operator: ' + self.operator + '\n' + \
-            'hardware: ' + self.hardware + '\n' + \
-            'software: ' + self.software + '\n' + \
-            'provenance: ' + self.stringify_list(self.provenance) + '\n\n'
+        return 'Ballot-header:\n' + \
+            '   file_id: ' + self.file_id + '\n' + \
+            '   create_date: ' + self.stringify_date(self.create_date) + '\n' + \
+            '   type: ' + self.type + '\n' + \
+            '   operator: ' + self.operator + '\n' + \
+            '   hardware: ' + self.hardware + '\n' + \
+            '   software: ' + self.software + '\n' + \
+            '   provenance: ' + self.stringify_list(self.provenance) + '\n\n\n'
 
     # Convert a date object to a specific string format
     def stringify_date(self, date):

@@ -32,6 +32,7 @@ class Tabulator(object):
         else:
             # Grab the GUIDs and provenances of this file from the audit
             #  header, ignore the rest.            
+            stream.readline()
             guid1 = stream.readline().split(' ')[1]            
             for i in range(0,5):
                 stream.readline()
@@ -50,6 +51,7 @@ class Tabulator(object):
         else:
             # Grab the GUIDs and provenances of this file from the audit
             #  header, ignore the rest.
+            stream.readline()
             guid2 = stream.readline().split(' ')[1]            
             for i in range(0,5):
                 stream.readline()
@@ -62,7 +64,7 @@ class Tabulator(object):
         
         # Get the election specs from file
         stream = open(election_file, 'r')
-        for i in range(0,7):  # Ignore the audit header
+        for i in range(0,8):  # Ignore the audit header
             stream.readline()
         self.e = yaml.load(stream)
             
@@ -72,11 +74,11 @@ class Tabulator(object):
         # Generators were already iterated over by verify_match_record,
         #  so reload.
         stream = open(record_file1, 'r')
-        for i in range(0,7):  # Ignore the audit header
+        for i in range(0,8):  # Ignore the audit header
             stream.readline()
         self.b1 = yaml.load_all(stream)
         stream = open(record_file2, 'r')
-        for i in range(0,7):  # Ignore the audit header
+        for i in range(0,8):  # Ignore the audit header
             stream.readline()
         self.b2 = yaml.load_all(stream)
         

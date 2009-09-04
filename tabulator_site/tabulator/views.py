@@ -16,7 +16,7 @@ def TDG_home(request):
     if request.method == 'POST':
         # Check to see if the client wants to generate a file
         if request.POST.has_key('arguments'):            
-            # Get and deserialize the users arguemnts from JSON
+            # Get and deserialize the users arguments from JSON
             args = request.POST.getlist('arguments')
             args = json.loads(args[0])
 
@@ -38,8 +38,8 @@ def TDG_home(request):
         elif request.POST.has_key('old_name'):
             old_name = request.POST['old_name']
             new_name = request.POST['new_name']
-            os.rename(settings.DATA_PATH_TDG + old_name
-                ,settings.DATA_PATH_TDG + new_name)
+            os.rename(settings.DATA_PATH_TDG + old_name,
+                settings.DATA_PATH_TDG + new_name)
         # Check to see if client wants the contents of a generated file
         elif request.POST.has_key('display_this'):
             display_me = request.POST['display_this']
