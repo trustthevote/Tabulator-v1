@@ -30,15 +30,10 @@ class Tabulator(object):
             print('Unable to open ' + record_file1 + '\n')
             exit()
         else:
-            # Grab the GUIDs and provenances of this file from the audit
-            #  header, ignore the rest.            
-            stream.readline()
-            guid1 = stream.readline().split(' ')[1]            
-            for i in range(0,5):
-                stream.readline()
-            temp = stream.readline()
-            prov1_str = temp[temp.index(' ') + 1:]
-            prov1_list = prov1_str.replace(',','').split()
+            a = audit_header.AuditHeader()
+            a.load_from_file(stream)
+            guid1 = a.file_id
+            prov1 = a.provenance
             
             self.b1 = []
             self.b1 = yaml.load_all(stream)        
@@ -49,15 +44,10 @@ class Tabulator(object):
             print('Unable to open ' + record_file2 + '\n')
             exit()
         else:
-            # Grab the GUIDs and provenances of this file from the audit
-            #  header, ignore the rest.
-            stream.readline()
-            guid2 = stream.readline().split(' ')[1]            
-            for i in range(0,5):
-                stream.readline()
-            temp = stream.readline()
-            prov2_str = temp[temp.index(' ') + 1:]
-            prov2_list = prov2_str.replace(',','').split()            
+            a = audit_header.AuditHeader()
+            a.load_from_file(stream)
+            guid2 = a.file_id
+            prov2 = a.provenance
             
             self.b2 = []
             self.b2 = yaml.load_all(stream)
@@ -86,29 +76,23 @@ class Tabulator(object):
         
         # Combine provenances and guids from input files
         new_prov = []
-        new_prov.extend(prov1_list)
-        new_prov.extend(prov2_list)
-        new_prov.append(guid1.strip())
-        new_prov.append(guid2.strip())
+        new_prov.extend(prov1)
+        new_prov.extend(prov2)
+        new_prov.append(guid1)
+        new_prov.append(guid2)        
         
         # If the same GUID appears twice, then abort the merge
         for guid in new_prov:
             if new_prov.count(guid) > 1:
                 print "Input files contain the same ballot record, merge aborted\n"
                 self.rstream.write("Input files contain the same ballot record, merge aborted\n")
-                exit()
-                
+                exit()          
         
-        a = audit_header.AuditHeader('tabulator_aggregation',
-            'Pito Salas', 'TTV Tabulator TAB02', 
-            'TTV Tabulator 1.2 JUL-1-2008', new_prov)
+        a = audit_header.AuditHeader()
+        a.set_fields('precinct_contestlist',
+                     'Pito Salas', 'TTV Tabulator TAB02', 
+                     'TTV Tabulator 1.2 JUL-1-2008', new_prov)
         stream.write(a.serialize())        
-
-        # Concatenate the two input files, minus their headers, into the
-        #  output file.        
-        yaml.dump_all(self.b1, stream)
-        stream.write('--- ')
-        yaml.dump_all(self.b2, stream)
 
         # Add the vote counts of candidates with the same ID# using
         #  merge(). Write the vote totals for each candidate to the
@@ -120,6 +104,22 @@ class Tabulator(object):
                 tot = m.get_contest_list()[i].get_candidate_list()[j].get_count()
                 name = m.get_contest_list()[i].get_candidate_list()[j].get_display_name()
                 self.rstream.write(str(tot) + ' votes found for ' + name + '\n')
+
+        # Generators were already iterated over by merge, so reload.
+        read_stream = open(record_file1, 'r')
+        for i in range(0,8):  # Ignore the audit header
+            read_stream.readline()
+        self.b1 = yaml.load_all(read_stream)
+        read_stream = open(record_file2, 'r')
+        for i in range(0,8):  # Ignore the audit header
+            read_stream.readline()
+        self.b2 = yaml.load_all(read_stream)
+
+        # Concatenate the two input files, minus their headers, into the
+        #  output file.
+        yaml.dump_all(self.b1, stream)
+        stream.write('--- ')
+        yaml.dump_all(self.b2, stream)
                 
         stream.close()
         self.rstream.close()

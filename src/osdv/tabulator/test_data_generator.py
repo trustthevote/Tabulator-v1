@@ -36,9 +36,10 @@ class ProvideRandomBallots(object):
             stream = open(args[0], 'w') 
             
             # Give each file its own audit header            
-            a = audit_header.AuditHeader('precinct_contestlist',
-                'Pito Salas', 'TTV Tabulator TAB02', 
-                'TTV Tabulator 1.2 JUL-1-2008', [])
+            a = audit_header.AuditHeader()
+            a.set_fields('precinct_contestlist',
+                         'Pito Salas', 'TTV Tabulator TAB02', 
+                         'TTV Tabulator 1.2 JUL-1-2008', [])
             stream.write(a.serialize())
             
             b = self.random_elec()
@@ -71,9 +72,10 @@ class ProvideRandomBallots(object):
             stream = open(args[2], 'w')
 
             # Give each file its own audit header            
-            a = audit_header.AuditHeader('ballot_counter_total',
-                'Pito Salas', 'TTV Tabulator TAB02', 
-                'TTV Tabulator 1.2 JUL-1-2008', [])
+            a = audit_header.AuditHeader()
+            a.set_fields('precinct_contestlist',
+                         'Pito Salas', 'TTV Tabulator TAB02', 
+                         'TTV Tabulator 1.2 JUL-1-2008', [])
             stream.write(a.serialize())
 
             yaml.dump_all(b_list, stream)

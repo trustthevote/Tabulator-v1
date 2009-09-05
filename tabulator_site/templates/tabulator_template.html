@@ -5,34 +5,182 @@
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js" type="text/javascript"></script>
         <script src="http://www.json.org/json2.js" type="text/javascript"></script>
         <script type="text/javascript">
-            $(document).ready(function() {              
-                $("#runButton").click( function() {                 
-                    $.post(".", {'HelloWorld':' '}, function(data){
-                        data = data.replace(/\n/g, "<br/>");
-                        data = data.replace(/ /g, '&nbsp;');
-                        $("#displayFile").replaceWith('<div id = "displayFile"><h4>helloWorld</h4><p>'
-                         + data + '</p></div>');
+            $(document).ready(function() {
+                //Post file generation arguments to the server when the
+                // user clicks the "run" button.
+                $("#argsButton").click( function() {
+                    //Gather a list of arguments, the size of which
+                    // depends on the type of data to generate.
+                    args = new Array();
+                    idx = document.getElementById("templateFile").selectedIndex;
+                    args.push(document.getElementById("templateFile")[idx].value);
+                    idx = document.getElementById("inputFile1").selectedIndex;
+                    args.push(document.getElementById("inputFile1")[idx].value);
+                    idx = document.getElementById("inputFile2").selectedIndex;
+                    args.push(document.getElementById("inputFile2")[idx].value);
+                    args.push(document.getElementById("mergeName").value);
+
+                    //Check to see if the user gave an output filename
+                    // that is already in use. If so, then prompt to
+                    // confirm overwrite.
+                    fname1 = args[args.length-1];
+                    alreadyExists = false;
+                    overw = false;
+                    if($("[name="+fname1+"]").length!=0) {
+                        alreadyExists = true;
+                        overw = confirm("Overwrite file " + fname1 + "?");
+                    }
+                    //If the filename was not already in use, or the
+                    // user confirmed the overwrite, then post
+                    // arguments to the server.
+                    if((alreadyExists == false) || (overw == true)) {
+                        args = JSON.stringify(args)
+                        $.post(".", {'arguments':args}, function(){
+                            location.reload(true);
+                        });
+                    }
+                });
+
+                //Replace the .displayFile divs with the content of the
+                // generated files when the name of a file is clicked.
+                $("a.fileLinks").click( function() {
+                    fname = $(this).attr("name");
+                    $.post(".", {'display_this':fname}, function(data){
+                            data = JSON.parse(data)
+                            merge = data["merge"].join("");
+                            report = data["report"].join("");
+
+                            //Make spaces and newlines in the files
+                            // consistent with HTML
+                            merge = merge.replace(/\n/g, "<br/>");
+                            merge = merge.replace(/ /g, '&nbsp;');
+                            report = report.replace(/\n/g, "<br/>");
+                            report = report.replace(/ /g, '&nbsp;');
+
+                            //Generate markup that displays the contents
+                            // of the files.
+                            $("#mergedFile").replaceWith('<div class = "displayFile topPadding" id = "mergedFile"><h4>'
+                             + fname + '</h4><p>'+ merge + '</p></div>');
+                            $("#reportFile").replaceWith('<div class = "displayFile topPadding" id = "reportFile"><h4>'
+                             + fname + ' report</h4><p>'+ report + '</p></div>');
+                        });
+                });
+
+                //When the delete button is clicked, make a list of
+                // checked filenames. Post them to the server, flagged
+                // for deletion, and remove corresponding html elements.
+                $("#delButton").click( function() {
+                    checkedFiles = new Array();
+                    $("[type='checkbox']:checked").each(function() {
+                        checkedFiles.push(this.id);
+                        $(this).parents("div").remove();
                     });
+                    $.post(".", {'delete':checkedFiles});
+                });
+
+                //When the rename buton is clicked, for each checked
+                // filename display a textbox to the user allowing them
+                // to rename checked files.
+                $("#renButton").click( function() {
+                    $("[type='checkbox']:checked").each(function() {
+                        this.checked = false; //Uncheck checked boxes
+                        $(this).addClass("hide");
+                        $(this).next().addClass("noDisplay");
+                        $(this).next().next().attr("value", $(this).attr("name"));
+                        $(this).next().next().removeClass("noDisplay");
+                        $(this).next().next().next().removeClass("noDisplay");
+                    });
+                });
+
+                //When the user is done renaming a file, post that data
+                // to update the server on the change.
+                $(".renDone").click( function() {
+                    //Gather the original filename and the new filename.
+                    oldName = ($(this).attr("name"));
+                    newName = ($(this).prev().attr("value"));
+
+                    //Change the names of corresponding HTML elements
+                    $("a[name="+oldName+"]").attr({innerHTML: newName});
+                    $("[name="+oldName+"]").attr("name", newName);
+                    $("[id="+oldName+"]").attr({id:newName});
+
+                    //Update the server
+                    $.post(".", {'old_name':oldName, 'new_name':newName});
+
+                    //Remove the textbox and button, restore the
+                    // checkbox and link.
+                    $(this).addClass("noDisplay");
+                    $(this).prev().addClass("noDisplay");
+                    $(this).prev().prev().removeClass("noDisplay");
+                    $(this).prev().prev().prev().removeClass("hide");
                 });
             });
         </script>
 
         <style type="text/css">
-            div#displayFile {padding-bottom:40px; width:590px}              
-            div#displayFile p {background-color:#E8E8E8;
-                               font-size:12px;
-                               font-family:"Courier New",Monospace;
-                               padding-top:10px;
-                               padding-left:10px;
-                               padding-bottom:10px}
-            body {background-color:#FFE8BE}     
+            div#args div {font-weight:bold; padding-bottom:20px}
+            .argInputs {position:absolute; left:290px}          
+            .displayFile {padding-bottom:20px; width:670px}
+            .displayFile p {background-color:#E8E8E8;
+                            font-size:12px;
+                            font-family:"Courier New",Monospace;
+                            padding-top:10px;
+                            padding-left:10px;
+                            padding-bottom:10px}
+            .hide {visibility:hidden}
+            .fileButtons {padding-top:10px}
+            .noDisplay {display:none}
+            .topPadding {padding-top:30px}
+            a.fileLinks {color:blue}
+            body {background-color:#FFE8BE}
         </style>
 
     </head>
 
     <body>
-        <input type="submit" value="Run" id="runButton" />
-        <div id = "displayFile">        
+        <h2>Tabulate Files</h2>
+        
+        <div id=args>
+            <div><label for="templateFile">Election template file name:</label>
+            <select id="templateFile" class="argInputs">
+                <option value="Nil">(Please select a file)</option>
+                {% for file in prec_files %}
+                    <option value="{{file}}">{{file}}</option>
+                {% endfor %}
+            </select></div>
+            <div><label for="inputFile1">First input file name:</label>
+            <select id="inputFile1" class="argInputs">
+                <option value="Nil">(Please select a file)</option>
+                {% for file in bal_files %}
+                    <option value="{{file}}">{{file}}</option>
+                {% endfor %}
+            </select></div>       
+            <div><label for="inputFile2">Second input file name:</label>
+            <select id="inputFile2" class="argInputs">
+                <option value="Nil">(Please select a file)</option>
+                {% for file in bal_files %}
+                    <option value="{{file}}">{{file}}</option>
+                {% endfor %}
+            </select></div>
+            <div><label>Merged output file name:</label><input type="text" id="mergeName" class="argInputs" /></div>
+            <input type="submit" value="Run" id="argsButton" />
+        </div>
+        
+        <div class = "displayFile" id="mergedFile"></div>
+        <div class = "displayFile" id="reportFile"></div>
+
+        <h2>Merged Files</h2>        
+        {% for file in tab_files %}
+            <div>
+                <input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
+                <a class="fileLinks" name="{{ file }}" href="#top">{{ file }}</a>
+                <input type="text" class="renText noDisplay" name="{{ file }}" />
+                <input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />
+            </div>
+        {% endfor %}
+        <div class="fileButtons">
+            <input type = "submit" value = "Delete" id = "delButton" />
+            <input type = "submit" value = "Rename" id = "renButton" />
         </div>
     </body>
 </html>

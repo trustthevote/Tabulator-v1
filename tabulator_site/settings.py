@@ -93,8 +93,7 @@ INSTALLED_APPS = (
 
 # Constants indicating where on the server generated data will be
 #  stored.
-DATA_PARENT = '/var/lib/'
-DATA_FOLDER_TDG = 'test_data_generator'
-DATA_FOLDER_TAB = 'tabulator'
-DATA_PATH_TDG = DATA_PARENT + '/' + DATA_FOLDER_TDG + '/'
-DATA_PATH_TAB = DATA_PARENT + '/' + DATA_FOLDER_TAB + '/'
+DATA_PARENT = '/var/lib'
+DATA_FOLDER = 'osdv_tabulator'
+DATA_PATH = DATA_PARENT + '/' + DATA_FOLDER + '/'
+

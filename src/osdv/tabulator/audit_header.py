@@ -10,17 +10,46 @@ from datetime import datetime
 
 # A data structure and API for audit headers
 class AuditHeader(object):    
-    def __init__ (self, file_type, operator, hardware, software, provenance):
+    def __init__ (self):
         # Put a new GUID into file_id, put a UTC timestamp in
         #  create_date. The other variables are specified by the caller.
+        self.file_id = ''
+        self.create_date = ''
+        self.type = ''
+        self.operator = ''
+        self.hardware = ''
+        self.software = ''
+        self.provenance = ''
+
+    # Set the last five data members, generate the first two
+    def set_fields (self, type, operator, hardware, software, provenance):
         self.file_id = uuid1().hex.upper()
         self.create_date = datetime.utcnow()
-        self.type = file_type
+        self.type = type
         self.operator = operator
         self.hardware = hardware
         self.software = software
         self.provenance = provenance
     
+    # Loads and deserializes the file_id, type, and provenance of a
+    #  ballot header pulled from a given file stream
+    def load_from_file(self, stream):
+        stream.readline()  # Ignore the title part of the header
+        
+        temp = stream.readline()
+        self.file_id = temp[temp.rfind(' ') + 1:].strip()
+               
+        stream.readline()
+        temp = stream.readline()
+        self.type = temp[temp.rfind(' ') + 1:].strip()
+        stream.readline()
+        stream.readline()
+        stream.readline()
+                
+        temp = stream.readline()        
+        prov2_str = temp[temp.find(':') + 2:].strip()
+        self.provenance = prov2_str.replace(',','').split()
+
     # Convert audit header data into a specific string format
     def serialize(self):
         return 'Ballot-header:\n' + \
