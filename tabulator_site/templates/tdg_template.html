@@ -69,9 +69,9 @@
                     // arguments to the server.
                     if((alreadyExists == false) || (overw == true)) {                        
                         args = JSON.stringify(args)
-                        $.post(".", {'arguments':args}, function(){                            
-                            location.reload(true);
-                        });                        
+                        $.post(".", {'arguments':args}, function(){							
+							location.reload(true);
+                        });
                     }
                 });
                 

@@ -30,14 +30,14 @@ def TDG_home(request):
                 type = 'counts'
                 args[1] = settings.DATA_PATH + 'prec_cont/' + args[1]
                 args[2] = settings.DATA_PATH + 'bal_count_tot/' + args[2]
-            P = TDG.ProvideRandomBallots(type, args)  # Make a file
+            P = TDG.ProvideRandomBallots(type, args)  # Make a file            
         # Check to see if client wants to delete file(s)
         elif request.POST.has_key('delete'):
             for file in request.POST.getlist('delete'):
                 if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file) == 1:
                     os.remove(settings.DATA_PATH + 'prec_cont/' + file)
                 else:
-                    os.remove(settings.DATA_PATH + 'bal_count_tot/' + file)
+                    os.remove(settings.DATA_PATH + 'bal_count_tot/' + file)                
         # Check to see if client wants to rename a file
         elif request.POST.has_key('old_name'):
             old_name = request.POST['old_name']
@@ -60,7 +60,7 @@ def TDG_home(request):
                             
     # Make the subdirectory specified by DATA_PATH within the
     #  directory DATA_PARENT, if it does not exist already. Generated
-    #  test data files will go here.
+    #  test data files will go here.    
     if os.listdir(settings.DATA_PARENT).count(settings.DATA_FOLDER) == 0:
         os.mkdir(settings.DATA_PATH)
     if os.listdir(settings.DATA_PATH).count('prec_cont') == 0:

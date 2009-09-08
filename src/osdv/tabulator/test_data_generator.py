@@ -25,7 +25,6 @@ class ProvideRandomBallots(object):
         self.already_used_dreps = []
         self.already_used_names = []
         self.already_used_cand_idents = []
-        self.already_used_cont_did = []
         self.already_used_supreme = False
         
         if type == 'election':
@@ -168,14 +167,27 @@ class ProvideRandomBallots(object):
         
         # The district number and the voting machine number are 
         #  randomly generated.
-        while True:
-            r = random.randint(10,99)
-            if self.already_used_cont_did.count(r) == 0:
-                self.already_used_cont_did.append(r)
-                cont.set_district_id("DIST-" + str(r))
-                break           
+        r = random.randint(0,6)
+        if r == 0:
+            cont.set_district_id("PRES")
+        if r == 1:
+            r2 = random.randint(1,10)
+            cont.set_district_id("USREP " + str(r2))
+        if r == 2:
+            r2 = random.randint(1,10)
+            cont.set_district_id("HOUSE " + str(r2))
+        if r == 3:
+            r2 = random.randint(1,10)
+            cont.set_district_id("SENATE " + str(r2))
+        if r == 4:
+            cont.set_district_id("SOILWATER")
+        if r == 5:
+            cont.set_district_id("HARBOR")          
+        if r == 6:
+            r2 = random.randint(1,5)
+            cont.set_district_id("SCHOOL " + str(r2))
+
         cont.set_voting_method_id("VOTM-" + str(random.randint(1,5)))        
-        
         return cont
 
     # Makes and returns a candidate object with initialized data members
