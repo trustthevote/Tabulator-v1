@@ -119,6 +119,8 @@
 
         <style type="text/css">
             div#args div {font-weight:bold; padding-bottom:20px}
+            div#versionInfo {padding-top:70px; font-style:italic;
+                             font-size:12px}
             .argInputs {position:absolute; left:290px}          
             .displayFile {padding-bottom:20px; width:670px}
             .displayFile p {background-color:#E8E8E8;
@@ -143,21 +145,18 @@
         <div id=args>
             <div><label for="templateFile">Election template file name:</label>
             <select id="templateFile" class="argInputs">
-                <option value="Nil">(Please select a file)</option>
                 {% for file in prec_files %}
                     <option value="{{file}}">{{file}}</option>
                 {% endfor %}
             </select></div>
             <div><label for="inputFile1">First input file name:</label>
             <select id="inputFile1" class="argInputs">
-                <option value="Nil">(Please select a file)</option>
                 {% for file in bal_files %}
                     <option value="{{file}}">{{file}}</option>
                 {% endfor %}
             </select></div>       
             <div><label for="inputFile2">Second input file name:</label>
             <select id="inputFile2" class="argInputs">
-                <option value="Nil">(Please select a file)</option>
                 {% for file in bal_files %}
                     <option value="{{file}}">{{file}}</option>
                 {% endfor %}
@@ -181,6 +180,13 @@
         <div class="fileButtons">
             <input type = "submit" value = "Delete" id = "delButton" />
             <input type = "submit" value = "Rename" id = "renButton" />
+        </div>
+        <div id = "versionInfo">
+            <p>
+            {% for line in version %}
+                {{ line }}<br/>
+            {% endfor %}
+            </p>
         </div>
     </body>
 </html>

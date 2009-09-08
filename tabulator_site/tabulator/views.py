@@ -73,8 +73,12 @@ def TDG_home(request):
     prec_files = os.listdir(settings.DATA_PATH + 'prec_cont/')
     bal_files = os.listdir(settings.DATA_PATH + 'bal_count_tot/')
     files = sorted(prec_files + bal_files)    
+
+    # Get version / last revision info from file
+    stream = open('VERSION', 'r')
+    version = stream.readlines()
     
-    c = Context({'file_list': files})
+    c = Context({'file_list':files, 'version':version})
     return render_to_response('tdg_template.html', c)
 
 def tabulator_home(request):
@@ -139,6 +143,11 @@ def tabulator_home(request):
     tab_files = os.listdir(settings.DATA_PATH + 'tab_aggr/')
     reports = os.listdir(settings.DATA_PATH + 'reports/')
 
+    # Get version / last revision info from file
+    stream = open('VERSION', 'r')
+    version = stream.readlines()
+
     c = Context({'prec_files':prec_files, 'bal_files':bal_files,
-                 'tab_files':tab_files, 'reports':reports })
+                 'tab_files':tab_files, 'reports':reports,
+                 'version':version})
     return render_to_response('tabulator_template.html', c)

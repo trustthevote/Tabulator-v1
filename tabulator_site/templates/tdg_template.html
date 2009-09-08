@@ -136,6 +136,8 @@
                                padding-top:10px;
                                padding-left:10px;
                                padding-bottom:10px}
+            div#versionInfo {padding-top:70px; font-style:italic;
+                             font-size:12px}
             .argInputs {position:absolute; left:290px}          
             .hide {visibility:hidden}
             .fileButtons {padding-top:10px}
@@ -175,6 +177,13 @@
         <div class="fileButtons">
             <input type = "submit" value = "Delete" id = "delButton" />
             <input type = "submit" value = "Rename" id = "renButton" />
+        </div>
+        <div id = "versionInfo">
+            <p>
+            {% for line in version %}
+                {{ line }}<br/>
+            {% endfor %}
+            </p>
         </div>
     </body>
 </html>
