@@ -50,7 +50,8 @@
                     }                   
                     if(val=="counts") {                     
                         args.push(document.getElementById("howMany").value);
-                        args.push(document.getElementById("electionTemplate").value);
+                        idx = document.getElementById("templateFile").selectedIndex;
+                        args.push(document.getElementById("templateFile")[idx].value);
                         args.push(document.getElementById("outputFilename").value);
                     }
                     
@@ -157,7 +158,12 @@
                 <option value="counts">Random vote counts</option>
             </select></div>
             <div class="hideUs noDisplay"><label>Number of records in file:</label><input type="text" id="howMany" class="argInputs" /></div>
-            <div class="hideUs noDisplay"><label>Election template file name:</label><input type="text" id="electionTemplate" class="argInputs" /></div>
+            <div class="hideUs noDisplay"><label for="templateFile">Election template file name:</label>
+            <select id="templateFile" class="argInputs">
+                {% for file in prec_files %}
+                    <option value="{{file}}">{{file}}</option>
+                {% endfor %}
+            </select></div>
             <div><label>Output file name:</label><input type="text" id="outputFilename" class="argInputs" /></div>
             <input type="submit" value="Run" id="argsButton" />
         </div>

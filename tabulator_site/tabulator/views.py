@@ -79,7 +79,7 @@ def TDG_home(request):
     stream = open('VERSION', 'r')
     version = stream.readlines()
     
-    c = Context({'file_list':files, 'version':version})
+    c = Context({'file_list':files, 'prec_files':prec_files, 'version':version})
     return render_to_response('tdg_template.html', c)
 
 def tabulator_home(request):
@@ -97,8 +97,7 @@ def tabulator_home(request):
             args[2] = settings.DATA_PATH + 'bal_count_tot/' + args[2]
             fname = args[3]
             args[3] = settings.DATA_PATH + 'tab_aggr/' + args[3]
-            args.append(settings.DATA_PATH + 'reports/' + fname + '_report')
-            print args;
+            args.append(settings.DATA_PATH + 'reports/' + fname + '_report')            
 
             P = tabulator.Tabulator(args[0], args[1], args[2], args[3], args[4])
         elif request.POST.has_key('delete'):

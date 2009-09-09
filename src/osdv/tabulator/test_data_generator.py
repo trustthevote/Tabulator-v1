@@ -25,12 +25,22 @@ class ProvideRandomBallots(object):
         self.already_used_names = []
         self.already_used_cand_idents = []
         self.already_used_supreme = False
+        self.fname_list = []
+        self.lname_list = []
+
         
         if type == 'election':
         # Generate a sample election and output it to the location
         #  specified by the user in the command line, in yaml
         #  format.        
             b = {}
+
+            # Load a list of first and last names from file
+            stream = open('first_names', 'r')
+            self.fnames = stream.readlines()
+            stream = open('last_names', 'r')
+            self.lnames = stream.readlines()
+
             stream = open(args[0], 'w') 
             
             # Give each file its own audit header            
@@ -133,7 +143,7 @@ class ProvideRandomBallots(object):
                     elif r == 3:
                         cont['ident'] = 'Rep3rdDistrict'
                     else:
-                        cont['ident'] = 'Rep"+str(r)+"thDistrict'
+                        cont['ident'] = 'Rep'+str(r)+'thDistrict'
                     break
         elif r == 2:
             cont['display_name'] = 'State Representative'
@@ -208,16 +218,9 @@ class ProvideRandomBallots(object):
     
     # Makes and returns a random full name string
     def random_fullname(self):
-        # A pool of first and last names to choose from
-        first_name_list = ['Adam', 'Barbara', 'Corey', 'Derek', 'Emily',
-                           'Frank', 'Greg', 'Harriet', 'Ilsie', 'Joey']
-        last_name_list = ['Anders', 'Brenner', 'Callihan', 'Davis',
-                          'Elmhurst', 'Fawcett', 'Garrison', 'House',
-                          'Imamura', 'Jackson']
-        
         # Generate a first and last name combination
-        fname = first_name_list[random.randint(0,9)]
-        lname = last_name_list[random.randint(0,9)]
+        fname = self.fnames[random.randint(0, len(self.fnames) - 1)].strip()
+        lname = self.lnames[random.randint(0, len(self.lnames) - 1)].strip()
         fullname = fname + ' ' + lname
         
         if self.already_used_names.count(fullname) == 0:
