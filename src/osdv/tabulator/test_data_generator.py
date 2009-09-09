@@ -68,10 +68,10 @@ class ProvideRandomBallots(object):
             b_list = []
             for i in range(0, int(args[0])):
                 b = copy.deepcopy(e)                
-                for j in range(0, len(b['contest_list'])):
-                    for k in range(0, len(b['contest_list'][j]['candidate_list'])):
+                for j in range(0, len(b['conts'])):
+                    for k in range(0, len(b['conts'][j]['cands'])):
                         r = random.randint(0,99)
-                        b['contest_list'][j]['candidate_list'][k]['count'] = [r]
+                        b['conts'][j]['cands'][k]['count'] = r
                 b_list.append(b)
             
             # Store the results in yaml format back into the specified 
@@ -102,10 +102,10 @@ class ProvideRandomBallots(object):
         b['election_name'] = str(r*4+2000) + " Presidential"
         
         # Generate a few contests
-        b['contest_list'] = []
+        b['conts'] = []
         r = random.randint(2,5)
         for i in range(0,r):
-            b['contest_list'].append(self.random_contest())            
+            b['conts'].append(self.random_contest())            
         return b
 
     # Makes and returns a contest object with initialized data members
@@ -113,10 +113,10 @@ class ProvideRandomBallots(object):
         cont = {}
 
         # Generate a few candidates per contest
-        cont['candidate_list'] = []
+        cont['cands'] = []
         r = random.randint(3,5)
         for i in range(0,r):            
-            cont['candidate_list'].append(self.random_candidate())
+            cont['cands'].append(self.random_candidate())
         
         # Make sure that a maximum of one supreme court justice contest
         #  is generated.
@@ -203,7 +203,7 @@ class ProvideRandomBallots(object):
         
         # Count just gets a null value, since it is irrelevant to the
         #  specs generated here.
-        cand['count'] = [0]
+        cand['count'] = 0
         
         cand['display_name'] = self.random_fullname()
         while True:

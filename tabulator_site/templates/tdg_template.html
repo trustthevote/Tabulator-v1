@@ -31,9 +31,10 @@
                             data = data.replace(/ /g, '&nbsp;');
 
                             //Generate markup that displays the contents
-                            // of the file.
+                            // of the file. Scroll to top of page
                             $("#displayFile").replaceWith('<div id = "displayFile"><h4>'
                              + fname + '</h4><p>'+ data + '</p></div>');
+                            scroll(0,0);
                         });
                 });
                 
@@ -141,7 +142,9 @@
             .hide {visibility:hidden}
             .fileButtons {padding-top:10px}
             .noDisplay {display:none}
-            a.fileLinks {color:blue}
+            a.fileLinks {color:blue;
+                         text-decoration:underline;
+                         cursor:pointer}
             body {background-color:#FFE8BE} 
         </style>
 
@@ -177,7 +180,7 @@
         {% for file in file_list %}
             <div>
                 <input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
-                <a class="fileLinks" name="{{ file }}" href="#top">{{ file }}</a>
+                <a class="fileLinks" name="{{ file }}">{{ file }}</a>
                 <input type="text" class="renText noDisplay" name="{{ file }}" />               
                 <input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />                
             </div>

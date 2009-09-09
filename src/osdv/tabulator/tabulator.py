@@ -96,13 +96,10 @@ class Tabulator(object):
         # Add the vote counts of candidates with the same ID# using
         #  merge(). Write the vote totals for each candidate to the
         #  report stream.
-        m = self.merge()
+        s = self.sumation()
         self.rstream.write('\n')
-        for i in range(len(m['contest_list'])):
-            for j in range(len(m['contest_list'][i]['candidate_list'])):
-                tot = m['contest_list'][i]['candidate_list'][j]['count'][0]
-                name = m['contest_list'][i]['candidate_list'][j]['display_name']
-                self.rstream.write(str(tot) + ' votes found for ' + name + '\n')
+        for key in s.keys():
+            self.rstream.write(str(s[key]) + ' votes found for ' + key + '\n')
 
         # Generators were already iterated over by merge, so reload.
         read_stream = open(record_file1, 'r')
@@ -132,25 +129,25 @@ class Tabulator(object):
         #  return 0
         for b in self.b1:
             if ((b['election_name'] != self.e['election_name']) or
-            (len(b['contest_list']) != len(self.e['contest_list']))):             
+            (len(b['conts']) != len(self.e['conts']))):             
                 print "First record file did not match election template, merge aborted\n"
                 self.rstream.write("First record file did not match election template, merge aborted\n")
                 exit()
-            for i in range(len(self.e['contest_list'])):
-                if not self.match_contest(self.e['contest_list'][i],
-                                          b['contest_list'][i]):
+            for i in range(len(self.e['conts'])):
+                if not self.match_contest(self.e['conts'][i],
+                                          b['conts'][i]):
                     print "First record file did not match election template, merge aborted\n"
                     self.rstream.write("First record file did not match election template, merge aborted\n")
                     exit()
         for b in self.b2:
             if (b['election_name'] != self.e['election_name']) or \
-            (len(b['contest_list']) != len(self.e['contest_list'])):
+            (len(b['conts']) != len(self.e['conts'])):
                 print "Second record file did not match election template, merge aborted\n"
                 self.rstream.write("Second record file did not match election template, merge aborted\n")
                 exit()
-            for i in range(len(self.e['contest_list'])):
-                if not self.match_contest(self.e['contest_list'][i], 
-                                          b['contest_list'][i]):
+            for i in range(len(self.e['conts'])):
+                if not self.match_contest(self.e['conts'][i], 
+                                          b['conts'][i]):
                     print "Second record file did not match election template, merge aborted\n"
                     self.rstream.write("Second record file did not match election template, merge aborted\n")
                     exit()
@@ -164,11 +161,11 @@ class Tabulator(object):
         (cont1['ident'] != cont2['ident']) or \
         (cont1['open_seat_count'] != cont2['open_seat_count']) or \
         (cont1['voting_method_id'] != cont2['voting_method_id']) or \
-        (len(cont1['candidate_list']) != len(cont2['candidate_list'])):
+        (len(cont1['cands']) != len(cont2['cands'])):
             return False
-        for i in range(len(cont1['candidate_list'])):
-            if not self.match_candidate(cont1['candidate_list'][i],
-                                        cont2['candidate_list'][i]):
+        for i in range(len(cont1['cands'])):
+            if not self.match_candidate(cont1['cands'][i],
+                                        cont2['cands'][i]):
                 return False
         return True
     
@@ -182,24 +179,24 @@ class Tabulator(object):
         return True
         
     # Sums up the separate vote counts in each record for each candidate
-    #  and returns the cumulative result as a ballot_info object.
-    def merge(self):
-        merge = self.e        #  Vote counts of each candidate are 0 in e
+    #  and returns the cumulative result as a dictionary.
+    def sumation(self):
+        sum_dict = {}
         for rec in self.b1:     
-            for i in range(len(rec['contest_list'])):
-                for j in range(len(rec['contest_list'][i]['candidate_list'])):
-                    cur_tot = merge['contest_list'][i]['candidate_list'][j]['count'][0]
-                    add_this = rec['contest_list'][i]['candidate_list'][j]['count'][0]
-                    sum = cur_tot + add_this      
-                    merge['contest_list'][i]['candidate_list'][j]['count'] = [sum]
+            for i in range(len(rec['conts'])):
+                for j in range(len(rec['conts'][i]['cands'])):
+                    cand_name = rec['conts'][i]['cands'][j]['display_name']
+                    if not sum_dict.has_key(cand_name):
+                        sum_dict[cand_name] = 0                    
+                    cand_count = rec['conts'][i]['cands'][j]['count']
+                    sum_dict[cand_name] += cand_count
         for rec in self.b2:
-            for i in range(len(rec['contest_list'])):
-                for j in range(len(rec['contest_list'][i]['candidate_list'])):
-                    cur_tot = merge['contest_list'][i]['candidate_list'][j]['count'][0]
-                    add_this = rec['contest_list'][i]['candidate_list'][j]['count'][0]
-                    sum = cur_tot + add_this
-                    merge['contest_list'][i]['candidate_list'][j]['count'] = [sum]
-        return merge            
+            for i in range(len(rec['conts'])):
+                for j in range(len(rec['conts'][i]['cands'])):
+                    cand_name = rec['conts'][i]['cands'][j]['display_name']
+                    cand_count = rec['conts'][i]['cands'][j]['count']
+                    sum_dict[cand_name] += cand_count
+        return sum_dict            
 
 def main():
     # Output a usage message if incorrect number of command line args

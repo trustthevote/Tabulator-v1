@@ -131,7 +131,9 @@
             .fileButtons {padding-top:10px}
             .noDisplay {display:none}
             .topPadding {padding-top:30px}
-            a.fileLinks {color:blue}
+            a.fileLinks {color:blue;
+                         text-decoration:underline;
+                         cursor:pointer}
             body {background-color:#FFE8BE}
         </style>
 
@@ -182,7 +184,7 @@
         {% for file in tab_files %}
             <div>
                 <input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
-                <a class="fileLinks" name="{{ file }}" href="#top">{{ file }}</a>
+                <a class="fileLinks" name="{{ file }}">{{ file }}</a>
                 <input type="text" class="renText noDisplay" name="{{ file }}" />
                 <input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />
             </div>

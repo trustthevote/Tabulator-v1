@@ -1,5 +1,5 @@
 import os
-import json
+import simplejson
 
 from django.template import Context, loader
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
@@ -19,7 +19,7 @@ def TDG_home(request):
         if request.POST.has_key('arguments'):            
             # Get and deserialize the users arguments from JSON
             args = request.POST.getlist('arguments')
-            args = json.loads(args[0])
+            args = simplejson.loads(args[0])
 
             # Arguments will be made consistent with where data is
             #  stored on the server, as given by DATA_PATH
@@ -89,7 +89,7 @@ def tabulator_home(request):
         if request.POST.has_key('arguments'):
             # Get and deserialize the users arguments from JSON
             args = request.POST.getlist('arguments')
-            args = json.loads(args[0])
+            args = simplejson.loads(args[0])
             # Arguments will be made consistent with where data is
             #  stored on the server, as given by DATA_PATH
             args[0] = settings.DATA_PATH + 'prec_cont/' + args[0]
@@ -120,7 +120,7 @@ def tabulator_home(request):
             lines["merge"] = stream.readlines()
             stream = open(settings.DATA_PATH + 'reports/' + fname + '_report', 'r')
             lines["report"] = stream.readlines()
-            lines_json = json.dumps(lines)
+            lines_json = simplejson.dumps(lines)
             return HttpResponse(lines_json)
             
     # Make the subdirectory specified by DATA_PATH within the
