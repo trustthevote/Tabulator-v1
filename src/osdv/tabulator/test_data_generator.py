@@ -11,7 +11,6 @@ import sys
 import copy
 import uuid
 
-import ballot_info_classes
 import audit_header
 
 # Provides random election specs or random ballot counts
@@ -31,7 +30,7 @@ class ProvideRandomBallots(object):
         # Generate a sample election and output it to the location
         #  specified by the user in the command line, in yaml
         #  format.        
-            b = ballot_info_classes.BallotInfo()
+            b = {}
             stream = open(args[0], 'w') 
             
             # Give each file its own audit header            
@@ -42,7 +41,7 @@ class ProvideRandomBallots(object):
             stream.write(a.serialize())
             
             b = self.random_elec()
-            b.set_type('precinct_contestlist')
+            b['type'] = 'precinct_contestlist'
             yaml.dump(b, stream)
         elif type == 'counts':
             # Load election specs from given file in yaml format     
@@ -50,7 +49,7 @@ class ProvideRandomBallots(object):
             for i in range(0,8):  # Ignore the audit header
                 stream.readline()
             e = yaml.load(stream)
-            e.set_type('ballot_counter_total')
+            e['type'] = 'ballot_counter_total'
         
             # Make the number of random ballot_info records specified by
             #  the user. Use the loaded election specs as a template,
@@ -59,10 +58,10 @@ class ProvideRandomBallots(object):
             b_list = []
             for i in range(0, int(args[0])):
                 b = copy.deepcopy(e)                
-                for j in range(0, len(b.get_contest_list())):
-                    for k in range(0, len(b.get_contest_list()[j].get_candidate_list())):
+                for j in range(0, len(b['contest_list'])):
+                    for k in range(0, len(b['contest_list'][j]['candidate_list'])):
                         r = random.randint(0,99)
-                        b.get_contest_list()[j].get_candidate_list()[k].set_count(r)
+                        b['contest_list'][j]['candidate_list'][k]['count'] = [r]
                 b_list.append(b)
             
             # Store the results in yaml format back into the specified 
@@ -86,30 +85,28 @@ class ProvideRandomBallots(object):
     def random_elec(self):        
         self.cand_num = 1
                 
-        b = ballot_info_classes.BallotInfo()     
+        b = {}
         
         # Make the election headliner some random presidential election
         r = random.randint(0,3)
-        b.set_election_name(str(r*4+2000) + " Presidential")        
+        b['election_name'] = str(r*4+2000) + " Presidential"
         
         # Generate a few contests
+        b['contest_list'] = []
         r = random.randint(2,5)
         for i in range(0,r):
-            list = b.get_contest_list()
-            list.append(self.random_contest())
-            b.set_contest_list(list)
+            b['contest_list'].append(self.random_contest())            
         return b
 
     # Makes and returns a contest object with initialized data members
     def random_contest(self):
-        cont = ballot_info_classes.Contest()
+        cont = {}
 
         # Generate a few candidates per contest
+        cont['candidate_list'] = []
         r = random.randint(3,5)
-        for i in range(0,r):
-            list = cont.get_candidate_list()
-            list.append(self.random_candidate())
-            cont.set_candidate_list(list)
+        for i in range(0,r):            
+            cont['candidate_list'].append(self.random_candidate())
         
         # Make sure that a maximum of one supreme court justice contest
         #  is generated.
@@ -120,7 +117,7 @@ class ProvideRandomBallots(object):
         
         # Generate a random type of race
         if r == 1:
-            cont.set_display_name("Representative in Congress")
+            cont['display_name'] = 'Representative in Congress'
 
             # Generate random values for the dist number until an unused
             #  number is generated. Once this is successful, use the
@@ -130,16 +127,16 @@ class ProvideRandomBallots(object):
                 if self.already_used_dreps.count(r) == 0:
                     self.already_used_dreps.append(r)
                     if r == 1:
-                        cont.set_ident("Rep1stDistrict")
+                        cont['ident'] = 'Rep1stDistrict'
                     elif r == 2:
-                        cont.set_ident("Rep2ndDistrict")
+                        cont['ident'] = 'Rep2ndDistrict'
                     elif r == 3:
-                        cont.set_ident("Rep3rdDistrict")
+                        cont['ident'] = 'Rep3rdDistrict'
                     else:
-                        cont.set_ident("Rep"+str(r)+"thDistrict")
+                        cont['ident'] = 'Rep"+str(r)+"thDistrict'
                     break
         elif r == 2:
-            cont.set_display_name("State Representative")
+            cont['display_name'] = 'State Representative'
             
             # Generate random values for the House number until an
             #  unused number is generated. Once this is successful, use
@@ -149,63 +146,63 @@ class ProvideRandomBallots(object):
                 if self.already_used_streps.count(r) == 0:
                     self.already_used_streps.append(r)
                     if r == 1:
-                        cont.set_ident("StateRep1stHouse")
+                        cont['ident'] = 'StateRep1stHouse'
                     elif r == 2:
-                        cont.set_ident("StateRep2ndHouse")
+                        cont['ident'] = 'StateRep2ndHouse'
                     elif r == 3:
-                        cont.set_ident("StateRep3rdHouse")
+                        cont['ident'] = 'StateRep3rdHouse'
                     else:
-                        cont.set_ident("StateRep"+str(r)+"thHouse")                 
+                        cont['ident'] = 'StateRep'+str(r)+'thHouse'
                     break
         else:
-            cont.set_display_name("Supreme Court Justice")
-            cont.set_ident("JustSupCrt")
+            cont['display_name'] = 'Supreme Court Justice'
+            cont['ident'] = 'JustSupCrt'
             self.already_used_supreme = True
     
         r = random.randint(1,2)
-        cont.set_open_seat_count(r)
+        cont['open_seat_count'] = r
         
         # The district number and the voting machine number are 
         #  randomly generated.
         r = random.randint(0,6)
         if r == 0:
-            cont.set_district_id("PRES")
+            cont['district_id'] = "PRES"
         if r == 1:
             r2 = random.randint(1,10)
-            cont.set_district_id("USREP " + str(r2))
+            cont['district_id'] = 'USREP ' + str(r2)
         if r == 2:
             r2 = random.randint(1,10)
-            cont.set_district_id("HOUSE " + str(r2))
+            cont['district_id'] = 'HOUSE ' + str(r2)
         if r == 3:
             r2 = random.randint(1,10)
-            cont.set_district_id("SENATE " + str(r2))
+            cont['district_id'] = 'SENATE ' + str(r2)
         if r == 4:
-            cont.set_district_id("SOILWATER")
+            cont['district_id'] = 'SOILWATER'
         if r == 5:
-            cont.set_district_id("HARBOR")          
+            cont['district_id'] = 'HARBOR'       
         if r == 6:
             r2 = random.randint(1,5)
-            cont.set_district_id("SCHOOL " + str(r2))
+            cont['district_id'] = 'SCHOOL ' + str(r2)
 
-        cont.set_voting_method_id("VOTM-" + str(random.randint(1,5)))        
+        cont['voting_method_id'] = 'VOTM-' + str(random.randint(1,5))
         return cont
 
     # Makes and returns a candidate object with initialized data members
     def random_candidate(self):
-        cand = ballot_info_classes.Candidate()        
+        cand = {}
         
         # Count just gets a null value, since it is irrelevant to the
         #  specs generated here.
-        cand.set_count(0)
+        cand['count'] = [0]
         
-        cand.set_display_name(self.random_fullname())
+        cand['display_name'] = self.random_fullname()
         while True:
             r = random.randint(100,999)
             if self.already_used_cand_idents.count(r) == 0:
                 self.already_used_cand_idents.append(r)
-                cand.set_ident("CAND-" + str(r))
+                cand['ident'] = 'CAND-' + str(r)
                 break           
-        cand.set_party_id("PART-" + str(random.randint(1,9)))       
+        cand['party_id'] = 'PART-' + str(random.randint(1,9))
         
         return cand
     

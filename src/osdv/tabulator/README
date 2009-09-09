@@ -15,13 +15,6 @@ audit_header.py:
     http://wiki.trustthevote.org/index.php/AuditHeader
    
 
-ballot_info_classes.py:
-
-   This contains a definition of the ballot_info data structure used by
-    test_data_generator.py and tabulator.py. The specs for this class came from
-    http://wiki.trustthevote.org/index.php/BallotInfo
-   
-
 test_data_generator.py:
 
    This allows the user to generate random election templates, or random vote

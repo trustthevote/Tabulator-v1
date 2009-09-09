@@ -10,7 +10,6 @@ import yaml
 import sys
 import uuid
 
-import ballot_info_classes
 import audit_header
 
 # Checks validity of two ballot record files against some election
@@ -99,10 +98,10 @@ class Tabulator(object):
         #  report stream.
         m = self.merge()
         self.rstream.write('\n')
-        for i in range(len(m.get_contest_list())):
-            for j in range(len(m.get_contest_list()[i].get_candidate_list())):
-                tot = m.get_contest_list()[i].get_candidate_list()[j].get_count()
-                name = m.get_contest_list()[i].get_candidate_list()[j].get_display_name()
+        for i in range(len(m['contest_list'])):
+            for j in range(len(m['contest_list'][i]['candidate_list'])):
+                tot = m['contest_list'][i]['candidate_list'][j]['count'][0]
+                name = m['contest_list'][i]['candidate_list'][j]['display_name']
                 self.rstream.write(str(tot) + ' votes found for ' + name + '\n')
 
         # Generators were already iterated over by merge, so reload.
@@ -132,26 +131,26 @@ class Tabulator(object):
         #  the number (1 or 2) of the offending record file. Otherwise
         #  return 0
         for b in self.b1:
-            if ((b.get_election_name() != self.e.get_election_name()) or
-            (len(b.get_contest_list()) != len(self.e.get_contest_list()))):             
+            if ((b['election_name'] != self.e['election_name']) or
+            (len(b['contest_list']) != len(self.e['contest_list']))):             
                 print "First record file did not match election template, merge aborted\n"
                 self.rstream.write("First record file did not match election template, merge aborted\n")
                 exit()
-            for i in range(len(self.e.get_contest_list())):
-                if not self.match_contest(self.e.get_contest_list()[i],
-                                          b.get_contest_list()[i]):
+            for i in range(len(self.e['contest_list'])):
+                if not self.match_contest(self.e['contest_list'][i],
+                                          b['contest_list'][i]):
                     print "First record file did not match election template, merge aborted\n"
                     self.rstream.write("First record file did not match election template, merge aborted\n")
                     exit()
         for b in self.b2:
-            if ((b.get_election_name() != self.e.get_election_name()) or
-            (len(b.get_contest_list()) != len(self.e.get_contest_list()))):
+            if (b['election_name'] != self.e['election_name']) or \
+            (len(b['contest_list']) != len(self.e['contest_list'])):
                 print "Second record file did not match election template, merge aborted\n"
                 self.rstream.write("Second record file did not match election template, merge aborted\n")
                 exit()
-            for i in range(len(self.e.get_contest_list())):
-                if not self.match_contest(self.e.get_contest_list()[i], 
-                                          b.get_contest_list()[i]):
+            for i in range(len(self.e['contest_list'])):
+                if not self.match_contest(self.e['contest_list'][i], 
+                                          b['contest_list'][i]):
                     print "Second record file did not match election template, merge aborted\n"
                     self.rstream.write("Second record file did not match election template, merge aborted\n")
                     exit()
@@ -160,25 +159,25 @@ class Tabulator(object):
     # This returns true if the data members of two contests have the
     #  same values. Else returns false.
     def match_contest(self, cont1, cont2):
-        if((cont1.get_display_name() != cont2.get_display_name()) or
-        (cont1.get_district_id() != cont2.get_district_id()) or
-        (cont1.get_ident() != cont2.get_ident()) or
-        (cont1.get_open_seat_count() != cont2.get_open_seat_count()) or
-        (cont1.get_voting_method_id() != cont2.get_voting_method_id()) or
-        (len(cont1.get_candidate_list()) != len(cont2.get_candidate_list()))):
+        if (cont1['display_name'] != cont2['display_name']) or \
+        (cont1['district_id'] != cont2['district_id']) or \
+        (cont1['ident'] != cont2['ident']) or \
+        (cont1['open_seat_count'] != cont2['open_seat_count']) or \
+        (cont1['voting_method_id'] != cont2['voting_method_id']) or \
+        (len(cont1['candidate_list']) != len(cont2['candidate_list'])):
             return False
-        for i in range(len(cont1.get_candidate_list())):
-            if not self.match_candidate(cont1.get_candidate_list()[i],
-                                        cont2.get_candidate_list()[i]):
-                return False        
+        for i in range(len(cont1['candidate_list'])):
+            if not self.match_candidate(cont1['candidate_list'][i],
+                                        cont2['candidate_list'][i]):
+                return False
         return True
     
     # This returns true if the data members of two candidates have the
     #  same values (with the exception of count). Else returns false.
     def match_candidate(self, cand1, cand2):
-        if((cand1.get_display_name() != cand2.get_display_name()) or
-        (cand1.get_ident() != cand2.get_ident()) or
-        (cand1.get_party_id() != cand2.get_party_id())):
+        if((cand1['display_name'] != cand2['display_name']) or
+        (cand1['ident'] != cand2['ident']) or
+        (cand1['party_id'] != cand2['party_id'])):
             return False
         return True
         
@@ -187,19 +186,19 @@ class Tabulator(object):
     def merge(self):
         merge = self.e        #  Vote counts of each candidate are 0 in e
         for rec in self.b1:     
-            for i in range(len(rec.get_contest_list())):
-                for j in range(len(rec.get_contest_list()[i].get_candidate_list())):
-                    cur_tot = merge.get_contest_list()[i].get_candidate_list()[j].get_count()                    
-                    add_this = rec.get_contest_list()[i].get_candidate_list()[j].get_count()
+            for i in range(len(rec['contest_list'])):
+                for j in range(len(rec['contest_list'][i]['candidate_list'])):
+                    cur_tot = merge['contest_list'][i]['candidate_list'][j]['count'][0]
+                    add_this = rec['contest_list'][i]['candidate_list'][j]['count'][0]
                     sum = cur_tot + add_this      
-                    merge.get_contest_list()[i].get_candidate_list()[j].set_count(sum)                  
+                    merge['contest_list'][i]['candidate_list'][j]['count'] = [sum]
         for rec in self.b2:
-            for i in range(len(rec.get_contest_list())):
-                for j in range(len(rec.get_contest_list()[i].get_candidate_list())):
-                    cur_tot = merge.get_contest_list()[i].get_candidate_list()[j].get_count()
-                    add_this = rec.get_contest_list()[i].get_candidate_list()[j].get_count()
+            for i in range(len(rec['contest_list'])):
+                for j in range(len(rec['contest_list'][i]['candidate_list'])):
+                    cur_tot = merge['contest_list'][i]['candidate_list'][j]['count'][0]
+                    add_this = rec['contest_list'][i]['candidate_list'][j]['count'][0]
                     sum = cur_tot + add_this
-                    merge.get_contest_list()[i].get_candidate_list()[j].set_count(sum)
+                    merge['contest_list'][i]['candidate_list'][j]['count'] = [sum]
         return merge            
 
 def main():

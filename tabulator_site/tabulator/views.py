@@ -30,7 +30,8 @@ def TDG_home(request):
                 type = 'counts'
                 args[1] = settings.DATA_PATH + 'prec_cont/' + args[1]
                 args[2] = settings.DATA_PATH + 'bal_count_tot/' + args[2]
-            P = TDG.ProvideRandomBallots(type, args)  # Make a file            
+            P = TDG.ProvideRandomBallots(type, args)  # Make a file
+            return HttpResponse()            
         # Check to see if client wants to delete file(s)
         elif request.POST.has_key('delete'):
             for file in request.POST.getlist('delete'):
