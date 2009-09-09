@@ -117,7 +117,7 @@ class Tabulator(object):
         # Concatenate the two input files, minus their headers, into the
         #  output file.
         yaml.dump_all(self.b1, stream)
-        stream.write('--- ')
+        stream.write('---\n')
         yaml.dump_all(self.b2, stream)
                 
         stream.close()

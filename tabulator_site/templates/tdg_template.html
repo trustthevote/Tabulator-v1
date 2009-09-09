@@ -58,17 +58,15 @@
                     //Check to see if the user gave an output filename
                     // that is already in use. If so, then prompt to
                     // confirm overwrite.
-                    fname = args[args.length-1];
-                    alreadyExists = false;
-                    overw = false;                     
-                    if($("[name="+fname+"]").length!=0) {
-                        alreadyExists = true;
+                    fname = args[args.length-1];                    
+                    overw = true;                     
+                    if($("[name="+fname+"]").length!=0) {                        
                         overw = confirm("Overwrite file " + fname + "?");
                     }
                     //If the filename was not already in use, or the
                     // user confirmed the overwrite, then post
                     // arguments to the server.
-                    if((alreadyExists == false) || (overw == true)) {                        
+                    if(overw == true) {                        
                         args = JSON.stringify(args)
                         $.post(".", {'arguments':args}, function(){							
 							location.reload(true);
@@ -160,9 +158,13 @@
             <div class="hideUs noDisplay"><label>Number of records in file:</label><input type="text" id="howMany" class="argInputs" /></div>
             <div class="hideUs noDisplay"><label for="templateFile">Election template file name:</label>
             <select id="templateFile" class="argInputs">
-                {% for file in prec_files %}
-                    <option value="{{file}}">{{file}}</option>
-                {% endfor %}
+                {% if not prec_files %}
+                    <option value="null">(None generated)</option>
+                {% else %}
+                    {% for file in prec_files %}
+                        <option value="{{file}}">{{file}}</option>
+                    {% endfor %}
+                {% endif %}
             </select></div>
             <div><label>Output file name:</label><input type="text" id="outputFilename" class="argInputs" /></div>
             <input type="submit" value="Run" id="argsButton" />

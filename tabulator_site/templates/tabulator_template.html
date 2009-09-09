@@ -23,17 +23,15 @@
                     //Check to see if the user gave an output filename
                     // that is already in use. If so, then prompt to
                     // confirm overwrite.
-                    fname1 = args[args.length-1];
-                    alreadyExists = false;
-                    overw = false;
-                    if($("[name="+fname1+"]").length!=0) {
-                        alreadyExists = true;
-                        overw = confirm("Overwrite file " + fname1 + "?");
+                    fname = args[args.length-1];                    
+                    overw = true;
+                    if($("[name="+fname+"]").length!=0) {                        
+                        overw = confirm("Overwrite file " + fname + "?");
                     }
                     //If the filename was not already in use, or the
                     // user confirmed the overwrite, then post
                     // arguments to the server.
-                    if((alreadyExists == false) || (overw == true)) {
+                    if(overw == true) {
                         args = JSON.stringify(args)
                         $.post(".", {'arguments':args}, function(){							
                             location.reload(true);
@@ -145,21 +143,33 @@
         <div id=args>
             <div><label for="templateFile">Election template file name:</label>
             <select id="templateFile" class="argInputs">
-                {% for file in prec_files %}
-                    <option value="{{file}}">{{file}}</option>
-                {% endfor %}
+                {% if not prec_files %}
+                    <option value="null">(None generated)</option>
+                {% else %}
+                    {% for file in prec_files %}
+                        <option value="{{file}}">{{file}}</option>
+                    {% endfor %}
+                {% endif %}
             </select></div>
             <div><label for="inputFile1">First input file name:</label>
             <select id="inputFile1" class="argInputs">
-                {% for file in bal_files %}
-                    <option value="{{file}}">{{file}}</option>
-                {% endfor %}
+                {% if not bal_files %}
+                    <option value="null">(None generated)</option>
+                {% else %}
+                    {% for file in bal_files %}
+                        <option value="{{file}}">{{file}}</option>
+                    {% endfor %}
+                {% endif %}
             </select></div>       
             <div><label for="inputFile2">Second input file name:</label>
             <select id="inputFile2" class="argInputs">
-                {% for file in bal_files %}
-                    <option value="{{file}}">{{file}}</option>
-                {% endfor %}
+                {% if not bal_files %}
+                    <option value="null">(None generated)</option>
+                {% else %}
+                    {% for file in bal_files %}
+                        <option value="{{file}}">{{file}}</option>
+                    {% endfor %}
+                {% endif %}
             </select></div>
             <div><label>Merged output file name:</label><input type="text" id="mergeName" class="argInputs" /></div>
             <input type="submit" value="Run" id="argsButton" />
