@@ -69,10 +69,10 @@ class ProvideRandomBallots(object):
             b_list = []
             for i in range(0, int(args[0])):
                 b = copy.deepcopy(e)                
-                for j in range(0, len(b['conts'])):
-                    for k in range(0, len(b['conts'][j]['cands'])):
+                for j in range(0, len(b['contests'])):
+                    for k in range(0, len(b['contests'][j]['candidates'])):
                         r = random.randint(0,99)
-                        b['conts'][j]['cands'][k]['count'] = r
+                        b['contests'][j]['candidates'][k]['count'] = r
                 b_list.append(b)
             
             # Store the results in yaml format back into the specified 
@@ -103,10 +103,10 @@ class ProvideRandomBallots(object):
         b['election_name'] = str(r*4+2000) + " Presidential"
         
         # Generate a few contests
-        b['conts'] = []
+        b['contests'] = []
         r = random.randint(2,5)
         for i in range(0,r):
-            b['conts'].append(self.random_contest())            
+            b['contests'].append(self.random_contest())            
         return b
 
     # Makes and returns a contest object with initialized data members
@@ -114,10 +114,10 @@ class ProvideRandomBallots(object):
         cont = {}
 
         # Generate a few candidates per contest
-        cont['cands'] = []
+        cont['candidates'] = []
         r = random.randint(3,5)
         for i in range(0,r):            
-            cont['cands'].append(self.random_candidate())
+            cont['candidates'].append(self.random_candidate())
         
         # Make sure that a maximum of one supreme court justice contest
         #  is generated.

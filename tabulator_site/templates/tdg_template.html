@@ -6,8 +6,8 @@
         <script type="text/javascript" src="http://www.jqueryui.com/ui/ui.core.js"></script>
         <script type="text/javascript" src="http://www.jqueryui.com/ui/ui.tabs.js"></script>
         <script type="text/javascript" src="http://www.jqueryui.com/ui/effects.core.js"></script>
-        <script type="text/javascript" src="http://www.jqueryui.com/ui/effects.explode.js"></script>
         <script type="text/javascript" src="http://www.json.org/json2.js"></script>
+        <link type="text/css" href="../demos.css" rel="stylesheet" />
 		<script type="text/javascript">
             //When the DOM loads, activate some event handler functions
             $(document).ready(function() {              
@@ -115,8 +115,8 @@
 					if(overw == true) {                        
 						if( $(this).hasClass("tdg") ) {
 							args = JSON.stringify(args)
-							$.post(".", {'arguments_tdg':args}, function() {							
-								location.reload(true);
+							$.post(".", {'arguments_tdg':args}, function() {								
+                                location.reload(true);
 							});
 						}
 						else {  // Not tdg, so tabulator
@@ -135,8 +135,7 @@
                     checkedFiles = new Array();
                     $("[type='checkbox']:checked").each(function() {                        
                         checkedFiles.push(this.id);
-                        $("#effect").hide('explode',{},500,function(){});
-                        //$(this).parents("div").addClass("nodisplay");                        
+                        $(this).parent("div").remove();                        
                     });
                     $.post(".", {'delete':checkedFiles});
                 });
@@ -167,9 +166,12 @@
                     $("[name="+oldName+"]").attr("name", newName);
                     $("[id="+oldName+"]").attr({id:newName});
                     
-                    //Update the server                
-                    $.post(".", {'old_name':oldName, 'new_name':newName});
                     
+                    if(!(oldName == newName)) {
+                        //Update the server if the name changed
+                        $.post(".", {'old_name':oldName, 'new_name':newName});
+                    }
+
                     //Remove the textbox and button, restore the
                     // checkbox and link.
                     $(this).addClass("noDisplay");
@@ -198,7 +200,9 @@
             a.fileLinks {color:blue;
                          text-decoration:underline;
                          cursor:pointer}
-            body {background-color:#FFE8BE} 
+            body {background-color:#FFE8BE}   
+            
+            .green {color:green}          
         </style>
 
     </head>
