@@ -5,8 +5,9 @@
         <script type="text/javascript" src="http://www.jqueryui.com/jquery-1.3.2.js"></script>
         <script type="text/javascript" src="http://www.jqueryui.com/ui/ui.core.js"></script>
         <script type="text/javascript" src="http://www.jqueryui.com/ui/ui.tabs.js"></script>
+        <script type="text/javascript" src="http://www.jqueryui.com/ui/effects.core.js"></script>
+        <script type="text/javascript" src="http://www.jqueryui.com/ui/effects.explode.js"></script>
         <script type="text/javascript" src="http://www.json.org/json2.js"></script>
-        
 		<script type="text/javascript">
             //When the DOM loads, activate some event handler functions
             $(document).ready(function() {              
@@ -133,8 +134,9 @@
                 $(".delButton").click( function() {
                     checkedFiles = new Array();
                     $("[type='checkbox']:checked").each(function() {                        
-                        checkedFiles.push(this.id);                         
-                        $(this).parents("div").addClass("nodisplay");
+                        checkedFiles.push(this.id);
+                        $("#effect").hide('explode',{},500,function(){});
+                        //$(this).parents("div").addClass("nodisplay");                        
                     });
                     $.post(".", {'delete':checkedFiles});
                 });
@@ -205,7 +207,7 @@
 		<div id="tabs">
 			<ul>
 				<li><a href="#tabs-1">Welcome</a></li>
-				<li><a href="#tabs-2">Test Data Generator</a></li>
+				<li><a href="#tabs-2">Manage Test Data</a></li>
 				<li><a href="#tabs-3">Tabulator</a></li>
 			</ul>
 			
