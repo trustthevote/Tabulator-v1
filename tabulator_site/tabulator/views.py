@@ -1,5 +1,5 @@
 import os
-import simplejson
+import json
 
 from django.template import Context, loader
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
