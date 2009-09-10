@@ -59,6 +59,7 @@ class ProvideRandomBallots(object):
             for i in range(0,8):  # Ignore the audit header
                 stream.readline()
             e = yaml.load(stream)
+            print e
             e['type'] = 'ballot_counter_total'
         
             # Make the number of random ballot_info records specified by
