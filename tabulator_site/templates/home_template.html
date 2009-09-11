@@ -33,14 +33,23 @@
                 //Replace the displayFile div with the content of a
                 // generated file when the name of that file is clicked.
                 $("a.fileLinks").click( function() {
-                    fname = $(this).attr("name");                   
+                    fname = $(this).attr("name");
 					if( $(this).hasClass("tdg") ) {
-						$.post(".", {'display_this_tdg':fname}, function(data){
+						if( $("input[@name='TDGType']:checked").val() == "1") {
+							ftype = ".yaml";
+						}
+						else {
+							ftype = ".xml";
+						}
+						$.post(".", {'display_this_tdg':fname + ftype}, function(data){
 								//Make spaces and newlines in the file
-								// consistent with HTML
-								data = data.replace(/\n/g, "<br/>");
+								// consistent with HTML, ignore XML tags
+								data = data.replace(/</g, '&lt;');
+								data = data.replace(/>/g, '&gt;');
+								data = data.replace(/\t/g, '   ');
 								data = data.replace(/ /g, '&nbsp;');
-
+								data = data.replace(/\n/g, '<br/>');
+								
 								//Generate markup that displays the contents
 								// of the file. Scroll to top of page
 								$("#displayFileTDG").replaceWith('<div id="displayFileTDG" class="displayFile"><h4>'
@@ -49,24 +58,34 @@
 							});
 					}
 					else {  //Not tdg, so tabulator
-						$.post(".", {'display_this':fname}, function(data){
+						if( $("input[@name='tabType']:checked").val() ) {
+							ftype = ".yaml";
+						}
+						else {
+							ftype = ".xml";
+						}
+						$.post(".", {'display_this':fname + ftype}, function(data){
 								data = JSON.parse(data)
 								merge = data["merge"].join("");
 								report = data["report"].join("");
 
 								//Make spaces and newlines in the files
-								// consistent with HTML
+								// consistent with HTML, ignore XML tags
+								merge = merge.replace(/</g, '&lt;');
+								merge = merge.replace(/>/g, '&gt;');
+								merge = merge.replace(/\t/g, '   ');
 								merge = merge.replace(/\n/g, "<br/>");
 								merge = merge.replace(/ /g, '&nbsp;');
 								report = report.replace(/\n/g, "<br/>");
 								report = report.replace(/ /g, '&nbsp;');
 
 								//Generate markup that displays the contents
-								// of the files.
+								// of the files. Scroll to top of page
 								$("#mergedFile").replaceWith('<div class = "displayFile topPadding" id = "mergedFile"><h4>'
 								 + fname + '</h4><p>'+ merge + '</p></div>');
 								$("#reportFile").replaceWith('<div class = "displayFile topPadding" id = "reportFile"><h4>'
 								 + fname + ' report</h4><p>'+ report + '</p></div>');
+								scroll(0,0);
 							});
 					}
                 });
@@ -134,7 +153,8 @@
                 $(".delButton").click( function() {
                     checkedFiles = new Array();
                     $("[type='checkbox']:checked").each(function() {                        
-                        checkedFiles.push(this.id);
+                        checkedFiles.push(this.id + '.yaml');
+						checkedFiles.push(this.id + '.xml');
                         $(this).parent("div").remove();                        
                     });
                     $.post(".", {'delete':checkedFiles});
@@ -201,8 +221,7 @@
                          text-decoration:underline;
                          cursor:pointer}
             body {background-color:#FFE8BE}   
-            
-            .green {color:green}          
+			.whitespace {padding-bottom:10px}
         </style>
 
     </head>
@@ -244,6 +263,10 @@
 			<div id = "displayFileTDG" class = "displayFile"></div>
 			
 			<h2>Generated Files</h2>
+			<label>Display format:</label>
+			<input type="radio" name="TDGType" value="1" checked="checked"><label>Yaml</label>
+			<input type="radio" name="TDGType" value="0"><label>XML</label>
+			<div class="whitespace"></div>
 			{% for file in tdg_files %}
 				<div>
 					<input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
@@ -307,6 +330,10 @@
 			<div class = "displayFile" id="reportFile"></div>
 
 			<h2>Merged Files</h2>        
+			<label>Display format:</label>
+			<input type="radio" name="tabType" value="1" checked="checked"><label>Yaml</label>
+			<input type="radio" name="tabType" value="0"><label>XML</label>
+			<div class="whitespace"></div>
 			{% for file in tab_files %}
 				<div>
 					<input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />

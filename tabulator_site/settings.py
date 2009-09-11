@@ -96,4 +96,3 @@ INSTALLED_APPS = (
 DATA_PARENT = '/var/lib'
 DATA_FOLDER = 'osdv_tabulator'
 DATA_PATH = DATA_PARENT + '/' + DATA_FOLDER + '/'
-
