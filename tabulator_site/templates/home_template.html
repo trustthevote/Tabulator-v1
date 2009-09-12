@@ -125,7 +125,11 @@
                     // confirm overwrite.
                     fname = args[args.length-1];                    
                     overw = true;                     
-                    if($("[name="+fname+"]").length!=0) {                        
+                    if(fname.search(/\./) != -1) {
+						alert("Please provide an output file name that does not include a file extension");
+						return;
+					}					
+					if($("[name="+fname+"]").length != 0) {                        
                         overw = confirm("Overwrite file " + fname + "?");
                     }
                     //If the filename was not already in use, or the
