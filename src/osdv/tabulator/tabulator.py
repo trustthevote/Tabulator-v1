@@ -117,10 +117,19 @@ class Tabulator(object):
         stream.write('---\n')
         yaml.dump_all(self.b2, stream)
         
+        # Gotta find a better way to deal with these stupid generators
+        read_stream = open(record_file1 + '.yaml', 'r')
+        for i in range(0,8):  # Ignore the audit header
+            read_stream.readline()
+        self.b1 = yaml.load_all(read_stream)
+        read_stream = open(record_file2 + '.yaml', 'r')
+        for i in range(0,8):  # Ignore the audit header
+            read_stream.readline()
+        self.b2 = yaml.load_all(read_stream)
+
         # Dump merge into a file in xml format        
         stream = open(merge_output_file + '.xml', 'w')
         stream.write(a.serialize())
-        print self.b1
         for record in self.b1:
             stream.writelines(xmlSerialize(record)[173:]. \
                 replace('\t', '    ').replace('\n</plist>', ''))

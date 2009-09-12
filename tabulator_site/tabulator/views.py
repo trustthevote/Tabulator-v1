@@ -87,6 +87,7 @@ def tabulator_home(request):
             lines = {}
             stream = open(settings.DATA_PATH + 'tab_aggr/' + fname, 'r')
             lines["merge"] = stream.readlines()
+            fname = fname[:fname.rfind('.')]
             stream = open(settings.DATA_PATH + 'reports/' + fname + '_report', 'r')
             lines["report"] = stream.readlines()
             lines_json = json.dumps(lines)
