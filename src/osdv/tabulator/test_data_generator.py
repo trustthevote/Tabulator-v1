@@ -10,7 +10,6 @@ import yaml
 import sys
 import copy
 import uuid
-from plistlib import writePlistToString as xmlSerialize
 
 import audit_header
 
@@ -32,8 +31,8 @@ class ProvideRandomBallots(object):
         
         if type == 'election':
         # Generate a sample election and output it to the location
-        #  specified by the user in the command line, in yaml and xml
-        #  formats.
+        #  specified by the user in the command line, in yaml
+        #  format.        
             b = {}
 
             # Load a list of first and last names from file
@@ -42,32 +41,25 @@ class ProvideRandomBallots(object):
             stream = open('last_names', 'r')
             self.lnames = stream.readlines()
 
-            # Give each file its own audit header, generate data
+            stream = open(args[0], 'w') 
+            
+            # Give each file its own audit header            
             a = audit_header.AuditHeader()
             a.set_fields('precinct_contestlist',
                          'Pito Salas', 'TTV Tabulator TAB02', 
                          'TTV Tabulator 1.2 JUL-1-2008', [])
+            stream.write(a.serialize())
+            
             b = self.random_elec()
             b['type'] = 'precinct_contestlist'
-            
-            # Dump output into a file in yaml format
-            stream = open(args[0] + '.yaml', 'w') 
-            stream.write(a.serialize())
             yaml.dump(b, stream)
-            
-            # Dump output into a file in XML file
-            stream = open(args[0] + '.xml', 'w')
-            stream.write(a.serialize())
-            stream.writelines(xmlSerialize(b)[173:]. \
-                replace('\t', '    ').replace('\n</plist>', ''))
-
-            
         elif type == 'counts':
             # Load election specs from given file in yaml format     
-            stream = open(args[1] + '.yaml', 'r')
+            stream = open(args[1], 'r')
             for i in range(0,8):  # Ignore the audit header
                 stream.readline()
             e = yaml.load(stream)
+            print e
             e['type'] = 'ballot_counter_total'
         
             # Make the number of random ballot_info records specified by
@@ -83,25 +75,19 @@ class ProvideRandomBallots(object):
                         b['contests'][j]['candidates'][k]['count'] = r
                 b_list.append(b)
             
+            # Store the results in yaml format back into the specified 
+            #  file. Any existing file with the given filename will be 
+            #  overwritten.
+            stream = open(args[2], 'w')
+
             # Give each file its own audit header            
             a = audit_header.AuditHeader()
             a.set_fields('precinct_contestlist',
                          'Pito Salas', 'TTV Tabulator TAB02', 
                          'TTV Tabulator 1.2 JUL-1-2008', [])
-
-            # Dump output into a file in yaml format
-            stream = open(args[2] + '.yaml', 'w')
             stream.write(a.serialize())
+
             yaml.dump_all(b_list, stream)
-
-            # Dump output into a file in XML file
-            stream = open(args[2] + '.xml', 'w')
-            stream.write(a.serialize())
-            for record in b_list:
-                stream.writelines(xmlSerialize(record)[173:]. \
-                    replace('\t', '    ').replace('\n</plist>', ''))
-
-
         else:
             exit()
     
@@ -273,11 +259,11 @@ def main():
     p = ProvideRandomBallots(type, args)
     
     if sys.argv[1] == "election":
-        print "Done. Generated sample election template files",
-        print sys.argv[2] + ".yaml and " + sys.argv[2] + ".xml \n"
+        print "Done. Generated sample election template file",
+        print sys.argv[2] + "\n"
     else:
-        print "Done. Generated sample ballot files",
-        print sys.argv[4] + ".yaml and " + sys.argv[4] + ".xml \n"
+        print "Done. Generated sample ballot file",
+        print sys.argv[4] + "\n"
 
     return 0
     

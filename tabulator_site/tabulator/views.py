@@ -76,7 +76,7 @@ def tabulator_home(request):
         elif request.POST.has_key('display_this_tdg'):
             file = request.POST['display_this_tdg']
             if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file) == 1:
-                stream = open(settings.DATA_PATH + 'prec_cont/' + file, 'r')
+                stream = open(settings.DATA_PATH + 'prec_cont/' + file, 'r')                    
             else:
                 stream = open(settings.DATA_PATH + 'bal_count_tot/' + file, 'r')
             lines = stream.readlines()
@@ -87,7 +87,6 @@ def tabulator_home(request):
             lines = {}
             stream = open(settings.DATA_PATH + 'tab_aggr/' + fname, 'r')
             lines["merge"] = stream.readlines()
-            fname = fname[:fname.rfind('.')]
             stream = open(settings.DATA_PATH + 'reports/' + fname + '_report', 'r')
             lines["report"] = stream.readlines()
             lines_json = json.dumps(lines)
@@ -107,29 +106,19 @@ def tabulator_home(request):
     if os.listdir(settings.DATA_PATH).count('reports') == 0:
         os.mkdir(settings.DATA_PATH + 'reports/')
 
-    # Get a list of files so far generated, by type. Leave off the .yaml
-    #  and .xml file extensions, as well as redundancies.
+    # Get a list of files so far generated, by type and combined
     prec_files = os.listdir(settings.DATA_PATH + 'prec_cont/')
-    for i in range(0, len(prec_files)):
-        prec_files[i] = prec_files[i][:prec_files[i].rfind('.')]
-    prec_files = set(prec_files)
     bal_files = os.listdir(settings.DATA_PATH + 'bal_count_tot/')
-    for i in range(0, len(bal_files)):
-        bal_files[i] = bal_files[i][:bal_files[i].rfind('.')]
-    bal_files = set(bal_files)
+    tdg_files = sorted(prec_files + bal_files)
     tab_files = os.listdir(settings.DATA_PATH + 'tab_aggr/')
-    for i in range(0, len(tab_files)):
-        tab_files[i] = tab_files[i][:tab_files[i].rfind('.')]
-    tab_files = set(tab_files)
-
     reports = os.listdir(settings.DATA_PATH + 'reports/')
-    tdg_files = sorted(prec_files | bal_files)
+
 
     # Get version / last revision info from file
     stream = open('VERSION', 'r')
     version = stream.readlines()
-
+    
     c = Context({'prec_files':prec_files, 'bal_files':bal_files,
-                 'tdg_files':tdg_files, 'tab_files':tab_files,
-                 'reports':reports, 'version':version})
+                  'tdg_files':tdg_files, 'tab_files':tab_files,
+                  'reports':reports, 'version':version})
     return render_to_response('home_template.html', c)

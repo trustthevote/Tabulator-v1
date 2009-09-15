@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block tdg_tab_js %}
+    <script type="text/javascript" src="http://www.jqueryui.com/jquery-1.3.2.js"></script>
+    <script type="text/javascript" src="http://www.json.org/json2.js"></script>        
+    <script type="text/javascript">
+        //When the delete button is clicked, make a list of
+        // checked filenames. Post them to the server, flagged
+        // for deletion, and remove corresponding html elements.
+        $("#delButton").click( function() {
+            checkedFiles = new Array();
+            $("[type='checkbox']:checked").each(function() {                        
+                checkedFiles.push(this.id);
+                $(this).parent("div").remove();                        
+            });
+            $.post(".", {'delete':checkedFiles});
+        });
+        
+        //When the rename button is clicked, for each checked
+        // filename display a textbox to the user allowing them
+        // to rename checked files.
+        $("#renButton").click( function() {
+            $("[type='checkbox']:checked").each(function() {                        
+                this.checked = false; //Uncheck checked boxes
+                $(this).addClass("hide");
+                $(this).next().addClass("noDisplay");
+                $(this).next().next().attr("value", $(this).attr("name"));
+                $(this).next().next().removeClass("noDisplay");                     
+                $(this).next().next().next().removeClass("noDisplay");                      
+            });
+        });
+        
+        //When the user is done renaming a file, post that data
+        // to update the server on the change.
+        $(".renDone").click( function() {           
+            //Gather the original filename and the new filename.
+            oldName = ($(this).attr("name"));
+            newName = ($(this).prev().attr("value"));
+            
+            //Change the names of corresponding HTML elements
+            $("a[name="+oldName+"]").attr({innerHTML: newName});
+            $("[name="+oldName+"]").attr("name", newName);
+            $("[id="+oldName+"]").attr({id:newName});
+            
+            
+            if(!(oldName == newName)) {
+                //Update the server if the name changed
+                $.post(".", {'old_name':oldName, 'new_name':newName});
+            }
+
+            //Remove the textbox and button, restore the
+            // checkbox and link.
+            $(this).addClass("noDisplay");
+            $(this).prev().addClass("noDisplay");
+            $(this).prev().prev().removeClass("noDisplay");
+            $(this).prev().prev().prev().removeClass("hide");
+        });
+    </script>
+{% endblock tdg_tab_js %}
+
+{% block tdg_tab_css %}
+    <style type="text/css">         
+        div.argstdg {padding-bottom:50px}
+        div.args div {font-weight:bold; padding-bottom:20px}
+        div.displayFile {padding-bottom:40px; width:670px}              
+        div.displayFile p {background-color:#E8E8E8;
+                           font-size:12px;
+                           font-family:"Courier New", Monospace;
+                           padding-top:10px;
+                           padding-left:10px;
+                           padding-bottom:10px}
+        div.versionInfo {padding-top:30px; font-style:italic}
+        .argInputs {position:absolute; left:290px}          
+        .hide {visibility:hidden}
+        .fileButtons {padding-top:10px}
+        .noDisplay {display:none}
+        a.fileLinks {color:blue;
+                     text-decoration:underline;
+                     cursor:pointer}
+        body {background-color:#FFE8BE}
+    </style>
+{% endblock tdg_tab_css %}
+

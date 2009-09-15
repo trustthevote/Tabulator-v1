@@ -1,0 +1,19 @@
+<html>
+    <head>
+        {% block javascript %}{% endblock %}
+        {% block tdg_tab_js %}{% endblock %}
+        {% block tdg_tab_css %}{% endblock %}
+    </head>
+    <body>
+		<div id="tabs">
+            <ul>
+                <li><a>Welcome</a></li>
+                <li><a>Manage Test Data</a></li>
+                <li><a>Tabulator</a></li>
+            </ul>
+        </div>
+        <div id="content">
+            {% block content %}{% endblock %}
+        </div>
+    </body>
+</html>

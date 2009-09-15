@@ -9,7 +9,6 @@
 import yaml
 import sys
 import uuid
-from plistlib import writePlistToString as xmlSerialize
 
 import audit_header
 
@@ -22,9 +21,9 @@ class Tabulator(object):
         #  the course of tabulation.
         self.rstream = open(report_output_file, 'w')
         
-        # Load ballot records from yaml file
+        # Load ballot records from file
         try:
-            stream = open(record_file1 + '.yaml', 'r')
+            stream = open(record_file1, 'r')
         except:
             self.rstream.write('Unable to open ' + record_file1 + '\n')
             print('Unable to open ' + record_file1 + '\n')
@@ -38,7 +37,7 @@ class Tabulator(object):
             self.b1 = []
             self.b1 = yaml.load_all(stream)        
         try:
-            stream = open(record_file2 + '.yaml', 'r')
+            stream = open(record_file2, 'r')
         except:
             self.rstream.write('Unable to open ' + record_file2 + '\n')
             print('Unable to open ' + record_file2 + '\n')
@@ -53,7 +52,7 @@ class Tabulator(object):
             self.b2 = yaml.load_all(stream)
         
         # Get the election specs from file
-        stream = open(election_file + '.yaml', 'r')
+        stream = open(election_file, 'r')
         for i in range(0,8):  # Ignore the audit header
             stream.readline()
         self.e = yaml.load(stream)
@@ -63,14 +62,16 @@ class Tabulator(object):
                 
         # Generators were already iterated over by verify_match_record,
         #  so reload.
-        stream = open(record_file1 + '.yaml', 'r')
+        stream = open(record_file1, 'r')
         for i in range(0,8):  # Ignore the audit header
             stream.readline()
         self.b1 = yaml.load_all(stream)
-        stream = open(record_file2 + '.yaml', 'r')
+        stream = open(record_file2, 'r')
         for i in range(0,8):  # Ignore the audit header
             stream.readline()
         self.b2 = yaml.load_all(stream)
+        
+        stream = open(merge_output_file, 'w')    
         
         # Combine provenances and guids from input files
         new_prov = []
@@ -86,6 +87,12 @@ class Tabulator(object):
                 self.rstream.write("Input files contain the same ballot record, merge aborted\n")
                 exit()          
         
+        a = audit_header.AuditHeader()
+        a.set_fields('precinct_contestlist',
+                     'Pito Salas', 'TTV Tabulator TAB02', 
+                     'TTV Tabulator 1.2 JUL-1-2008', new_prov)
+        stream.write(a.serialize())        
+
         # Add the vote counts of candidates with the same ID# using
         #  merge(). Write the vote totals for each candidate to the
         #  report stream.
@@ -95,47 +102,20 @@ class Tabulator(object):
             self.rstream.write(str(s[key]) + ' votes found for ' + key + '\n')
 
         # Generators were already iterated over by merge, so reload.
-        read_stream = open(record_file1 + '.yaml', 'r')
+        read_stream = open(record_file1, 'r')
         for i in range(0,8):  # Ignore the audit header
             read_stream.readline()
         self.b1 = yaml.load_all(read_stream)
-        read_stream = open(record_file2 + '.yaml', 'r')
+        read_stream = open(record_file2, 'r')
         for i in range(0,8):  # Ignore the audit header
             read_stream.readline()
         self.b2 = yaml.load_all(read_stream)
 
-        # Create an audit header for merge file
-        a = audit_header.AuditHeader()
-        a.set_fields('precinct_contestlist',
-                     'Pito Salas', 'TTV Tabulator TAB02', 
-                     'TTV Tabulator 1.2 JUL-1-2008', new_prov)
-        
-        # Dump merge into a file in yaml format
-        stream = open(merge_output_file + '.yaml', 'w')
-        stream.write(a.serialize())
+        # Concatenate the two input files, minus their headers, into the
+        #  output file.
         yaml.dump_all(self.b1, stream)
         stream.write('---\n')
         yaml.dump_all(self.b2, stream)
-        
-        # Gotta find a better way to deal with these stupid generators
-        read_stream = open(record_file1 + '.yaml', 'r')
-        for i in range(0,8):  # Ignore the audit header
-            read_stream.readline()
-        self.b1 = yaml.load_all(read_stream)
-        read_stream = open(record_file2 + '.yaml', 'r')
-        for i in range(0,8):  # Ignore the audit header
-            read_stream.readline()
-        self.b2 = yaml.load_all(read_stream)
-
-        # Dump merge into a file in xml format        
-        stream = open(merge_output_file + '.xml', 'w')
-        stream.write(a.serialize())
-        for record in self.b1:
-            stream.writelines(xmlSerialize(record)[173:]. \
-                replace('\t', '    ').replace('\n</plist>', ''))
-        for record in self.b2:
-            stream.writelines(xmlSerialize(record)[173:]. \
-                replace('\t', '    ').replace('\n</plist>', ''))
                 
         stream.close()
         self.rstream.close()
@@ -149,25 +129,25 @@ class Tabulator(object):
         #  return 0
         for b in self.b1:
             if ((b['election_name'] != self.e['election_name']) or
-            (len(b['contests']) != len(self.e['contests']))):             
+            (len(b['conts']) != len(self.e['conts']))):             
                 print "First record file did not match election template, merge aborted\n"
                 self.rstream.write("First record file did not match election template, merge aborted\n")
                 exit()
-            for i in range(len(self.e['contests'])):
-                if not self.match_contest(self.e['contests'][i],
-                                          b['contests'][i]):
+            for i in range(len(self.e['conts'])):
+                if not self.match_contest(self.e['conts'][i],
+                                          b['conts'][i]):
                     print "First record file did not match election template, merge aborted\n"
                     self.rstream.write("First record file did not match election template, merge aborted\n")
                     exit()
         for b in self.b2:
             if (b['election_name'] != self.e['election_name']) or \
-            (len(b['contests']) != len(self.e['contests'])):
+            (len(b['conts']) != len(self.e['conts'])):
                 print "Second record file did not match election template, merge aborted\n"
                 self.rstream.write("Second record file did not match election template, merge aborted\n")
                 exit()
-            for i in range(len(self.e['contests'])):
-                if not self.match_contest(self.e['contests'][i], 
-                                          b['contests'][i]):
+            for i in range(len(self.e['conts'])):
+                if not self.match_contest(self.e['conts'][i], 
+                                          b['conts'][i]):
                     print "Second record file did not match election template, merge aborted\n"
                     self.rstream.write("Second record file did not match election template, merge aborted\n")
                     exit()
@@ -181,11 +161,11 @@ class Tabulator(object):
         (cont1['ident'] != cont2['ident']) or \
         (cont1['open_seat_count'] != cont2['open_seat_count']) or \
         (cont1['voting_method_id'] != cont2['voting_method_id']) or \
-        (len(cont1['candidates']) != len(cont2['candidates'])):
+        (len(cont1['cands']) != len(cont2['cands'])):
             return False
-        for i in range(len(cont1['candidates'])):
-            if not self.match_candidate(cont1['candidates'][i],
-                                        cont2['candidates'][i]):
+        for i in range(len(cont1['cands'])):
+            if not self.match_candidate(cont1['cands'][i],
+                                        cont2['cands'][i]):
                 return False
         return True
     
@@ -203,20 +183,20 @@ class Tabulator(object):
     def sumation(self):
         sum_dict = {}
         for rec in self.b1:     
-            for i in range(len(rec['contests'])):
-                for j in range(len(rec['contests'][i]['candidates'])):
-                    cand_name = rec['contests'][i]['candidates'][j]['display_name']
+            for i in range(len(rec['conts'])):
+                for j in range(len(rec['conts'][i]['cands'])):
+                    cand_name = rec['conts'][i]['cands'][j]['display_name']
                     if not sum_dict.has_key(cand_name):
                         sum_dict[cand_name] = 0                    
-                    cand_count = rec['contests'][i]['candidates'][j]['count']
+                    cand_count = rec['conts'][i]['cands'][j]['count']
                     sum_dict[cand_name] += cand_count
         for rec in self.b2:
-            for i in range(len(rec['contests'])):
-                for j in range(len(rec['contests'][i]['candidates'])):
-                    cand_name = rec['contests'][i]['candidates'][j]['display_name']
-                    cand_count = rec['contests'][i]['candidates'][j]['count']
+            for i in range(len(rec['conts'])):
+                for j in range(len(rec['conts'][i]['cands'])):
+                    cand_name = rec['conts'][i]['cands'][j]['display_name']
+                    cand_count = rec['conts'][i]['cands'][j]['count']
                     sum_dict[cand_name] += cand_count
-        return sum_dict
+        return sum_dict            
 
 def main():
     # Output a usage message if incorrect number of command line args
@@ -230,8 +210,7 @@ def main():
                   sys.argv[5])
     
     print "Successfully merged " + sys.argv[2] + " and " + sys.argv[3],
-    print "together\n The result is stored in " + sys.argv[4] + ".yaml",
-    print "and " + sys.argv[4] + ".xml"
+    print "together\n The result is stored in " + sys.argv[4]
     print "A report describing attributes of the merge was created",
     print "in " + sys.argv[5]   
     
