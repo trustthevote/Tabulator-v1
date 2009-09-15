@@ -1,0 +1,120 @@
+{% extends "base_tdg_tab.html" %}
+
+{% block javascript %}
+	//Hide or show the appropriate fields when the user
+	// chooses to generate either an election template or
+	// random vote counts within the tdg.
+	$("#genMode").change( function() {
+		idx = document.getElementById("genMode").selectedIndex;
+		val = document.getElementById("genMode")[idx].value;
+		if(val=="election") {
+			$(".hideUs").addClass('noDisplay');                     
+		}
+		if(val=="counts") {
+			$(".hideUs").removeClass('noDisplay');
+		}
+	});
+	//Replace the displayFile div with the content of a
+	// generated file when the name of that file is clicked.
+	$("a.fileLinks").click( function() {
+		fname = $(this).attr("name");                   
+		$.post(".", {'display_this_tdg':fname}, function(data){
+				//Make spaces and newlines in the file
+				// consistent with HTML
+				data = data.replace(/\n/g, "<br/>");
+				data = data.replace(/ /g, '&nbsp;');
+
+				//Generate markup that displays the contents
+				// of the file. Scroll to top of page
+				$("#displayFile").replaceWith('<div id="displayFile"'
+				 + fname + '</h4><p>'+ data + '</p></div>');
+				scroll(0,0);
+			});
+	});
+
+	//Post file generation arguments to the server when the
+	// user clicks the "run" button.
+	$("#argsButton").click( function() {
+		args = new Array();
+
+		//Gather a list of arguments, the size of which
+		// depends on the type of data to generate.
+		idx = document.getElementById("genMode").selectedIndex;
+		val = document.getElementById("genMode")[idx].value;
+		if(val=="election") {                       
+			args.push(document.getElementById("outputFilename").value);                        
+		}                   
+		if(val=="counts") {                     
+			args.push(document.getElementById("howMany").value);
+			idx = document.getElementById("templateFileTDG").selectedIndex;
+			args.push(document.getElementById("templateFileTDG")[idx].value);
+			args.push(document.getElementById("outputFilename").value);
+		}
+	   
+		//Check to see if the user gave an output filename
+		// that is already in use. If so, then prompt to
+		// confirm overwrite.
+		fname = args[args.length-1];                    
+		overw = true;                     
+		if($("[name="+fname+"]").length!=0) {                        
+			overw = confirm("Overwrite file " + fname + "?");
+		}
+		//If the filename was not already in use, or the
+		// user confirmed the overwrite, then post
+		// arguments to the server.
+		if(overw == true) {                        
+			args = JSON.stringify(args)
+			$.post(".", {'arguments_tdg':args}, function() {								
+				location.reload(true);
+			});
+		}
+	});
+{% endblock javascript %}
+
+{% block content %}
+    <h2>Generate New Files</h2>
+    <div class="args">
+        <div><label for="genMode">Data type:</label>
+        <select id="genMode" class="argInputs">
+            <option value="election">Random election template</option>
+            <option value="counts">Random vote counts</option>
+        </select></div>
+        <div class="hideUs noDisplay"><label>Number of records in file:</label>
+            <input type="text" id="howMany" class="argInputs" /></div>
+        <div class="hideUs noDisplay"><label for="templateFile">Election template file name:</label>
+        <select id="templateFile" class="argInputs">
+            {% if not prec_files %}
+                <option value="null">(None generated)</option>
+            {% else %}
+                {% for file in prec_files %}
+                    <option value="{{file}}">{{file}}</option>
+                {% endfor %}
+            {% endif %}
+        </select></div>
+        <div><label>Output file name:</label><input type="text" id="outputFilename" class="argInputs" /></div>
+        <input type="submit" value="Run" id="argsButton" />
+    </div>
+    
+    <div id = "displayFile"></div>
+    
+    <h2>Generated Files</h2>
+    {% for file in tdg_files %}
+        <div>
+            <input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
+            <a class="fileLinks" name="{{ file }}">{{ file }}</a>
+            <input type="text" class="renText noDisplay" name="{{ file }}" />               
+            <input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />                
+        </div>
+    {% endfor %}
+    <div class="fileButtons">
+        <input type = "submit" value = "Delete" id = "delButton" />
+        <input type = "submit" value = "Rename" id = "renButton" />
+    </div>
+    <div class = "versionInfo">
+        <p>
+        {% for line in version %}
+            {{ line }}<br/>
+        {% endfor %}
+        </p>
+    </div>
+{% endblock content %}

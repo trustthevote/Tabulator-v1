@@ -91,7 +91,19 @@ def tabulator_home(request):
             lines["report"] = stream.readlines()
             lines_json = json.dumps(lines)
             return HttpResponse(lines_json)
-                            
+        elif request.POST.has_key('welcome_tab'):
+            c = get_render_data()
+            return render_to_response('welcome_template.html', c)
+        elif request.POST.has_key('tdg_tab'):            
+            c = get_render_data()
+            return render_to_response('tdg_template.html', c)
+        elif request.POST.has_key('tabulator_tab'):
+            c = get_render_data()
+            return render_to_response('tabulator_template.html', c)
+    c = get_render_data()
+    return render_to_response('welcome_template.html', c)
+
+def get_render_data():
     # Make the subdirectory specified by DATA_PATH within the
     #  directory DATA_PARENT, if it does not exist already. Generated
     #  test data files will go here.    
@@ -117,8 +129,7 @@ def tabulator_home(request):
     # Get version / last revision info from file
     stream = open('VERSION', 'r')
     version = stream.readlines()
-    
-    c = Context({'prec_files':prec_files, 'bal_files':bal_files,
+
+    return Context({'prec_files':prec_files, 'bal_files':bal_files,
                   'tdg_files':tdg_files, 'tab_files':tab_files,
                   'reports':reports, 'version':version})
-    return render_to_response('home_template.html', c)
