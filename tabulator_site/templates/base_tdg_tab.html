@@ -56,24 +56,44 @@
 
 {% block tdg_tab_css %}
     <style type="text/css">         
+        input {
+            font-size:10px;
+            padding: 1px;
+        }
+
+        body {
+            background-color:#424242;
+            background-image:url('/static/images/bg.gif');
+            background-repeat:repeat-x;
+        }
         div.argstdg {padding-bottom:50px}
         div.args div {font-weight:bold; padding-bottom:20px}
-        div.displayFile {padding-bottom:40px; width:670px}              
+        div.displayFile {
+            margin-left:20px;
+            padding-bottom:40px;
+            width:670px;
+            }
         div.displayFile p {background-color:#E8E8E8;
-                           font-size:12px;
-                           font-family:"Courier New", Monospace;
-                           padding-top:10px;
-                           padding-left:10px;
-                           padding-bottom:10px}
+                        font-size:12px;
+                        font-family:"Courier New", Monospace;
+                        padding-top:10px;
+                        padding-left:10px;
+                        padding-bottom:10px}
         div.versionInfo {padding-top:30px; font-style:italic}
-        .argInputs {position:absolute; left:290px}          
         .hide {visibility:hidden}
         .fileButtons {padding-top:10px}
         .noDisplay {display:none}
-        a.fileLinks {color:blue;
-                     text-decoration:underline;
-                     cursor:pointer}
-        body {background-color:#FFE8BE}
+        a.fileLinks {color:blue}
+
+        #createfiles, #generatedFiles, #tabulate, #mergedfiles{
+            padding-left:20px;
+            padding-top:20px;
+        }
+        
+        #createfiles {
+            background-color:#efefef;
+            border-bottom: 1px solid #b2b2b2;
+        }    
     </style>
 {% endblock tdg_tab_css %}
 

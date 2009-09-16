@@ -67,64 +67,78 @@
 {% endblock javascript %}
 
 {% block content %}
-    <h2>Tabulate Files</h2>
-    <div class="args">
-        <div><label for="templateFile">Election template file name:</label>
-        <select id="templateFile" class="argInputs">
-            {% if not prec_files %}
-                <option value="null">(None generated)</option>
-            {% else %}
-                {% for file in prec_files %}
-                    <option value="{{file}}">{{file}}</option>
-                {% endfor %}
-            {% endif %}
-        </select></div>
-        <div><label for="inputFile1">First input file name:</label>
-        <select id="inputFile1" class="argInputs">
-            {% if not bal_files %}
-                <option value="null">(None generated)</option>
-            {% else %}
-                {% for file in bal_files %}
-                    <option value="{{file}}">{{file}}</option>
-                {% endfor %}
-            {% endif %}
-        </select></div>       
-        <div><label for="inputFile2">Second input file name:</label>
-        <select id="inputFile2" class="argInputs">
-            {% if not bal_files %}
-                <option value="null">(None generated)</option>
-            {% else %}
-                {% for file in bal_files %}
-                    <option value="{{file}}">{{file}}</option>
-                {% endfor %}
-            {% endif %}
-        </select></div>
-        <div><label>Merged output file name:</label>
-        <input type="text" id="mergeName" class="argInputs" /></div>
-        <input type="submit" value="Run" id="argsButton" />
+    <div id="tabulate" class="args">
+        <h2>Tabulate Files</h2>
+        <div class="args">
+            <div><label for="templateFile">Election template file name:</label>
+            <select id="templateFile" class="argInputs">
+                {% if not prec_files %}
+                    <option value="null">(None generated)</option>
+                {% else %}
+                    {% for file in prec_files %}
+                        <option value="{{file}}">{{file}}</option>
+                    {% endfor %}
+                {% endif %}
+            </select></div>
+            <div><label for="inputFile1">First input file name:</label>
+            <select id="inputFile1" class="argInputs">
+                {% if not bal_files %}
+                    <option value="null">(None generated)</option>
+                {% else %}
+                    {% for file in bal_files %}
+                        <option value="{{file}}">{{file}}</option>
+                    {% endfor %}
+                {% endif %}
+            </select></div>       
+            <div><label for="inputFile2">Second input file name:</label>
+            <select id="inputFile2" class="argInputs">
+                {% if not bal_files %}
+                    <option value="null">(None generated)</option>
+                {% else %}
+                    {% for file in bal_files %}
+                        <option value="{{file}}">{{file}}</option>
+                    {% endfor %}
+                {% endif %}
+            </select></div>
+            <div><label>Merged output file name:</label>
+            <input type="text" id="mergeName" class="argInputs" /></div>
+            <input type="submit" value="Run" class="argsButton" />
+        </div>
     </div>
     
     <div class = "displayFile" id="mergedFile"></div>
     <div class = "displayFile" id="reportFile"></div>
 
-    <h2>Merged Files</h2>        
-    {% for file in tab_files %}
-        <div>
-            <input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
-            <a class="fileLinks" name="{{ file }}">{{ file }}</a>
-            <input type="text" class="renText noDisplay" name="{{ file }}" />
-            <input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />
+    <div id="mergedfiles">
+        <h2>Merged Files</h2>
+        <label>Display format:</label>
+        <input type="radio" name="tabType" value="1" checked="checked"><label>Yaml</label>
+        <input type="radio" name="tabType" value="0"><label>XML</label>
+        {% for file in tab_files %}
+            <div>
+                <input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
+                <a class="fileLinks" name="{{ file }}">{{ file }}</a>
+                <input type="text" class="renText noDisplay" name="{{ file }}" />
+                <input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />
+            </div>
+         {% endfor %}
+        <div class="fileButtons">
+            <input type = "submit" value = "Delete" class = "delButton" />
+            <input type = "submit" value = "Rename" class = "renButton" />
         </div>
-    {% endfor %}
-    <div class="fileButtons">
-        <input type = "submit" value = "Delete" id = "delButton" />
-        <input type = "submit" value = "Rename" id = "renButton" />
+        <div class = "versionInfo">
+            <p>
+            {% for line in version %}
+                {{ line }}<br/>
+            {% endfor %}
+            </p>
+        </div>
     </div>
-    <div class = "versionInfo">
-        <p>
-        {% for line in version %}
-            {{ line }}<br/>
-        {% endfor %}
-        </p>
+    <div id="footer">
+        <ul id="footer_nav">
+        <li><a href="">Legal Notices</a></li>
+        <li>|</li>
+        <li><a href="">Privacy Matters</a></li>
+        </ul>
     </div>
 {% endblock content %}

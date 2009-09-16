@@ -72,40 +72,48 @@
 {% endblock javascript %}
 
 {% block content %}
-    <h2>Generate New Files</h2>
-    <div class="args">
-        <div><label for="genMode">Data type:</label>
-        <select id="genMode" class="argInputs">
-            <option value="election">Random election template</option>
-            <option value="counts">Random vote counts</option>
-        </select></div>
-        <div class="hideUs noDisplay"><label>Number of records in file:</label>
-            <input type="text" id="howMany" class="argInputs" /></div>
-        <div class="hideUs noDisplay"><label for="templateFile">Election template file name:</label>
-        <select id="templateFile" class="argInputs">
-            {% if not prec_files %}
-                <option value="null">(None generated)</option>
-            {% else %}
-                {% for file in prec_files %}
-                    <option value="{{file}}">{{file}}</option>
-                {% endfor %}
-            {% endif %}
-        </select></div>
-        <div><label>Output file name:</label><input type="text" id="outputFilename" class="argInputs" /></div>
-        <input type="submit" value="Run" id="argsButton" />
+    <div id="generatedFiles">
+        <h2>Generate New Files</h2>
+        <div class="args">
+            <div><label for="genMode">Data type:</label>
+            <select id="genMode" class="argInputs">
+                <option value="election">Random election template</option>
+                <option value="counts">Random vote counts</option>
+            </select></div>
+            <div class="hideUs noDisplay"><label>Number of records in file:</label>
+                <input type="text" id="howMany" class="argInputs" /></div>
+            <div class="hideUs noDisplay"><label for="templateFile">Election template file name:</label>
+            <select id="templateFile" class="argInputs">
+                {% if not prec_files %}
+                    <option value="null">(None generated)</option>
+                {% else %}
+                    {% for file in prec_files %}
+                        <option value="{{file}}">{{file}}</option>
+                    {% endfor %}
+                {% endif %}
+            </select></div>
+            <div><label>Output file name:</label><input type="text" id="outputFilename" class="argInputs" /></div>
+            <input type="submit" value="Run" class="argsButton" />
+        </div>
     </div>
     
-    <div id = "displayFile"></div>
-    
-    <h2>Generated Files</h2>
-    {% for file in tdg_files %}
-        <div>
-            <input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
-            <a class="fileLinks" name="{{ file }}">{{ file }}</a>
-            <input type="text" class="renText noDisplay" name="{{ file }}" />               
-            <input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />                
-        </div>
-    {% endfor %}
+    <div id="displayFile"></div>
+
+    <div id="generatedFiles">
+        <h2>Generated Files</h2>
+        <label>Display format:</label>
+        <input type="radio" name="TDGType" value="1" checked="checked"><label>Yaml</label>
+        <input type="radio" name="TDGType" value="0"><label>XML</label>
+        <div class="whitespace"></div>
+        {% for file in tdg_files %}
+            <div>
+                <input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
+                <a class="fileLinks tdg" name="{{ file }}">{{ file }}</a>
+                <input type="text" class="renText noDisplay" name="{{ file }}" />
+                <input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />
+            </div>
+        {% endfor %}
+    </div>
     <div class="fileButtons">
         <input type = "submit" value = "Delete" id = "delButton" />
         <input type = "submit" value = "Rename" id = "renButton" />

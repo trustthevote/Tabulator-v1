@@ -1,6 +1,9 @@
 <html>
     <head>
+        <link type="text/css" href="http://www.jqueryui.com/themes/base/ui.all.css" rel="stylesheet" />
 		<script type="text/javascript" src="http://www.jqueryui.com/jquery-1.3.2.js"></script>
+        <script type="text/javascript" src="http://www.jqueryui.com/ui/ui.core.js"></script>
+        <script type="text/javascript" src="http://www.jqueryui.com/ui/ui.tabs.js"></script>
 		<script type="text/javascript" src="http://www.json.org/json2.js"></script>
         <script type="text/javascript">
             //When the DOM loads, activate some event handler functions
@@ -10,9 +13,118 @@
             }
         </script>
         {% block tdg_tab_css %}{% endblock %}
+        <style type="text/css">         
+            * {
+                font-family: Helvetica, Arial, Tahoma;
+                font-size: 12px;
+                line-height: 25px;
+                margin: 0px;
+                padding: 0px;
+            }
+
+            label {display:block; float:left; width:180px;}
+
+            #header, #tabs{
+                margin-left:auto;
+                margin-right:auto;
+                width:950px;
+            }
+
+            #header {
+                padding-left:25px;
+                padding-top:10px;
+                height:110px;
+            }
+
+            #logo {float:left;}
+
+            #header h1 {
+                color:#3aa54a;
+                font-size:32px;
+            }
+
+            #tabs {
+                background-color:transparent;
+                background-image:none;
+                border:0;
+            }
+
+            ul.ui-tabs-nav {
+                margin-left:150px;
+                margin-bottom:3px;
+                list-style:none;
+            }
+
+            ul.ui-tabs-nav li {
+                display:inline;
+                padding-top:10px;
+                margin-left:25px;
+                width:100px;
+            }
+
+            ul.ui-tabs-nav li:hover {
+                border-top:5px solid #4dc05e;
+            }
+
+            ul.ui-tabs-nav li.ui-state-active {border-top:5px solid #6699ff;}
+
+            ul.ui-tabs-nav li a {
+                color:white;
+                font-size:22px;
+                text-decoration:none;
+                border:0;
+                outline-style: none;
+            }
+
+            .ui-tabs-panel {
+                background-color:white;
+                border: 3px solid #2c5aa0;
+                min-height:400px;
+                -moz-border-radius:5px;
+                -webkit-border-radius: 5px;
+            }
+
+            .ui-tabs-hide {
+                display:none;
+            }
+
+            .ui-tabs-panel h2 {
+                color:#214478;
+                font-size:18px;
+            }
+
+            #footer p {
+                color:#929292;
+                font-size:10px;
+            }
+
+            #footer a {
+                color:#aaaaaa;
+                font-size:10px;
+                text-decoration:none;
+            }
+
+            #footer_nav {
+            list-style:none;
+            margin-left:auto;
+            margin-right:auto;
+            width:200px;
+            }
+
+            #footer_nav li {
+                display: inline;
+                margin-right:5px;
+                margin-left:5px;
+            }
+
+        </style>
+    
     </head>
     <body>
-		<div id="tabs">
+        <div id="header">
+            <img id="logo" src="/static/images/trustthevote.png" width="130"/>
+        </div>
+        <div id="tabs">
             <ul>
                 <li><a href="../welcome" id="welcomeTab" class="tab">Welcome</a></li>
                 <li><a href="../tdg" id="tdgTab" class="tab">Manage Test Data</a></li>
