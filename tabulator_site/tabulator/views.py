@@ -11,8 +11,12 @@ import TDG
 import tabulator
 import audit_header
 
-def tabulator_home(request):
-    # Check to see if the client is submitting data.
+def welcome_handler(request):
+    c = get_render_data()
+    return render_to_response('welcome_template.html', c)
+
+def tdg_handler(request):
+    # Check to see if the client is posting data
     if request.method == 'POST':
         # Check to see if the client wants to generate a file
         if request.POST.has_key('arguments_tdg'):            
@@ -30,7 +34,27 @@ def tabulator_home(request):
                 args[1] = settings.DATA_PATH + 'prec_cont/' + args[1]
                 args[2] = settings.DATA_PATH + 'bal_count_tot/' + args[2]
             P = TDG.ProvideRandomBallots(type, args)  # Make a file            
-            return HttpResponse()
+        # Check to see if client wants to delete file(s)
+        elif request.POST.has_key('delete'):
+            delete_files(request.POST.getlist('delete'))
+        # Check to see if client wants to rename a file
+        elif request.POST.has_key('old_name'):
+            rename_files(request.POST.getlist('old_name'))
+        elif request.POST.has_key('display_this_tdg'):
+            file = request.POST['display_this_tdg']
+            if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file) == 1:
+                stream = open(settings.DATA_PATH + 'prec_cont/' + file, 'r')
+            else:
+                stream = open(settings.DATA_PATH + 'bal_count_tot/' + file, 'r')
+            lines = stream.readlines()
+            return HttpResponse(lines)
+    c = get_render_data()
+    return render_to_response('tdg_template.html', c)
+
+
+def tab_handler(request):
+    # Check to see if the client is posting data
+    if request.method == 'POST':
         # Check to see if client wants to merge files
         if request.POST.has_key('arguments'):
             # Get and deserialize the users arguments from JSON
@@ -49,38 +73,12 @@ def tabulator_home(request):
             return HttpResponse()
         # Check to see if client wants to delete file(s)
         elif request.POST.has_key('delete'):
-            for file in request.POST.getlist('delete'):
-                if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file) == 1:
-                    os.remove(settings.DATA_PATH + 'prec_cont/' + file)
-                elif os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(file) == 1:
-                    os.remove(settings.DATA_PATH + 'bal_count_tot/' + file)                
-                else:
-                    os.remove(settings.DATA_PATH + 'tab_aggr/' + file)
-                    os.remove(settings.DATA_PATH + 'reports/' + file + "_report")
+            delete_files(request.POST.getlist('delete'))
+            return HttpResponse()
         # Check to see if client wants to rename a file
         elif request.POST.has_key('old_name'):
-            old_name = request.POST['old_name']
-            new_name = request.POST['new_name']
-            if os.listdir(settings.DATA_PATH + 'prec_cont/').count(old_name) == 1:
-                os.rename(settings.DATA_PATH + 'prec_cont/' + old_name,
-                    settings.DATA_PATH + 'prec_cont/' + new_name)
-            elif os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(old_name) == 1:
-                os.rename(settings.DATA_PATH + 'bal_count_tot/' + old_name,
-                    settings.DATA_PATH + 'bal_count_tot/' + new_name)
-            else:
-                os.rename(settings.DATA_PATH + 'tab_aggr/' + old_name,
-                    settings.DATA_PATH + 'tab_aggr/' + new_name)
-                os.rename(settings.DATA_PATH + 'reports/' + old_name + '_report',
-                    settings.DATA_PATH + 'reports/' + new_name + '_report')
-        # Check to see if client wants the contents of a tdg file
-        elif request.POST.has_key('display_this_tdg'):
-            file = request.POST['display_this_tdg']
-            if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file) == 1:
-                stream = open(settings.DATA_PATH + 'prec_cont/' + file, 'r')                    
-            else:
-                stream = open(settings.DATA_PATH + 'bal_count_tot/' + file, 'r')
-            lines = stream.readlines()
-            return HttpResponse(lines)
+            rename_files(request.POST.getlist('old_name'))
+            return HttpResponse()
         # Check to see if client wants the contents of tabulator files
         elif request.POST.has_key('display_this'):
             fname = request.POST['display_this']
@@ -91,17 +89,9 @@ def tabulator_home(request):
             lines["report"] = stream.readlines()
             lines_json = json.dumps(lines)
             return HttpResponse(lines_json)
-        elif request.POST.has_key('welcome_tab'):
-            c = get_render_data()
-            return render_to_response('welcome_template.html', c)
-        elif request.POST.has_key('tdg_tab'):            
-            c = get_render_data()
-            return render_to_response('tdg_template.html', c)
-        elif request.POST.has_key('tabulator_tab'):
-            c = get_render_data()
-            return render_to_response('tabulator_template.html', c)
     c = get_render_data()
-    return render_to_response('welcome_template.html', c)
+    return render_to_response('tabulator_template.html', c)
+    
 
 def get_render_data():
     # Make the subdirectory specified by DATA_PATH within the
@@ -131,5 +121,33 @@ def get_render_data():
     version = stream.readlines()
 
     return Context({'prec_files':prec_files, 'bal_files':bal_files,
-                  'tdg_files':tdg_files, 'tab_files':tab_files,
-                  'reports':reports, 'version':version})
+                    'tdg_files':tdg_files, 'tab_files':tab_files,
+                    'reports':reports, 'version':version})
+
+
+def delete_files(files):
+    for file in request.POST.getlist('delete'):
+        if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file) == 1:
+            os.remove(settings.DATA_PATH + 'prec_cont/' + file)
+        elif os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(file) == 1:
+            os.remove(settings.DATA_PATH + 'bal_count_tot/' + file)                
+        else:
+            os.remove(settings.DATA_PATH + 'tab_aggr/' + file)
+            os.remove(settings.DATA_PATH + 'reports/' + file + "_report")
+    return
+
+def rename_file(data):
+    old_name = data['old_name']
+    new_name = data['new_name']
+    if os.listdir(settings.DATA_PATH + 'prec_cont/').count(old_name) == 1:
+        os.rename(settings.DATA_PATH + 'prec_cont/' + old_name,
+            settings.DATA_PATH + 'prec_cont/' + new_name)
+    elif os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(old_name) == 1:
+        os.rename(settings.DATA_PATH + 'bal_count_tot/' + old_name,
+            settings.DATA_PATH + 'bal_count_tot/' + new_name)
+    else:
+        os.rename(settings.DATA_PATH + 'tab_aggr/' + old_name,
+            settings.DATA_PATH + 'tab_aggr/' + new_name)
+        os.rename(settings.DATA_PATH + 'reports/' + old_name + '_report',
+            settings.DATA_PATH + 'reports/' + new_name + '_report')
+    return

@@ -1,35 +1,22 @@
 <html>
     <head>
 		<script type="text/javascript" src="http://www.jqueryui.com/jquery-1.3.2.js"></script>
-		<script type="text/javascript" src="http://www.json.org/json2.js"></script>        
-		<script type="text/javascript">
-			<!--When the DOM loads, activate the appropriate event handler functions-->
-			$(document).ready(function() {              
-				{% block javascript %}{% endblock %}
-				{% block tdg_tab_js %}{% endblock %}
-				$("#welcomeTab").click( function() {
-					$.post(".", {'welcome_tab':''});
-				});
-				$("#tdgTab").click( function() {
-					$.post(".", {'tdg_tab':''});
-				});
-				$("#tabulatorTab").click( function() {
-					$.post(".", {'tabulator_tab':''});
-				});
-			});
-		</script>
-		
+		<script type="text/javascript" src="http://www.json.org/json2.js"></script>
+        <script type="text/javascript">
+            //When the DOM loads, activate some event handler functions
+            $(document).ready(function() {            
+                {% block javascript %}{% endblock %}
+                {% block tdg_tab_js %}{% endblock %}
+            }
+        </script>
         {% block tdg_tab_css %}{% endblock %}
-		<style type="text/css">
-			.tab {cursor:pointer}
-		</style>
     </head>
     <body>
 		<div id="tabs">
             <ul>
-                <li><a id="welcomeTab" class="tab">Welcome</a></li>
-                <li><a id="tdgTab" class="tab">Manage Test Data</a></li>
-                <li><a id="tabulatorTab" class="tab">Tabulator</a></li>
+                <li><a href="../welcome" id="welcomeTab" class="tab">Welcome</a></li>
+                <li><a href="../tdg" id="tdgTab" class="tab">Manage Test Data</a></li>
+                <li><a href="../tabulator" id="tabulatorTab" class="tab">Tabulator</a></li>
             </ul>
         </div>
         <div id="content">

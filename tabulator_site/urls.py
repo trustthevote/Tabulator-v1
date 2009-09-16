@@ -6,7 +6,10 @@ import settings
 # admin.autodiscover()
 
 urlpatterns = patterns('',    
-    (r'^$', 'tabulator.views.tabulator_home'),
+    (r'^welcome/', 'tabulator.views.welcome_handler'),
+    (r'^$', 'tabulator.views.welcome_handler'),
+    (r'^tdg/', 'tabulator.views.tdg_handler'),
+    (r'^tabulator/', 'tabulator.views.tab_handler'),    
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
     #(r'^admin/doc/', include('django.contrib.admindocs.urls')),
@@ -15,8 +18,9 @@ urlpatterns = patterns('',
     #(r'^admin/(.*)', admin.site.root),
 )
 
-#The following is used to serve up local media files like images
-#if settings.LOCAL_DEV:
+# The following is used to serve up local media files like images
+# if settings.LOCAL_DEV:
 baseurlregex = r'^static/(?P<path>.*)$'
 urlpatterns += patterns('',
-    (baseurlregex, 'django.views.static.serve', {'document_root':  settings.MEDIA_ROOT}),)
+    (baseurlregex, 'django.views.static.serve',
+    {'document_root':  settings.MEDIA_ROOT}),)
