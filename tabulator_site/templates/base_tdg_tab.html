@@ -74,36 +74,5 @@
         .noDisplay {display:none}
         a.fileLinks {color:blue; cursor:pointer}
 
-        #content_table {
-            border-collapse:collapse;
-            border-spacing:0px;
-            margin:0px;
-            padding:0px;
-        }
-
-        #content_table td{
-            height:400px;
-            padding: 10px;
-            vertical-align:top;
-        }
-
-        #main {
-             width:640px;
-        }
-
-        #sidebar {
-            border-left:1px solid #b2b2b2;
-            width:300px;
-        }
-
     </style>
 {% endblock css %}
-
-{% block content %}
-    <table id="content_table">
-        <tr>
-            <td id="main">{% block main %}{%endblock%}</td>
-            <td id="sidebar">{% block sidebar %}123{%endblock%}</td>
-        </tr>
-    </table>
-{% endblock %}

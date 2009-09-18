@@ -25,6 +25,8 @@
                 padding: 1px;
             }
 
+            p {margin-bottom:15px;}
+
             body {
                 background-color:#424242;
                 background-image:url('{{MEDIA_URL}}/bg.gif');
@@ -109,6 +111,29 @@
                 font-size:18px;
             }
 
+            #content_table {
+                border-collapse:collapse;
+                border-spacing:0px;
+                margin:0px;
+                padding:0px;
+            }
+
+            #content_table td{
+                height:400px;
+                padding: 10px;
+                vertical-align:top;
+            }
+
+            #main {
+                 width:640px;
+            }
+
+            #sidebar {
+                border-left:1px solid #b2b2b2;
+                width:300px;
+            }
+
+
             #footer {
                 color:#929292;
                 text-align: center;
@@ -148,7 +173,14 @@
             </ul>
         </div>
         <div id="content">
-            {% block content %}{% endblock %}
+            {% block content %}
+                <table id="content_table">
+                    <tr>
+                        <td id="main">{% block main %}{%endblock%}</td>
+                        <td id="sidebar">{% block sidebar %}{%endblock%}<img id="logo" src="/static/trustthevote.png"/></td>
+                    </tr>
+                </table>
+            {% endblock %}
         </div>
         <div id="footer">
             <div id="versionInfo">{% for line in version %}{{line}} {%ifequal forloop.counter 1%}<span> | </span>{%endifequal%}{% endfor %}</div>

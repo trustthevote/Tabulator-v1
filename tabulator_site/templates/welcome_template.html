@@ -5,9 +5,42 @@
         #welcomeTab, #menu li#welcomeTab:hover {
             border-top:5px solid #6699ff;
         }
+
+        div#login {
+            margin-left:180px;
+            margin-top:20px;
+        }
+
+        #login div {
+            margin-top:10px;
+        }
+
+        label {
+            font-weight:bold;
+            line-height:18px;
+            width:80px;
+        }
     </style>
 {% endblock css %}
 
-{% block content %}
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis gravida, dolor convallis interdum condimentum, augue ligula tincidunt augue, eu mollis quam metus in orci. Nulla facilisi. Donec elit dui, ultrices in convallis id, ultricies at ligula. Proin vestibulum, diam ut convallis ultricies, magna turpis interdum ipsum, non auctor orci metus id mauris. Nunc dignissim ipsum sit amet mauris sollicitudin volutpat. Nullam dapibus justo in libero vulputate euismod. Quisque adipiscing pretium velit, non placerat leo mollis ut. Donec eget libero sapien, a facilisis lorem. Aliquam luctus porta risus. Mauris in odio nisi. Praesent fringilla, libero eu laoreet semper, diam ante dictum mi, quis dignissim sem lacus eu justo.</p>
+{% block main %}
+<h2>Welcome to Trust The Vote</h2>
+
+<p>These few pages demonstrate some of the early software models that we are developing. Some of this software is destined to run inside of stand-alone devices which would make it hard to show to a wide audience. For this reason we are providing this site to show and tell about our early results.</p>
+
+<p>Please talk to your Trust The Vote contact for a password</p>
+
+<div id="login">
+    <form>
+        <div><label>Your Email</label> <input type="text"/></div>
+        <div><label>Password</label> <input type="text"/></div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block sidebar %}
+<p>Trust The Vote is a project of the Open Source Digital Voting Foundation. All our work is public and open source. The only reason we require a password is so that we can get to know folks who are interested in our work.</p>
+
+<p>If you would like access, please make contact with us and info@trustthevote.org and we will be glad to supply one, ASAP.</p>
 {% endblock %}
