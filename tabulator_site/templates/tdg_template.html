@@ -1,5 +1,9 @@
 {% extends "base_tdg_tab.html" %}
 
+{% block css %}
+    {{ block.super }}
+{% endblock css %}
+
 {% block javascript %}
     //Hide or show the appropriate fields when the user
     // chooses to generate either an election template or
@@ -8,7 +12,7 @@
         idx = document.getElementById("genMode").selectedIndex;
         val = document.getElementById("genMode")[idx].value;
         if(val=="election") {
-            $(".hideUs").addClass('noDisplay');                     
+            $(".hideUs").addClass('noDisplay');
         }
         if(val=="counts") {
             $(".hideUs").removeClass('noDisplay');
@@ -39,7 +43,7 @@
                 $(".displayFile").replaceWith('<div class="displayFile"><h4>'
                  + fname + '</h4><p>'+ data + '</p></div>');
                 scroll(0,0);
-            });        
+            });
     });
 
     //Post file generation arguments to the server when the
@@ -51,37 +55,37 @@
         // depends on the type of data to generate.
         idx = document.getElementById("genMode").selectedIndex;
         val = document.getElementById("genMode")[idx].value;
-        if(val=="election") {                       
-            args.push(document.getElementById("outputFilename").value);                        
-        }                   
-        if(val=="counts") {                     
+        if(val=="election") {
+            args.push(document.getElementById("outputFilename").value);
+        }
+        if(val=="counts") {
             args.push(document.getElementById("howMany").value);
             idx = document.getElementById("templateFile").selectedIndex;
             args.push(document.getElementById("templateFile")[idx].value);
             args.push(document.getElementById("outputFilename").value);
         }
-       
+
         //Check to see if the user gave an output filename
         // that is already in use. If so, then prompt to
         // confirm overwrite.
-        fname = args[args.length-1];                    
-        overw = true;                     
-        if($("[name="+fname+"]").length!=0) {                        
+        fname = args[args.length-1];
+        overw = true;
+        if($("[name="+fname+"]").length!=0) {
             overw = confirm("Overwrite file " + fname + "?");
         }
         //If the filename was not already in use, or the
         // user confirmed the overwrite, then post
         // arguments to the server.
-        if(overw == true) {                        
+        if(overw == true) {
             args = JSON.stringify(args)
-            $.post(".", {'arguments_tdg':args}, function() {                                
+            $.post(".", {'arguments_tdg':args}, function() {
                 location.reload(true);
             });
         }
     });
 {% endblock javascript %}
 
-{% block content %}
+{% block main %}
     <div id="generatedFiles">
         <h2>Generate New Files</h2>
         <div class="args">
@@ -106,7 +110,7 @@
             <input type="submit" value="Run" id="argsButton" />
         </div>
     </div>
-    
+
     <div class="displayFile"></div>
 
     <div id="generatedFiles">
@@ -128,4 +132,4 @@
         <input type = "submit" value = "Delete" id = "delButton" />
         <input type = "submit" value = "Rename" id = "renButton" />
     </div>
-{% endblock content %}
+{% endblock main %}

@@ -1,71 +1,60 @@
 {% extends "base.html" %}
 
-{% block tdg_tab_js %}    
-	//When the delete button is clicked, make a list of
-	// checked filenames. Post them to the server, flagged
-	// for deletion, and remove corresponding html elements.
-	$("#delButton").click( function() {
-		checkedFiles = new Array();
-		$("[type='checkbox']:checked").each(function() {                        
-			checkedFiles.push(this.id);
-			$(this).parent("div").remove();                        
-		});
-		$.post(".", {'delete':checkedFiles});
-	});
-	
-	//When the rename button is clicked, for each checked
-	// filename display a textbox to the user allowing them
-	// to rename checked files.
-	$("#renButton").click( function() {
-		$("[type='checkbox']:checked").each(function() {                        
-			this.checked = false; //Uncheck checked boxes
-			$(this).addClass("hide");
-			$(this).next().addClass("noDisplay");
-			$(this).next().next().attr("value", $(this).attr("name"));
-			$(this).next().next().removeClass("noDisplay");                     
-			$(this).next().next().next().removeClass("noDisplay");                      
-		});
-	});
-	
-	//When the user is done renaming a file, post that data
-	// to update the server on the change.
-	$(".renDone").click( function() {           
-		//Gather the original filename and the new filename.
-		oldName = ($(this).attr("name"));
-		newName = ($(this).prev().attr("value"));
-		
-		//Change the names of corresponding HTML elements
-		$("a[name="+oldName+"]").attr({innerHTML: newName});
-		$("[name="+oldName+"]").attr("name", newName);
-		$("[id="+oldName+"]").attr({id:newName});
-		
-		
-		if(!(oldName == newName)) {
-			//Update the server if the name changed
-			$.post(".", {'old_name':oldName, 'new_name':newName});
-		}
+{% block tdg_tab_js %}
+    //When the delete button is clicked, make a list of
+    // checked filenames. Post them to the server, flagged
+    // for deletion, and remove corresponding html elements.
+    $("#delButton").click( function() {
+        checkedFiles = new Array();
+        $("[type='checkbox']:checked").each(function() {
+            checkedFiles.push(this.id);
+            $(this).parent("div").remove();
+        });
+        $.post(".", {'delete':checkedFiles});
+    });
 
-		//Remove the textbox and button, restore the
-		// checkbox and link.
-		$(this).addClass("noDisplay");
-		$(this).prev().addClass("noDisplay");
-		$(this).prev().prev().removeClass("noDisplay");
-		$(this).prev().prev().prev().removeClass("hide");
-	});
+    //When the rename button is clicked, for each checked
+    // filename display a textbox to the user allowing them
+    // to rename checked files.
+    $("#renButton").click( function() {
+        $("[type='checkbox']:checked").each(function() {
+            this.checked = false; //Uncheck checked boxes
+            $(this).addClass("hide");
+            $(this).next().addClass("noDisplay");
+            $(this).next().next().attr("value", $(this).attr("name"));
+            $(this).next().next().removeClass("noDisplay");
+            $(this).next().next().next().removeClass("noDisplay");
+        });
+    });
+
+    //When the user is done renaming a file, post that data
+    // to update the server on the change.
+    $(".renDone").click( function() {
+        //Gather the original filename and the new filename.
+        oldName = ($(this).attr("name"));
+        newName = ($(this).prev().attr("value"));
+
+        //Change the names of corresponding HTML elements
+        $("a[name="+oldName+"]").attr({innerHTML: newName});
+        $("[name="+oldName+"]").attr("name", newName);
+        $("[id="+oldName+"]").attr({id:newName});
+
+        if(!(oldName == newName)) {
+            //Update the server if the name changed
+            $.post(".", {'old_name':oldName, 'new_name':newName});
+        }
+
+        //Remove the textbox and button, restore the
+        // checkbox and link.
+        $(this).addClass("noDisplay");
+        $(this).prev().addClass("noDisplay");
+        $(this).prev().prev().removeClass("noDisplay");
+        $(this).prev().prev().prev().removeClass("hide");
+    });
 {% endblock tdg_tab_js %}
 
-{% block tdg_tab_css %}
-    <style type="text/css">         
-        input {
-            font-size:10px;
-            padding: 1px;
-        }
-
-        body {
-            background-color:#424242;
-            background-image:url('/static/images/bg.gif');
-            background-repeat:repeat-x;
-        }
+{% block css %}
+    <style type="text/css">
         div.argstdg {padding-bottom:50px}
         div.args div {font-weight:bold; padding-bottom:20px}
         div.displayFile {
@@ -79,21 +68,42 @@
                         padding-top:10px;
                         padding-left:10px;
                         padding-bottom:10px}
-        div.versionInfo {padding-top:30px; font-style:italic}
+
         .hide {visibility:hidden}
         .fileButtons {padding-top:10px}
         .noDisplay {display:none}
         a.fileLinks {color:blue; cursor:pointer}
 
-        #createfiles, #generatedFiles, #tabulate, #mergedfiles{
-            padding-left:20px;
-            padding-top:20px;
+        #content_table {
+            border-collapse:collapse;
+            border-spacing:0px;
+            margin:0px;
+            padding:0px;
         }
-        
-        #createfiles {
-            background-color:#efefef;
-            border-bottom: 1px solid #b2b2b2;
-        }    
-    </style>
-{% endblock tdg_tab_css %}
 
+        #content_table td{
+            height:400px;
+            padding: 10px;
+            vertical-align:top;
+        }
+
+        #main {
+             width:640px;
+        }
+
+        #sidebar {
+            border-left:1px solid #b2b2b2;
+            width:300px;
+        }
+
+    </style>
+{% endblock css %}
+
+{% block content %}
+    <table id="content_table">
+        <tr>
+            <td id="main">{% block main %}{%endblock%}</td>
+            <td id="sidebar">{% block sidebar %}123{%endblock%}</td>
+        </tr>
+    </table>
+{% endblock %}
