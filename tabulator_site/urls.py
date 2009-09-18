@@ -8,6 +8,8 @@ import settings
 urlpatterns = patterns('',    
     (r'^static/(?P<path>.*)$', 'django.views.static.serve',
      {'document_root':  settings.MEDIA_ROOT}),
+
+    (r'^$', 'tabulator.views.welcome_handler'),
     (r'^welcome$', 'tabulator.views.welcome_handler'),
     (r'^tdg$', 'tabulator.views.tdg_handler'),
     (r'^tabulator$', 'tabulator.views.tab_handler'),
