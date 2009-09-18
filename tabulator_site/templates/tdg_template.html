@@ -1,74 +1,84 @@
 {% extends "base_tdg_tab.html" %}
 
 {% block javascript %}
-	//Hide or show the appropriate fields when the user
-	// chooses to generate either an election template or
-	// random vote counts within the tdg.
-	$("#genMode").change( function() {
-		idx = document.getElementById("genMode").selectedIndex;
-		val = document.getElementById("genMode")[idx].value;
-		if(val=="election") {
-			$(".hideUs").addClass('noDisplay');                     
-		}
-		if(val=="counts") {
-			$(".hideUs").removeClass('noDisplay');
-		}
-	});
-	//Replace the displayFile div with the content of a
-	// generated file when the name of that file is clicked.
-	$("a.fileLinks").click( function() {
-		fname = $(this).attr("name");                   
-		$.post(".", {'display_this_tdg':fname}, function(data){
-				//Make spaces and newlines in the file
-				// consistent with HTML
-				data = data.replace(/\n/g, "<br/>");
-				data = data.replace(/ /g, '&nbsp;');
+    //Hide or show the appropriate fields when the user
+    // chooses to generate either an election template or
+    // random vote counts within the tdg.
+    $("#genMode").change( function() {
+        idx = document.getElementById("genMode").selectedIndex;
+        val = document.getElementById("genMode")[idx].value;
+        if(val=="election") {
+            $(".hideUs").addClass('noDisplay');                     
+        }
+        if(val=="counts") {
+            $(".hideUs").removeClass('noDisplay');
+        }
+    });
 
-				//Generate markup that displays the contents
-				// of the file. Scroll to top of page
-				$("#displayFile").replaceWith('<div id="displayFile"'
-				 + fname + '</h4><p>'+ data + '</p></div>');
-				scroll(0,0);
-			});
-	});
+    //Replace the displayFile div with the content of a
+    // generated file when the name of that file is clicked.
+    $("a.fileLinks").click( function() {
+        fname = $(this).attr("name");
+        if( $("input[@name='format']:checked").val() == "1") {
+            ftype = ".yaml";
+        }
+        else {
+            ftype = ".xml";
+        }
+        $.post(".", {'display_this_tdg':fname + ftype}, function(data){
+                //Make spaces and newlines in the file
+                // consistent with HTML, ignore XML tags
+                data = data.replace(/</g, '&lt;');
+                data = data.replace(/>/g, '&gt;');
+                data = data.replace(/\t/g, '   ');
+                data = data.replace(/ /g, '&nbsp;');
+                data = data.replace(/\n/g, '<br/>');
 
-	//Post file generation arguments to the server when the
-	// user clicks the "run" button.
-	$("#argsButton").click( function() {
-		args = new Array();
+                //Generate markup that displays the contents
+                // of the file. Scroll to top of page
+                $(".displayFile").replaceWith('<div class="displayFile"><h4>'
+                 + fname + '</h4><p>'+ data + '</p></div>');
+                scroll(0,0);
+            });        
+    });
 
-		//Gather a list of arguments, the size of which
-		// depends on the type of data to generate.
-		idx = document.getElementById("genMode").selectedIndex;
-		val = document.getElementById("genMode")[idx].value;
-		if(val=="election") {                       
-			args.push(document.getElementById("outputFilename").value);                        
-		}                   
-		if(val=="counts") {                     
-			args.push(document.getElementById("howMany").value);
-			idx = document.getElementById("templateFileTDG").selectedIndex;
-			args.push(document.getElementById("templateFileTDG")[idx].value);
-			args.push(document.getElementById("outputFilename").value);
-		}
-	   
-		//Check to see if the user gave an output filename
-		// that is already in use. If so, then prompt to
-		// confirm overwrite.
-		fname = args[args.length-1];                    
-		overw = true;                     
-		if($("[name="+fname+"]").length!=0) {                        
-			overw = confirm("Overwrite file " + fname + "?");
-		}
-		//If the filename was not already in use, or the
-		// user confirmed the overwrite, then post
-		// arguments to the server.
-		if(overw == true) {                        
-			args = JSON.stringify(args)
-			$.post(".", {'arguments_tdg':args}, function() {								
-				location.reload(true);
-			});
-		}
-	});
+    //Post file generation arguments to the server when the
+    // user clicks the "run" button.
+    $("#argsButton").click( function() {
+        args = new Array();
+
+        //Gather a list of arguments, the size of which
+        // depends on the type of data to generate.
+        idx = document.getElementById("genMode").selectedIndex;
+        val = document.getElementById("genMode")[idx].value;
+        if(val=="election") {                       
+            args.push(document.getElementById("outputFilename").value);                        
+        }                   
+        if(val=="counts") {                     
+            args.push(document.getElementById("howMany").value);
+            idx = document.getElementById("templateFile").selectedIndex;
+            args.push(document.getElementById("templateFile")[idx].value);
+            args.push(document.getElementById("outputFilename").value);
+        }
+       
+        //Check to see if the user gave an output filename
+        // that is already in use. If so, then prompt to
+        // confirm overwrite.
+        fname = args[args.length-1];                    
+        overw = true;                     
+        if($("[name="+fname+"]").length!=0) {                        
+            overw = confirm("Overwrite file " + fname + "?");
+        }
+        //If the filename was not already in use, or the
+        // user confirmed the overwrite, then post
+        // arguments to the server.
+        if(overw == true) {                        
+            args = JSON.stringify(args)
+            $.post(".", {'arguments_tdg':args}, function() {                                
+                location.reload(true);
+            });
+        }
+    });
 {% endblock javascript %}
 
 {% block content %}
@@ -93,22 +103,22 @@
                 {% endif %}
             </select></div>
             <div><label>Output file name:</label><input type="text" id="outputFilename" class="argInputs" /></div>
-            <input type="submit" value="Run" class="argsButton" />
+            <input type="submit" value="Run" id="argsButton" />
         </div>
     </div>
     
-    <div id="displayFile"></div>
+    <div class="displayFile"></div>
 
     <div id="generatedFiles">
         <h2>Generated Files</h2>
         <label>Display format:</label>
-        <input type="radio" name="TDGType" value="1" checked="checked"><label>Yaml</label>
-        <input type="radio" name="TDGType" value="0"><label>XML</label>
+        <input type="radio" name="format" value="1" checked="checked"><label>Yaml</label>
+        <input type="radio" name="format" value="0"><label>XML</label>
         <div class="whitespace"></div>
         {% for file in tdg_files %}
             <div>
                 <input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
-                <a class="fileLinks tdg" name="{{ file }}">{{ file }}</a>
+                <a class="fileLinks" name="{{ file }}">{{ file }}</a>
                 <input type="text" class="renText noDisplay" name="{{ file }}" />
                 <input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />
             </div>
@@ -117,12 +127,5 @@
     <div class="fileButtons">
         <input type = "submit" value = "Delete" id = "delButton" />
         <input type = "submit" value = "Rename" id = "renButton" />
-    </div>
-    <div class = "versionInfo">
-        <p>
-        {% for line in version %}
-            {{ line }}<br/>
-        {% endfor %}
-        </p>
     </div>
 {% endblock content %}

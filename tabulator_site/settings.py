@@ -22,7 +22,7 @@ DATABASE_PORT = ''             # Set to empty string for default.
 SITE_ROOT = '/'
 
 # absolute path to the docroot of this site
-DOC_ROOT = ''
+DOC_ROOT = '/home/andermic/osdv/tabulator_site/'
   
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -65,6 +65,10 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.load_template_source',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.core.context_processors.media',    
+)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -74,9 +78,10 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'urls'
 
 TEMPLATE_DIRS = (    
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows. import path
-    # Don't forget to use absolute paths, not relative paths.    
+    # Put strings here, like "/home/html/django_templates" or 
+    # "C:/www/django/templates". Always use forward slashes, even on
+    # Windows. import path. Don't forget to use absolute paths, not
+    # relative paths.
     # './templates'
     '%stemplates' % DOC_ROOT
 )

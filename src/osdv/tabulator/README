@@ -1,10 +1,10 @@
 Note: The source files listed below were developed using Python 2.6.2. They will
-   require at least Python 2.5 to run, but will not currently run with backwards
-    incompatable Python 3x.
+       require at least 2.6 to run, but will not run with backwards
+       incompatible Python 3.0.
 
    A python yaml library is also required for serialization/deserialization, and
     any such library should work. These source files were developed with PyYaml
-    version 3.08, which can be downloaded from http://www.pyyaml.org
+    version 3.08, which can be downloaded from http://www.pyyaml.org.
 
 
 
@@ -22,23 +22,24 @@ test_data_generator.py:
     syntactical forms for command line arguments to test_data_generator.py,
     I'll demonstrate them by example:
 
-   1.) python test_data_denerator.py election election.yaml:
-       This generates a sample election template, and outputs the results into a
-       file in yaml format. By "template", I mean that all of the members in
-       the ballot_info data structure like dist_id, voting_method_id, name,
-       etc. are initialized, with the exception of the vote counts for each
-       candidate. In this example `election.yaml` is the name of the output file
-       created/overwritten.
+   1.) python test_data_denerator.py election sampleelection:
+       This generates a sample election template, and outputs the results into
+       two separate formats, one in yaml and another in xml. By "template", I
+       mean that all of the members of the ballot_info data structure like
+       dist_id, voting_method_id, name, etc. are initialized, with the
+       exception of the vote counts for each candidate. In this example
+       `sampleelection.yaml` and 'sampleelection.xml' are the names of the
+       output file created/overwritten.
 
-   2.) python test_data_generator.py counts 2 election.yaml sampleballots.yaml
+   2.) python test_data_generator.py counts 2 sampleelection sampleballots.yaml
        This syntax uses an election template (which will have been generated
        already by the first syntactical form) to generate a given number of
        ballot_info records that fit the template, with random values
        given to each candidates' counts field. The results are outputted
-       into a single file in yaml format. In this example, the number of records
+       into yaml and xml formats. In this example, the number of records
        generated in the output file is 2, the election template is stored in
-       `election.yaml`, and the results are outputted into file
-       `sampleballots.yaml`.
+       `sampleelection.yaml` and `sampleelection.xml`, and the results are
+       outputted into files `sampleballots.yaml` and `sampleballots.xml`.
 
 
 hello_world_tabulator.py:
@@ -53,33 +54,32 @@ tabulator.py:
    This is an implementation of a vote tabulator. It is called from the
     command line with 5 arguments, like so:
 
-   python tabulator.py election.yaml sampleballots1.yaml sampleballots2.yaml
-    merge.yaml report
+   python tabulator.py election sampleballots1 sampleballots2 merge report
 
    In this example, all of the data members in the election template stored in
     `election.yaml` are compared to the data members of the records in
-    `sampleballots1` and `sampleballots2`. If the sample ballot record files do
-    not exist or are not consistent with the election template, an error message
-    is outputted to the screen and sent to the `report` file, and the program
-    terminates. If the sample ballot files are valid, this information is also
-    recorded in `report`, and all of the records of both files are concatenated
-    together into one file, `merge.yaml` in this case. A list of the cumulative
-    vote counts found for each candidate is also outputted into `report`.
+    `sampleballots1.yaml` and `sampleballots2.yaml`. If the sample ballot
+    record files do not exist or are not consistent with the election template,
+    an error message is outputted to the screen and sent to the `report` file,
+    and the program terminates. If the sample ballot files are valid, this
+    information is also recorded in `report`, and all of the records of both
+    files are concatenated together and dumped into `merge.yaml` and `merge.xml`
+    in this case. A list of the cumulative vote counts found for each candidate
+    is also outputted into `report`.
 
 
 Here is an example of how test_data_generator.py and tabulator.py can be used
  together with a sequence of commands, assuming that both are in the user's
  present working directory:
 
-   python test_data_generator.py election election.yaml
-   python test_data_generator.py counts 2 election.yaml sampleballots1.yaml
-   python test_data_generator.py counts 2 election.yaml sampleballots2.yaml
-   python tabulator.py election.yaml sampleballots1.yaml sampleballots2.yaml
-    merge.yaml report
+   python test_data_generator.py election sampleelection
+   python test_data_generator.py counts 2 election sampleballots1
+   python test_data_generator.py counts 2 election sampleballots2
+   python tabulator.py election.yaml sampleballots1 sampleballots2 merge report
 
    These commands generate an election template, then generate two ballot record
     files that conform to the format of that sample election, then merge the two
     ballot record files together and generate a report.
 
 
-Last updated by Mike Anderson on Sep 4, 2009.
+Last updated by Mike Anderson on Sep 11, 2009.

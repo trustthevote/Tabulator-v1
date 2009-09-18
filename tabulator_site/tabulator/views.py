@@ -1,7 +1,7 @@
 import os
 import json
 
-from django.template import Context, loader
+from django.template import Context, loader, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
 from django.shortcuts import render_to_response
 from django.conf import settings
@@ -11,9 +11,11 @@ import TDG
 import tabulator
 import audit_header
 
+
 def welcome_handler(request):
     c = get_render_data()
-    return render_to_response('welcome_template.html', c)
+    return render_to_response('welcome_template.html', c,
+     context_instance=RequestContext(request, processors=[settings_processor]))
 
 def tdg_handler(request):
     # Check to see if the client is posting data
@@ -39,7 +41,7 @@ def tdg_handler(request):
             delete_files(request.POST.getlist('delete'))
         # Check to see if client wants to rename a file
         elif request.POST.has_key('old_name'):
-            rename_files(request.POST.getlist('old_name'))
+            rename_file(request.POST)
         elif request.POST.has_key('display_this_tdg'):
             file = request.POST['display_this_tdg']
             if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file) == 1:
@@ -49,8 +51,8 @@ def tdg_handler(request):
             lines = stream.readlines()
             return HttpResponse(lines)
     c = get_render_data()
-    return render_to_response('tdg_template.html', c)
-
+    return render_to_response('tdg_template.html', c,
+     context_instance=RequestContext(request, processors=[settings_processor]))
 
 def tab_handler(request):
     # Check to see if the client is posting data
@@ -77,7 +79,7 @@ def tab_handler(request):
             return HttpResponse()
         # Check to see if client wants to rename a file
         elif request.POST.has_key('old_name'):
-            rename_files(request.POST.getlist('old_name'))
+            rename_file(request.POST)
             return HttpResponse()
         # Check to see if client wants the contents of tabulator files
         elif request.POST.has_key('display_this'):
@@ -85,12 +87,26 @@ def tab_handler(request):
             lines = {}
             stream = open(settings.DATA_PATH + 'tab_aggr/' + fname, 'r')
             lines["merge"] = stream.readlines()
+            fname = fname[:fname.rfind('.')]
             stream = open(settings.DATA_PATH + 'reports/' + fname + '_report', 'r')
             lines["report"] = stream.readlines()
             lines_json = json.dumps(lines)
             return HttpResponse(lines_json)
     c = get_render_data()
-    return render_to_response('tabulator_template.html', c)
+    return render_to_response('tabulator_template.html', c,
+     context_instance=RequestContext(request, processors=[settings_processor]))
+
+#def file_handler(request, fname):
+#    c = Context({'fname':fname})
+#    return render_to_response('file_template.html', c,
+#     context_instance=RequestContext(request, processors=[settings_processor]))
+
+def file_handler(request):
+    return render_to_response('file_template.html',
+     context_instance=RequestContext(request, processors=[settings_processor]))
+
+def default_handler(request):
+    return HttpResponseRedirect('/welcome')
     
 
 def get_render_data():
@@ -108,13 +124,21 @@ def get_render_data():
     if os.listdir(settings.DATA_PATH).count('reports') == 0:
         os.mkdir(settings.DATA_PATH + 'reports/')
 
-    # Get a list of files so far generated, by type and combined
+    # Get a list of files so far generated, by type. Leave off the .yaml
+    #  and .xml file extensions, as well as redundancies.
     prec_files = os.listdir(settings.DATA_PATH + 'prec_cont/')
+    for i in range(0, len(prec_files)):
+        prec_files[i] = prec_files[i][:prec_files[i].rfind('.')]
+    prec_files = set(prec_files)
     bal_files = os.listdir(settings.DATA_PATH + 'bal_count_tot/')
-    tdg_files = sorted(prec_files + bal_files)
+    for i in range(0, len(bal_files)):
+        bal_files[i] = bal_files[i][:bal_files[i].rfind('.')]
+    bal_files = set(bal_files)
     tab_files = os.listdir(settings.DATA_PATH + 'tab_aggr/')
-    reports = os.listdir(settings.DATA_PATH + 'reports/')
-
+    for i in range(0, len(tab_files)):
+        tab_files[i] = tab_files[i][:tab_files[i].rfind('.')]
+    tab_files = set(tab_files)
+    tdg_files = prec_files.union(bal_files)
 
     # Get version / last revision info from file
     stream = open('VERSION', 'r')
@@ -122,32 +146,40 @@ def get_render_data():
 
     return Context({'prec_files':prec_files, 'bal_files':bal_files,
                     'tdg_files':tdg_files, 'tab_files':tab_files,
-                    'reports':reports, 'version':version})
-
+                    'version':version})
 
 def delete_files(files):
-    for file in request.POST.getlist('delete'):
-        if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file) == 1:
-            os.remove(settings.DATA_PATH + 'prec_cont/' + file)
-        elif os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(file) == 1:
-            os.remove(settings.DATA_PATH + 'bal_count_tot/' + file)                
+    for file in files:
+        if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file + '.yaml') == 1:
+            os.system('rm ' + settings.DATA_PATH + 'prec_cont/' + file + '.*')
+        elif os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(file + '.yaml') == 1:
+            os.system('rm ' + settings.DATA_PATH + 'bal_count_tot/' + file + '.*')                
         else:
-            os.remove(settings.DATA_PATH + 'tab_aggr/' + file)
-            os.remove(settings.DATA_PATH + 'reports/' + file + "_report")
+            os.system('rm ' + settings.DATA_PATH + 'tab_aggr/' + file + '.*')
+            os.system('rm ' + settings.DATA_PATH + 'reports/' + file + '_report')
     return
 
 def rename_file(data):
     old_name = data['old_name']
     new_name = data['new_name']
     if os.listdir(settings.DATA_PATH + 'prec_cont/').count(old_name) == 1:
-        os.rename(settings.DATA_PATH + 'prec_cont/' + old_name,
-            settings.DATA_PATH + 'prec_cont/' + new_name)
+        os.rename(settings.DATA_PATH + 'prec_cont/' + old_name + '.yaml',
+            settings.DATA_PATH + 'prec_cont/' + new_name + '.yaml')
+        os.rename(settings.DATA_PATH + 'prec_cont/' + old_name + '.xml',
+            settings.DATA_PATH + 'prec_cont/' + new_name + '.xml')
     elif os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(old_name) == 1:
-        os.rename(settings.DATA_PATH + 'bal_count_tot/' + old_name,
-            settings.DATA_PATH + 'bal_count_tot/' + new_name)
+        os.rename(settings.DATA_PATH + 'bal_count_tot/' + old_name + '.yaml',
+            settings.DATA_PATH + 'bal_count_tot/' + new_name + '.yaml')
+        os.rename(settings.DATA_PATH + 'bal_count_tot/' + old_name + '.xml',
+            settings.DATA_PATH + 'bal_count_tot/' + new_name + '.xml')
     else:
-        os.rename(settings.DATA_PATH + 'tab_aggr/' + old_name,
-            settings.DATA_PATH + 'tab_aggr/' + new_name)
+        os.rename(settings.DATA_PATH + 'tab_aggr/' + old_name + '.yaml',
+            settings.DATA_PATH + 'tab_aggr/' + new_name + '.yaml')
+        os.rename(settings.DATA_PATH + 'tab_aggr/' + old_name + '.xml',
+            settings.DATA_PATH + 'tab_aggr/' + new_name + '.xml')
         os.rename(settings.DATA_PATH + 'reports/' + old_name + '_report',
             settings.DATA_PATH + 'reports/' + new_name + '_report')
     return
+
+def settings_processor(request):
+    return {'ROOT':settings.SITE_ROOT}
