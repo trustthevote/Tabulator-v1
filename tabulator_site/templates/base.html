@@ -46,7 +46,6 @@
             }
 
             #versionInfo {
-                color:#dadada;
                 font-size:10px;
             }
 
@@ -111,12 +110,8 @@
             }
 
             #footer {
-                text-align: center;
-            }
-
-            #footer p {
                 color:#929292;
-                font-size:10px;
+                text-align: center;
             }
 
             #footer a {
@@ -146,9 +141,9 @@
         <div id="slash"></div>
         <div id="header">
             <ul id="menu">
-                <li><a href="/welcome" id="welcomeTab" class="tab">Welcome</a></li>
-                <li><a href="/tdg" id="tdgTab" class="tab">Test Data</a></li>
-                <li><a href="/tabulator" id="tabulatorTab" class="tab">Tabulator</a></li>
+                <li id="welcomeTab"><a href="/welcome" class="tab">Welcome</a></li>
+                <li id="tdgTab"><a href="/tdg" class="tab">Test Data</a></li>
+                <li id="tabulatorTab"><a href="/tabulator" class="tab">Tabulator</a></li>
                 {% block menu %}{% endblock %}
             </ul>
         </div>

@@ -1,5 +1,14 @@
 {% extends "base_tdg_tab.html" %}
 
+{% block css %}
+    {{ block.super }}
+    <style type="text/css">
+        #tabulatorTab, #menu li#tabulatorTab:hover {
+            border-top:5px solid #6699ff;
+        }
+    </style>
+{% endblock css %}
+
 {% block javascript %}
     //Replace the displayFile div with the content of a
     // generated file when the name of that file is clicked.
