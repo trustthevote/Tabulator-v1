@@ -25,7 +25,7 @@ def tdg_handler(request):
             # Get and deserialize the users arguments from JSON
             args = request.POST.getlist('arguments_tdg')
             args = json.loads(args[0])
-
+            
             # Arguments will be made consistent with where data is
             #  stored on the server, as given by DATA_PATH
             if len(args) == 1:
@@ -42,14 +42,6 @@ def tdg_handler(request):
         # Check to see if client wants to rename a file
         elif request.POST.has_key('old_name'):
             rename_file(request.POST)
-        elif request.POST.has_key('display_this_tdg'):
-            file = request.POST['display_this_tdg']
-            if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file) == 1:
-                stream = open(settings.DATA_PATH + 'prec_cont/' + file, 'r')
-            else:
-                stream = open(settings.DATA_PATH + 'bal_count_tot/' + file, 'r')
-            lines = stream.readlines()
-            return HttpResponse(lines)
     c = get_render_data()
     return render_to_response('tdg_template.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
@@ -81,32 +73,45 @@ def tab_handler(request):
         elif request.POST.has_key('old_name'):
             rename_file(request.POST)
             return HttpResponse()
-        # Check to see if client wants the contents of tabulator files
-        elif request.POST.has_key('display_this'):
-            fname = request.POST['display_this']
-            lines = {}
-            stream = open(settings.DATA_PATH + 'tab_aggr/' + fname, 'r')
-            lines["merge"] = stream.readlines()
-            fname = fname[:fname.rfind('.')]
-            stream = open(settings.DATA_PATH + 'reports/' + fname + '_report', 'r')
-            lines["report"] = stream.readlines()
-            lines_json = json.dumps(lines)
-            return HttpResponse(lines_json)
     c = get_render_data()
     return render_to_response('tabulator_template.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
-#def file_handler(request, fname):
-#    c = Context({'fname':fname})
-#    return render_to_response('file_template.html', c,
-#     context_instance=RequestContext(request, processors=[settings_processor]))
-
-def file_handler(request):
-    return render_to_response('file_template.html',
+def tdg_file_handler(request, fname):
+    if os.listdir(settings.DATA_PATH + 'prec_cont/').count(fname) == 1:
+        stream = open(settings.DATA_PATH + 'prec_cont/' + fname, 'r')
+    else:
+        stream = open(settings.DATA_PATH + 'bal_count_tot/' + fname, 'r')
+    lines = stream.readlines()
+    formatted_lines=[]
+    for line in lines:
+        line = line.replace('<', '&lt;')
+        line = line.replace('>', '&gt;')
+        line = line.replace('\t', '   ')
+        line = line.replace('\n', '<br/>')        
+        formatted_lines.append(line.replace(' ', '&nbsp;'))
+    c = get_render_data()
+    c['lines'] = formatted_lines
+    return render_to_response('file_template.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
-def default_handler(request):
-    return HttpResponseRedirect('/welcome')
+def tab_file_handler(request, fname):
+    stream = open(settings.DATA_PATH + 'tab_aggr/' + fname, 'r')
+    lines = stream.readlines()
+    fname = fname[:fname.rfind('.')]
+    stream = open(settings.DATA_PATH + 'reports/' + fname + '_report', 'r')
+    lines += stream.readlines()
+    formatted_lines=[]
+    for line in lines:
+        line = line.replace('<', '&lt;')
+        line = line.replace('>', '&gt;')
+        line = line.replace('\t', '   ')
+        line = line.replace('\n', '<br/>')        
+        formatted_lines.append(line.replace(' ', '&nbsp;'))
+    c = get_render_data()
+    c['lines'] = formatted_lines
+    return render_to_response('file_template.html', c,
+     context_instance=RequestContext(request, processors=[settings_processor]))
     
 
 def get_render_data():

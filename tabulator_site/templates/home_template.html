@@ -8,13 +8,13 @@
         <script type="text/javascript" src="http://www.jqueryui.com/ui/effects.core.js"></script>
         <script type="text/javascript" src="http://www.json.org/json2.js"></script>
         <link type="text/css" href="../demos.css" rel="stylesheet" />
-		<script type="text/javascript">
+        <script type="text/javascript">
             //When the DOM loads, activate some event handler functions
             $(document).ready(function() {
-				//Initialize tabs
-				$(function() {
-					$("#tabs").tabs();
-				});
+                //Initialize tabs
+                $(function() {
+                    $("#tabs").tabs();
+                });
 
                 //Hide or show the appropriate fields when the user
                 // chooses to generate either an election template or
@@ -34,41 +34,41 @@
                 // generated file when the name of that file is clicked.
                 $("a.fileLinks").click( function() {
                     fname = $(this).attr("name");                   
-					if( $(this).hasClass("tdg") ) {
-						$.post(".", {'display_this_tdg':fname}, function(data){
-								//Make spaces and newlines in the file
-								// consistent with HTML
-								data = data.replace(/\n/g, "<br/>");
-								data = data.replace(/ /g, '&nbsp;');
+                    if( $(this).hasClass("tdg") ) {
+                        $.post(".", {'display_this_tdg':fname}, function(data){
+                                //Make spaces and newlines in the file
+                                // consistent with HTML
+                                data = data.replace(/\n/g, "<br/>");
+                                data = data.replace(/ /g, '&nbsp;');
 
-								//Generate markup that displays the contents
-								// of the file. Scroll to top of page
-								$("#displayFileTDG").replaceWith('<div id="displayFileTDG" class="displayFile"><h4>'
-								 + fname + '</h4><p>'+ data + '</p></div>');
-								scroll(0,0);
-							});
-					}
-					else {  //Not tdg, so tabulator
-						$.post(".", {'display_this':fname}, function(data){
-								data = JSON.parse(data)
-								merge = data["merge"].join("");
-								report = data["report"].join("");
+                                //Generate markup that displays the contents
+                                // of the file. Scroll to top of page
+                                $("#displayFileTDG").replaceWith('<div id="displayFileTDG" class="displayFile"><h4>'
+                                 + fname + '</h4><p>'+ data + '</p></div>');
+                                scroll(0,0);
+                            });
+                    }
+                    else {  //Not tdg, so tabulator
+                        $.post(".", {'display_this':fname}, function(data){
+                                data = JSON.parse(data)
+                                merge = data["merge"].join("");
+                                report = data["report"].join("");
 
-								//Make spaces and newlines in the files
-								// consistent with HTML
-								merge = merge.replace(/\n/g, "<br/>");
-								merge = merge.replace(/ /g, '&nbsp;');
-								report = report.replace(/\n/g, "<br/>");
-								report = report.replace(/ /g, '&nbsp;');
+                                //Make spaces and newlines in the files
+                                // consistent with HTML
+                                merge = merge.replace(/\n/g, "<br/>");
+                                merge = merge.replace(/ /g, '&nbsp;');
+                                report = report.replace(/\n/g, "<br/>");
+                                report = report.replace(/ /g, '&nbsp;');
 
-								//Generate markup that displays the contents
-								// of the files.
-								$("#mergedFile").replaceWith('<div class = "displayFile topPadding" id = "mergedFile"><h4>'
-								 + fname + '</h4><p>'+ merge + '</p></div>');
-								$("#reportFile").replaceWith('<div class = "displayFile topPadding" id = "reportFile"><h4>'
-								 + fname + ' report</h4><p>'+ report + '</p></div>');
-							});
-					}
+                                //Generate markup that displays the contents
+                                // of the files.
+                                $("#mergedFile").replaceWith('<div class = "displayFile topPadding" id = "mergedFile"><h4>'
+                                 + fname + '</h4><p>'+ merge + '</p></div>');
+                                $("#reportFile").replaceWith('<div class = "displayFile topPadding" id = "reportFile"><h4>'
+                                 + fname + ' report</h4><p>'+ report + '</p></div>');
+                            });
+                    }
                 });
                 
                 //Post file generation arguments to the server when the
@@ -78,29 +78,29 @@
 
                     //Gather a list of arguments, the size of which
                     // depends on the type of data to generate.
-					if( $(this).hasClass("tdg") ) {
-						idx = document.getElementById("genMode").selectedIndex;
-						val = document.getElementById("genMode")[idx].value;
-						if(val=="election") {                       
-							args.push(document.getElementById("outputFilename").value);                        
-						}                   
-						if(val=="counts") {                     
-							args.push(document.getElementById("howMany").value);
-							idx = document.getElementById("templateFileTDG").selectedIndex;
-							args.push(document.getElementById("templateFileTDG")[idx].value);
-							args.push(document.getElementById("outputFilename").value);
-						}
-					}
-                    else {  //Not tdg, so tabulator					
-						idx = document.getElementById("templateFile").selectedIndex;
-						args.push(document.getElementById("templateFile")[idx].value);
-						idx = document.getElementById("inputFile1").selectedIndex;
-						args.push(document.getElementById("inputFile1")[idx].value);
-						idx = document.getElementById("inputFile2").selectedIndex;
-						args.push(document.getElementById("inputFile2")[idx].value);
-						args.push(document.getElementById("mergeName").value);
-					}
-					
+                    if( $(this).hasClass("tdg") ) {
+                        idx = document.getElementById("genMode").selectedIndex;
+                        val = document.getElementById("genMode")[idx].value;
+                        if(val=="election") {                       
+                            args.push(document.getElementById("outputFilename").value);                        
+                        }                   
+                        if(val=="counts") {                     
+                            args.push(document.getElementById("howMany").value);
+                            idx = document.getElementById("templateFileTDG").selectedIndex;
+                            args.push(document.getElementById("templateFileTDG")[idx].value);
+                            args.push(document.getElementById("outputFilename").value);
+                        }
+                    }
+                    else {  //Not tdg, so tabulator                 
+                        idx = document.getElementById("templateFile").selectedIndex;
+                        args.push(document.getElementById("templateFile")[idx].value);
+                        idx = document.getElementById("inputFile1").selectedIndex;
+                        args.push(document.getElementById("inputFile1")[idx].value);
+                        idx = document.getElementById("inputFile2").selectedIndex;
+                        args.push(document.getElementById("inputFile2")[idx].value);
+                        args.push(document.getElementById("mergeName").value);
+                    }
+                    
                     //Check to see if the user gave an output filename
                     // that is already in use. If so, then prompt to
                     // confirm overwrite.
@@ -112,20 +112,20 @@
                     //If the filename was not already in use, or the
                     // user confirmed the overwrite, then post
                     // arguments to the server.
-					if(overw == true) {                        
-						if( $(this).hasClass("tdg") ) {
-							args = JSON.stringify(args)
-							$.post(".", {'arguments_tdg':args}, function() {								
+                    if(overw == true) {                        
+                        if( $(this).hasClass("tdg") ) {
+                            args = JSON.stringify(args)
+                            $.post(".", {'arguments_tdg':args}, function() {                                
                                 location.reload(true);
-							});
-						}
-						else {  // Not tdg, so tabulator
-							args = JSON.stringify(args)
-							$.post(".", {'arguments':args}, function() {
-								location.reload(true);
-							});
-						}
-					}
+                            });
+                        }
+                        else {  // Not tdg, so tabulator
+                            args = JSON.stringify(args)
+                            $.post(".", {'arguments':args}, function() {
+                                location.reload(true);
+                            });
+                        }
+                    }
                 });
                 
                 //When the delete button is clicked, make a list of
@@ -206,125 +206,125 @@
     </head>
 
     <body>
-		<div id="tabs">
-			<ul>
-				<li><a href="#tabs-1">Welcome</a></li>
-				<li><a href="#tabs-2">Manage Test Data</a></li>
-				<li><a href="#tabs-3">Tabulator</a></li>
-			</ul>
+        <div id="tabs">
+            <ul>
+                <li><a href="#tabs-1">Welcome</a></li>
+                <li><a href="#tabs-2">Manage Test Data</a></li>
+                <li><a href="#tabs-3">Tabulator</a></li>
+            </ul>
         </div>
-			
+            
         <div id="tabs-1"></div>
 
         <div id="tabs-2">
-			<h2>Generate New Files</h2>
-			<div class="args argstdg">
-				<div><label for="genMode">Data type:</label>
-				<select id="genMode" class="argInputs">
-					<option value="election">Random election template</option>
-					<option value="counts">Random vote counts</option>
-				</select></div>
-				<div class="hideUs noDisplay"><label>Number of records in file:</label>
-					<input type="text" id="howMany" class="argInputs" /></div>
-				<div class="hideUs noDisplay"><label for="templateFileTDG">Election template file name:</label>
-				<select id="templateFileTDG" class="argInputs">
-					{% if not prec_files %}
-						<option value="null">(None generated)</option>
-					{% else %}
-						{% for file in prec_files %}
-							<option value="{{file}}">{{file}}</option>
-						{% endfor %}
-					{% endif %}
-				</select></div>
-				<div><label>Output file name:</label><input type="text" id="outputFilename" class="argInputs" /></div>
-				<input type="submit" value="Run" class="argsButton tdg" />
-			</div>
-			
-			<div id = "displayFileTDG" class = "displayFile"></div>
-			
-			<h2>Generated Files</h2>
-			{% for file in tdg_files %}
-				<div>
-					<input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
-					<a class="fileLinks tdg" name="{{ file }}">{{ file }}</a>
-					<input type="text" class="renText noDisplay" name="{{ file }}" />               
-					<input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />                
-				</div>
-			{% endfor %}
-			<div class="fileButtons">
-				<input type = "submit" value = "Delete" class = "delButton" />
-				<input type = "submit" value = "Rename" class = "renButton" />
-			</div>
-			<div class = "versionInfo">
-				<p>
-				{% for line in version %}
-					{{ line }}<br/>
-				{% endfor %}
-				</p>
-			</div>
-		</div>
-		
-		<div id="tabs-3">
-			<h2>Tabulate Files</h2>
-			<div class="args">
-				<div><label for="templateFile">Election template file name:</label>
-				<select id="templateFile" class="argInputs">
-					{% if not prec_files %}
-						<option value="null">(None generated)</option>
-					{% else %}
-						{% for file in prec_files %}
-							<option value="{{file}}">{{file}}</option>
-						{% endfor %}
-					{% endif %}
-				</select></div>
-				<div><label for="inputFile1">First input file name:</label>
-				<select id="inputFile1" class="argInputs">
-					{% if not bal_files %}
-						<option value="null">(None generated)</option>
-					{% else %}
-						{% for file in bal_files %}
-							<option value="{{file}}">{{file}}</option>
-						{% endfor %}
-					{% endif %}
-				</select></div>       
-				<div><label for="inputFile2">Second input file name:</label>
-				<select id="inputFile2" class="argInputs">
-					{% if not bal_files %}
-						<option value="null">(None generated)</option>
-					{% else %}
-						{% for file in bal_files %}
-							<option value="{{file}}">{{file}}</option>
-						{% endfor %}
-					{% endif %}
-				</select></div>
-				<div><label>Merged output file name:</label>
-				<input type="text" id="mergeName" class="argInputs" /></div>
-				<input type="submit" value="Run" class="argsButton" />
-			</div>
-			
-			<div class = "displayFile" id="mergedFile"></div>
-			<div class = "displayFile" id="reportFile"></div>
+            <h2>Generate New Files</h2>
+            <div class="args argstdg">
+                <div><label for="genMode">Data type:</label>
+                <select id="genMode" class="argInputs">
+                    <option value="election">Random election template</option>
+                    <option value="counts">Random vote counts</option>
+                </select></div>
+                <div class="hideUs noDisplay"><label>Number of records in file:</label>
+                    <input type="text" id="howMany" class="argInputs" /></div>
+                <div class="hideUs noDisplay"><label for="templateFileTDG">Election template file name:</label>
+                <select id="templateFileTDG" class="argInputs">
+                    {% if not prec_files %}
+                        <option value="null">(None generated)</option>
+                    {% else %}
+                        {% for file in prec_files %}
+                            <option value="{{file}}">{{file}}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select></div>
+                <div><label>Output file name:</label><input type="text" id="outputFilename" class="argInputs" /></div>
+                <input type="submit" value="Run" class="argsButton tdg" />
+            </div>
+            
+            <div id = "displayFileTDG" class = "displayFile"></div>
+            
+            <h2>Generated Files</h2>
+            {% for file in tdg_files %}
+                <div>
+                    <input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
+                    <a class="fileLinks tdg" name="{{ file }}">{{ file }}</a>
+                    <input type="text" class="renText noDisplay" name="{{ file }}" />               
+                    <input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />                
+                </div>
+            {% endfor %}
+            <div class="fileButtons">
+                <input type = "submit" value = "Delete" class = "delButton" />
+                <input type = "submit" value = "Rename" class = "renButton" />
+            </div>
+            <div class = "versionInfo">
+                <p>
+                {% for line in version %}
+                    {{ line }}<br/>
+                {% endfor %}
+                </p>
+            </div>
+        </div>
+        
+        <div id="tabs-3">
+            <h2>Tabulate Files</h2>
+            <div class="args">
+                <div><label for="templateFile">Election template file name:</label>
+                <select id="templateFile" class="argInputs">
+                    {% if not prec_files %}
+                        <option value="null">(None generated)</option>
+                    {% else %}
+                        {% for file in prec_files %}
+                            <option value="{{file}}">{{file}}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select></div>
+                <div><label for="inputFile1">First input file name:</label>
+                <select id="inputFile1" class="argInputs">
+                    {% if not bal_files %}
+                        <option value="null">(None generated)</option>
+                    {% else %}
+                        {% for file in bal_files %}
+                            <option value="{{file}}">{{file}}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select></div>       
+                <div><label for="inputFile2">Second input file name:</label>
+                <select id="inputFile2" class="argInputs">
+                    {% if not bal_files %}
+                        <option value="null">(None generated)</option>
+                    {% else %}
+                        {% for file in bal_files %}
+                            <option value="{{file}}">{{file}}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select></div>
+                <div><label>Merged output file name:</label>
+                <input type="text" id="mergeName" class="argInputs" /></div>
+                <input type="submit" value="Run" class="argsButton" />
+            </div>
+            
+            <div class = "displayFile" id="mergedFile"></div>
+            <div class = "displayFile" id="reportFile"></div>
 
-			<h2>Merged Files</h2>        
-			{% for file in tab_files %}
-				<div>
-					<input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
-					<a class="fileLinks" name="{{ file }}">{{ file }}</a>
-					<input type="text" class="renText noDisplay" name="{{ file }}" />
-					<input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />
-				</div>
-			{% endfor %}
-			<div class="fileButtons">
-				<input type = "submit" value = "Delete" class = "delButton" />
-				<input type = "submit" value = "Rename" class = "renButton" />
-			</div>
-			<div class = "versionInfo">
-				<p>
-				{% for line in version %}
-					{{ line }}<br/>
-				{% endfor %}
-				</p>
-			</div>
-		</div>
+            <h2>Merged Files</h2>        
+            {% for file in tab_files %}
+                <div>
+                    <input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
+                    <a class="fileLinks" name="{{ file }}">{{ file }}</a>
+                    <input type="text" class="renText noDisplay" name="{{ file }}" />
+                    <input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />
+                </div>
+            {% endfor %}
+            <div class="fileButtons">
+                <input type = "submit" value = "Delete" class = "delButton" />
+                <input type = "submit" value = "Rename" class = "renButton" />
+            </div>
+            <div class = "versionInfo">
+                <p>
+                {% for line in version %}
+                    {{ line }}<br/>
+                {% endfor %}
+                </p>
+            </div>
+        </div>
     </body>
 </html>

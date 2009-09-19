@@ -15,41 +15,6 @@
 {% endblock css %}
 
 {% block javascript %}
-    //Replace the displayFile div with the content of a
-    // generated file when the name of that file is clicked.
-    $("a.fileLinks").click( function() {
-        fname = $(this).attr("name");
-        if( $("input[@name='format']:checked").val() == "1") {
-            ftype = ".yaml";
-        }
-        else {
-            ftype = ".xml";
-        }
-        $.post(".", {'display_this':fname + ftype}, function(data){
-                data = JSON.parse(data)
-                merge = data["merge"].join("");
-                report = data["report"].join("");
-
-                //Make spaces and newlines in the files
-                // consistent with HTML, ignore XML tags
-                merge = merge.replace(/</g, '&lt;');
-                merge = merge.replace(/>/g, '&gt;');
-                merge = merge.replace(/\t/g, '   ');
-                merge = merge.replace(/\n/g, "<br/>");
-                merge = merge.replace(/ /g, '&nbsp;');
-                report = report.replace(/\n/g, "<br/>");
-                report = report.replace(/ /g, '&nbsp;');
-
-                //Generate markup that displays the contents
-                // of the files. Scroll to top of page
-                $("#mergedFile").replaceWith('<div class = "displayFile topPadding" id = "mergedFile"><h4>'
-                 + fname + '</h4><p>'+ merge + '</p></div>');
-                $("#reportFile").replaceWith('<div class = "displayFile topPadding" id = "reportFile"><h4>'
-                 + fname + ' report</h4><p>'+ report + '</p></div>');
-                scroll(0,0);
-            });
-    });
-
     //Post file generation arguments to the server when the
     // user clicks the "run" button.
     $("#argsButton").click( function() {
@@ -84,7 +49,7 @@
         // arguments to the server.
         if(overw == true) {
             args = JSON.stringify(args)
-            $.post(".", {'arguments':args}, function() {
+            $.post("{{ROOT}}tabulator", {'arguments':args}, function() {
                 location.reload(true);
             });
         }
@@ -131,23 +96,19 @@
         </div>
     </div>
 
-    <div class = "displayFile" id="mergedFile"></div>
-    <div class = "displayFile" id="reportFile"></div>
-
     <div id="mergedfiles">
-        <h2>Manage Test Data Files:</h2>
-        <label>Display format: </label>
-        <input type="radio" name="format" value="1" checked="checked"><label>Yaml</label>
-        <input type="radio" name="format" value="0"><label>XML</label>
+        <h2>Manage Tabulated Files:</h2>
         <table id="files">
-        {% for file in tab_files %}
-            <tr>
-                <td><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
-                <td><a class="fileLinks" name="{{ file }}">{{ file }}</a></td>
-                <td><input type="text" class="renText noDisplay" name="{{ file }}" /></td>
-                <td><input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" /></td>
-            </tr>
-         {% endfor %}
+            {% for file in tab_files %}
+                <tr>
+                    <td><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
+                    <td><label>{{ file }}</label></td>
+                    <td><a href="{{ ROOT }}data/tabulator/{{ file }}.yaml">yaml</a></td>
+                    <td><a href="{{ ROOT }}data/tabulator/{{ file }}.xml">xml</a></td>
+                    <td><input type="text" class="renText noDisplay" name="{{ file }}" /></td>
+                    <td><input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" /></td>
+                </tr>
+             {% endfor %}
         </table>
         <div class="fileButtons">
             <input type = "submit" value = "Delete" id = "delButton" />
@@ -159,5 +120,5 @@
 {% block sidebar %}
 <p>The Tabulator takes two Ballot Counter Files, checks them for consistency with the Jurisdiction Slate, does other error and consistency checks, and then creates a resultant Ballot Counter Total file.</p>
 
-<p>Ballot Counter Total files can be further combined in a reverse cascade to get to further and further roll ups an election result.</p>
+<p>Ballot Counter Total files can be further combined in a reverse cascade to get to further and further roll ups and an election result.</p>
 {% endblock %}
