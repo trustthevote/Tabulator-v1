@@ -6,6 +6,11 @@
         #tdgTab, #menu li#tdgTab:hover {
             border-top:5px solid #6699ff;
         }
+
+        #generatedFiles {
+            border-top: 1px solid #b2b2b2;
+            padding-top: 10px;
+        }
     </style>
 {% endblock css %}
 
@@ -91,7 +96,7 @@
 {% endblock javascript %}
 
 {% block main %}
-    <div id="generatedFiles">
+    <div id="generateFile">
         <h2>Generate New Files</h2>
         <div class="args">
             <div><label for="genMode">Data type:</label>
@@ -123,15 +128,17 @@
         <label>Display format:</label>
         <input type="radio" name="format" value="1" checked="checked"><label>Yaml</label>
         <input type="radio" name="format" value="0"><label>XML</label>
-        <div class="whitespace"></div>
+
+        <table id="files">
         {% for file in tdg_files %}
-            <div>
-                <input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
-                <a class="fileLinks" name="{{ file }}">{{ file }}</a>
-                <input type="text" class="renText noDisplay" name="{{ file }}" />
-                <input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />
-            </div>
+            <tr>
+                <td><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
+                <td><a class="fileLinks" name="{{ file }}">{{ file }}</a></td>
+                <td><input type="text" class="renText noDisplay" name="{{ file }}" /></td>
+                <td><input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" /></td>
+            </tr>
         {% endfor %}
+        </table>
     </div>
     <div class="fileButtons">
         <input type = "submit" value = "Delete" id = "delButton" />

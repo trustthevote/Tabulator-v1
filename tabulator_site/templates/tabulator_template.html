@@ -6,6 +6,11 @@
         #tabulatorTab, #menu li#tabulatorTab:hover {
             border-top:5px solid #6699ff;
         }
+
+        #mergedfiles {
+            border-top: 1px solid #b2b2b2;
+            padding-top: 10px;
+        }
     </style>
 {% endblock css %}
 
@@ -130,18 +135,20 @@
     <div class = "displayFile" id="reportFile"></div>
 
     <div id="mergedfiles">
-        <h2>Merged Files</h2>
-        <label>Display format:</label>
+        <h2>Manage Test Data Files:</h2>
+        <label>Display format: </label>
         <input type="radio" name="format" value="1" checked="checked"><label>Yaml</label>
         <input type="radio" name="format" value="0"><label>XML</label>
+        <table id="files">
         {% for file in tab_files %}
-            <div>
-                <input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" />
-                <a class="fileLinks" name="{{ file }}">{{ file }}</a>
-                <input type="text" class="renText noDisplay" name="{{ file }}" />
-                <input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" />
-            </div>
+            <tr>
+                <td><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
+                <td><a class="fileLinks" name="{{ file }}">{{ file }}</a></td>
+                <td><input type="text" class="renText noDisplay" name="{{ file }}" /></td>
+                <td><input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" /></td>
+            </tr>
          {% endfor %}
+        </table>
         <div class="fileButtons">
             <input type = "submit" value = "Delete" id = "delButton" />
             <input type = "submit" value = "Rename" id = "renButton" />
