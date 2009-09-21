@@ -7,7 +7,20 @@
             border-top:5px solid #6699ff;
         }
 
-        #content {font-family:Monospace}
+        #download {
+            background-color:#4dc05e;
+            border: 1px solid green;
+            color:white;
+            font-weight:bold;
+            margin-bottom:30px;
+            -moz-border-radius:5px;
+            -webkit-border-radius: 5px;
+            padding:5px;
+            width:200px;
+            cursor:pointer;
+        }
+
+        #file {font-family:Monospace}
     </style>
 {% endblock css %}
 
@@ -16,9 +29,15 @@
 {% endblock menu %}
 
 {% block content %}
+
+    <button id="download" value="Download">Download File</button>
+
+    <div id="file">
     {% autoescape off %}
         {% for line in lines %}
             {{ line }}
         {% endfor %}
     {% endautoescape %}
+    </div>
+
 {% endblock %}
