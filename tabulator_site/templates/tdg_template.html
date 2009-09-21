@@ -29,33 +29,6 @@
         }
     });
 
-    //Replace the displayFile div with the content of a
-    // generated file when the name of that file is clicked.
-    $("a.fileLinks").click( function() {
-        fname = $(this).attr("name");
-        if( $("input[@name='format']:checked").val() == "1") {
-            ftype = ".yaml";
-        }
-        else {
-            ftype = ".xml";
-        }
-        $.post(".", {'display_this_tdg':fname + ftype}, function(data){
-                //Make spaces and newlines in the file
-                // consistent with HTML, ignore XML tags
-                data = data.replace(/</g, '&lt;');
-                data = data.replace(/>/g, '&gt;');
-                data = data.replace(/\t/g, '   ');
-                data = data.replace(/ /g, '&nbsp;');
-                data = data.replace(/\n/g, '<br/>');
-
-                //Generate markup that displays the contents
-                // of the file. Scroll to top of page
-                $(".displayFile").replaceWith('<div class="displayFile"><h4>'
-                 + fname + '</h4><p>'+ data + '</p></div>');
-                scroll(0,0);
-            });
-    });
-
     //Post file generation arguments to the server when the
     // user clicks the "run" button.
     $("#argsButton").click( function() {
@@ -88,7 +61,7 @@
         // arguments to the server.
         if(overw == true) {
             args = JSON.stringify(args)
-            $.post(".", {'arguments_tdg':args}, function() {
+            $.post("{{ROOT}}tdg", {'arguments_tdg':args}, function() {
                 location.reload(true);
             });
         }
@@ -124,22 +97,19 @@
     <div class="displayFile"></div>
 
     <div id="generatedFiles">
-        <h2>Generated Files</h2>
-        <label>Display format:</label>
-        <input type="radio" name="format" value="1" checked="checked"><label>Yaml</label>
-        <input type="radio" name="format" value="0"><label>XML</label>
-
+        <h2>Manage Test Data</h2>
         <table id="files">
-        {% for file in tdg_files %}
-            <tr>
-                <td><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
-                <td><a class="fileLinks" name="{{ file }}">{{ file }}</a></td>
-                <td><input type="text" class="renText noDisplay" name="{{ file }}" /></td>
-                <td><input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" /></td>
-            </tr>
-        {% endfor %}
+            {% for file in tdg_files %}
+                <tr>
+                    <td><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
+                    <td><label>{{ file }}</label></td>
+                    <td><a href="{{ ROOT }}data/tdg/{{ file }}.yaml">yaml</a></td>
+                    <td><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>
+                    <td><input type="text" class="renText noDisplay" name="{{ file }}" /></td>
+                    <td><input type="submit" class="renDone noDisplay" name="{{ file }}" value="Done" /></td>
+                </tr>
+            {% endfor %}
         </table>
-    </div>
     <div class="fileButtons">
         <input type = "submit" value = "Delete" id = "delButton" />
         <input type = "submit" value = "Rename" id = "renButton" />
@@ -149,6 +119,6 @@
 {% block sidebar %}
     <p>Use this page to generate and manage new test data files.</p>
 
-    <p>On the drop down to the left you can choose the kind of BallotInfo file that will be generated. The files are listed generate
+    <p>On the drop down to the left you can choose the kind of BallotInfo file that will be generated. The files are listed
      in the section below for your inspection, either in yaml or xml format.</p>
 {% endblock %}

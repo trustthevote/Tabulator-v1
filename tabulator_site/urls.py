@@ -13,7 +13,8 @@ urlpatterns = patterns('',
     (r'^welcome$', 'tabulator.views.welcome_handler'),
     (r'^tdg$', 'tabulator.views.tdg_handler'),
     (r'^tabulator$', 'tabulator.views.tab_handler'),
-    (r'^file$', 'tabulator.views.file_handler'),
+    (r'^data/tdg/(?P<fname>.*)$', 'tabulator.views.tdg_file_handler'),
+    (r'^data/tabulator/(?P<fname>.*)$', 'tabulator.views.tab_file_handler'),
     #(r'^$', 'tabulator.views.default_handler'),
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
