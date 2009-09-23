@@ -14,7 +14,7 @@ import audit_header
 
 def welcome_handler(request):
     c = get_render_data()
-    return render_to_response('welcome_template.html', c,
+    return render_to_response('welcome.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
 def tdg_handler(request):
@@ -43,7 +43,7 @@ def tdg_handler(request):
         elif request.POST.has_key('old_name'):
             rename_file(request.POST)
     c = get_render_data()
-    return render_to_response('tdg_template.html', c,
+    return render_to_response('tdg.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
 def tab_handler(request):
@@ -74,7 +74,7 @@ def tab_handler(request):
             rename_file(request.POST)
             return HttpResponse()
     c = get_render_data()
-    return render_to_response('tabulator_template.html', c,
+    return render_to_response('tabulator.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
 def tdg_file_handler(request, fname):
@@ -92,7 +92,7 @@ def tdg_file_handler(request, fname):
         formatted_lines.append(line.replace(' ', '&nbsp;'))
     c = get_render_data()
     c['lines'] = formatted_lines
-    return render_to_response('file_template.html', c,
+    return render_to_response('file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
 def tab_file_handler(request, fname):
@@ -110,7 +110,7 @@ def tab_file_handler(request, fname):
         formatted_lines.append(line.replace(' ', '&nbsp;'))
     c = get_render_data()
     c['lines'] = formatted_lines
-    return render_to_response('file_template.html', c,
+    return render_to_response('file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
     
 
@@ -156,23 +156,23 @@ def get_render_data():
 def delete_files(files):
     for file in files:
         if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file + '.yaml') == 1:
-            os.system('rm ' + settings.DATA_PATH + 'prec_cont/' + file + '.*')
+            os.system('rm -f ' + settings.DATA_PATH + 'prec_cont/' + file + '.*')
         elif os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(file + '.yaml') == 1:
-            os.system('rm ' + settings.DATA_PATH + 'bal_count_tot/' + file + '.*')                
+            os.system('rm -f ' + settings.DATA_PATH + 'bal_count_tot/' + file + '.*')                
         else:
-            os.system('rm ' + settings.DATA_PATH + 'tab_aggr/' + file + '.*')
-            os.system('rm ' + settings.DATA_PATH + 'reports/' + file + '_report')
+            os.system('rm -f ' + settings.DATA_PATH + 'tab_aggr/' + file + '.*')
+            os.system('rm -f ' + settings.DATA_PATH + 'reports/' + file + '_report')
     return
 
 def rename_file(data):
     old_name = data['old_name']
     new_name = data['new_name']
-    if os.listdir(settings.DATA_PATH + 'prec_cont/').count(old_name) == 1:
+    if os.listdir(settings.DATA_PATH + 'prec_cont/').count(old_name + ".yaml") == 1:
         os.rename(settings.DATA_PATH + 'prec_cont/' + old_name + '.yaml',
             settings.DATA_PATH + 'prec_cont/' + new_name + '.yaml')
         os.rename(settings.DATA_PATH + 'prec_cont/' + old_name + '.xml',
             settings.DATA_PATH + 'prec_cont/' + new_name + '.xml')
-    elif os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(old_name) == 1:
+    elif os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(old_name + ".yaml") == 1:
         os.rename(settings.DATA_PATH + 'bal_count_tot/' + old_name + '.yaml',
             settings.DATA_PATH + 'bal_count_tot/' + new_name + '.yaml')
         os.rename(settings.DATA_PATH + 'bal_count_tot/' + old_name + '.xml',
