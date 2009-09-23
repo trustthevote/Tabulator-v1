@@ -22,7 +22,7 @@ DATABASE_PORT = ''             # Set to empty string for default.
 SITE_ROOT = '/'
 
 # absolute path to the docroot of this site
-DOC_ROOT = '/home/mike/osdv/tabulator_site/'
+DOC_ROOT = '/'
   
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name

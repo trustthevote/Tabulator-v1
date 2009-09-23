@@ -34,7 +34,11 @@
             }
 
             label {display:block; float:left; width:180px;}
-
+            
+            td > label {width:90px;}
+            
+            td > input[type = "checkbox"] {margin-top:5px;}
+            
             #header, #versionInfo, #content, #footer{
                 margin-left:auto;
                 margin-right:auto;
@@ -185,9 +189,9 @@
         <div id="slash"></div>
         <div id="header">
             <ul id="menu">
-                <li id="welcomeTab"><a href="/welcome" class="tab">Welcome</a></li>
-                <li id="tdgTab"><a href="/tdg" class="tab">Test Data</a></li>
-                <li id="tabulatorTab"><a href="/tabulator" class="tab">Tabulator</a></li>
+                <li id="welcomeTab"><a href="{{ROOT}}welcome" class="tab">Welcome</a></li>
+                <li id="tdgTab"><a href="{{ROOT}}tdg" class="tab">Test Data</a></li>
+                <li id="tabulatorTab"><a href="{{ROOT}}tabulator" class="tab">Tabulator</a></li>
                 {% block menu %}{% endblock %}
             </ul>
         </div>
