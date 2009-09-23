@@ -106,13 +106,13 @@ class Tabulator(object):
 
         # Create an audit header for merge file
         a = audit_header.AuditHeader()
-        a.set_fields('precinct_contestlist',
+        a.set_fields('tabulator_aggregation',
                      'Pito Salas', 'TTV Tabulator TAB02', 
                      'TTV Tabulator 1.2 JUL-1-2008', new_prov)
         
         # Dump merge into a file in yaml format
         stream = open(merge_output_file + '.yaml', 'w')
-        stream.write(a.serialize())
+        stream.write(a.serialize_yaml())
         yaml.dump_all(self.b1, stream)
         stream.write('---\n')
         yaml.dump_all(self.b2, stream)
@@ -129,8 +129,7 @@ class Tabulator(object):
 
         # Dump merge into a file in xml format        
         stream = open(merge_output_file + '.xml', 'w')
-        stream.write(a.serialize())
-        print self.b1
+        stream.write(a.serialize_xml())
         for record in self.b1:
             print xmlSerialize(record) + '\n\n'
             stream.writelines(xmlSerialize(record)[173:]. \

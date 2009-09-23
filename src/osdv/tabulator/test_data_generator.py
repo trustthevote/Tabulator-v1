@@ -52,12 +52,12 @@ class ProvideRandomBallots(object):
             
             # Dump output into a file in yaml format
             stream = open(args[0] + '.yaml', 'w') 
-            stream.write(a.serialize())
+            stream.write(a.serialize_yaml())
             yaml.dump(b, stream)
             
             # Dump output into a file in XML file
             stream = open(args[0] + '.xml', 'w')
-            stream.write(a.serialize())
+            stream.write(a.serialize_xml())
             stream.writelines(xmlSerialize(b)[173:]. \
                 replace('\t', '    ').replace('\n</plist>', ''))
 
@@ -91,12 +91,12 @@ class ProvideRandomBallots(object):
 
             # Dump output into a file in yaml format
             stream = open(args[2] + '.yaml', 'w')
-            stream.write(a.serialize())
+            stream.write(a.serialize_yaml())
             yaml.dump_all(b_list, stream)
 
             # Dump output into a file in XML file
             stream = open(args[2] + '.xml', 'w')
-            stream.write(a.serialize())
+            stream.write(a.serialize_xml())
             for record in b_list:
                 stream.writelines(xmlSerialize(record)[173:]. \
                     replace('\t', '    ').replace('\n</plist>', ''))

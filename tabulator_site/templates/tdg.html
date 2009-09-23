@@ -7,9 +7,11 @@
             border-top:5px solid #6699ff;
         }
 
+        #generateFile { padding-bottom: 30px }
+        
         #generatedFiles {
             border-top: 1px solid #b2b2b2;
-            padding-top: 10px;
+            padding-top: 30px;
         }
     </style>
 {% endblock css %}
@@ -74,12 +76,12 @@
         <div class="args">
             <div><label for="genMode">Data type:</label>
             <select id="genMode" class="argInputs">
-                <option value="election">Random election template</option>
-                <option value="counts">Random vote counts</option>
+                <option value="election">Jurisdiction Slate</option>
+                <option value="counts">Ballot Counter Total</option>
             </select></div>
             <div class="hideUs noDisplay"><label>Number of records in file:</label>
                 <input type="text" id="howMany" class="argInputs" /></div>
-            <div class="hideUs noDisplay"><label for="templateFile">Election template file name:</label>
+            <div class="hideUs noDisplay"><label for="templateFile">Jurisdiction Slate file:</label>
             <select id="templateFile" class="argInputs">
                 {% if not prec_files %}
                     <option value="null">(None generated)</option>
@@ -94,15 +96,25 @@
         </div>
     </div>
 
-    <div class="displayFile"></div>
-
     <div id="generatedFiles">
         <h2>Manage Test Data</h2>
         <table id="files">
-            {% for file in tdg_files %}
+            {% for file in prec_files %}
                 <tr name="{{ file }}">
                     <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
                     <td class="labelCell"><label>{{ file }}</label></td>
+                    <td class="typeCell"><label>(jurisdiction-slate)</label></td>
+                    <td class="yamlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yaml">yaml</a></td>
+                    <td class="xmlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>
+                    <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>
+                    <td class="buttonCell noDisplay"><input type="submit" id="renDone" name="{{ file }}" value="Done" /></td>
+                </tr>
+            {% endfor %}
+            {% for file in bal_files %}
+                <tr name="{{ file }}">
+                    <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
+                    <td class="labelCell"><label>{{ file }}</label></td>
+                    <td class="typeCell"><label>(ballot-counter-total)</label></td>
                     <td class="yamlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yaml">yaml</a></td>
                     <td class="xmlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>
                     <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>

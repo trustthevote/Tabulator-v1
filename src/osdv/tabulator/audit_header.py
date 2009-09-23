@@ -50,8 +50,19 @@ class AuditHeader(object):
         prov2_str = temp[temp.find(':') + 2:].strip()
         self.provenance = prov2_str.replace(',','').split()
 
-    # Convert audit header data into a specific string format
-    def serialize(self):
+    # Convert audit header data into an xml formatted string
+    def serialize_xml(self):
+        return 'Ballot-header:\n' + \
+            '  <file_id>' + self.file_id + '</file_id>\n' + \
+            '  <create_date>' + self.stringify_date(self.create_date) + '</create_date>\n' + \
+            '  <type>' + self.type + '</type>\n' + \
+            '  <operator>' + self.operator + '</operator>\n' + \
+            '  <hardware>' + self.hardware + '</hardware>\n' + \
+            '  <software>' + self.software + '</software>\n' + \
+            '  <provenance>' + self.stringify_list(self.provenance) + '</provenance>\n\n\n'
+
+    # Convert audit header data into a yaml formatted string
+    def serialize_yaml(self):
         return 'Ballot-header:\n' + \
             '  file_id: ' + self.file_id + '\n' + \
             '  create_date: ' + self.stringify_date(self.create_date) + '\n' + \

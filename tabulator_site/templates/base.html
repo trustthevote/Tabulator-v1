@@ -1,9 +1,9 @@
 <html>
     <head>
-        <script type="text/javascript" src="{{MEDIA_URL}}/jquery-1.3.2.js"></script>
-        <script type="text/javascript" src="{{MEDIA_URL}}/ui.core.js"></script>
-        <script type="text/javascript" src="{{MEDIA_URL}}/ui.tabs.js"></script>
-        <script type="text/javascript" src="{{MEDIA_URL}}/json2.js"></script>
+        <script type="text/javascript" src="{{MEDIA_URL}}/js/jquery-1.3.2.js"></script>
+        <script type="text/javascript" src="{{MEDIA_URL}}/js/ui.core.js"></script>
+        <script type="text/javascript" src="{{MEDIA_URL}}/js/ui.tabs.js"></script>
+        <script type="text/javascript" src="{{MEDIA_URL}}/js/json2.js"></script>
         <script type="text/javascript">
             //When the DOM loads, activate some event handler functions
             $(document).ready(function() {
@@ -17,8 +17,16 @@
                 font-size: 12px;
                 line-height: 25px;
                 margin: 0px;
-                padding: 0px;
+                padding: 0px;                
             }
+
+            body {
+                background-color:#424242;
+                background-image:url('{{MEDIA_URL}}/images/bg.gif');
+                background-repeat:repeat-x;
+            }
+
+            h2 { padding-bottom:10px }
 
             input {
                 font-size:10px;
@@ -27,17 +35,7 @@
 
             p {margin-bottom:15px;}
 
-            body {
-                background-color:#424242;
-                background-image:url('{{MEDIA_URL}}/bg.gif');
-                background-repeat:repeat-x;
-            }
-
             label {display:block; float:left; width:180px;}
-            
-            td > label {width:90px;}
-            
-            td > input[type = "checkbox"] {margin-top:5px;}
             
             #header, #versionInfo, #content, #footer{
                 margin-left:auto;
@@ -189,9 +187,9 @@
         <div id="slash"></div>
         <div id="header">
             <ul id="menu">
-                <li id="welcomeTab"><a href="{{ROOT}}welcome" class="tab">Welcome</a></li>
-                <li id="tdgTab"><a href="{{ROOT}}tdg" class="tab">Test Data</a></li>
-                <li id="tabulatorTab"><a href="{{ROOT}}tabulator" class="tab">Tabulator</a></li>
+                <li id="welcomeTab"><a href="/welcome" class="tab">Welcome</a></li>
+                <li id="tdgTab"><a href="/tdg" class="tab">Test Data</a></li>
+                <li id="tabulatorTab"><a href="/tabulator" class="tab">Tabulator</a></li>
                 {% block menu %}{% endblock %}
             </ul>
         </div>
@@ -200,7 +198,7 @@
                 <table id="content_table">
                     <tr>
                         <td id="main">{% block main %}{%endblock%}</td>
-                        <td id="sidebar">{% block sidebar %}{%endblock%}<img id="logo" src="/static/trustthevote.png"/></td>
+                        <td id="sidebar">{% block sidebar %}{%endblock%}<img id="logo" src="{{MEDIA_URL}}/images/trustthevote.png"/></td>
                     </tr>
                 </table>
             {% endblock %}

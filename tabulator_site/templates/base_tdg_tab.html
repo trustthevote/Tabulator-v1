@@ -22,6 +22,7 @@
             fName = $(this).attr("name");
             $("tr[name="+fName+"] > .boxCell").addClass("hide");
             $("tr[name="+fName+"] > .labelCell").addClass("noDisplay");
+            $("tr[name="+fName+"] > .typeCell").addClass("noDisplay");
             $("tr[name="+fName+"] > .yamlCell").addClass("noDisplay");
             $("tr[name="+fName+"] > .xmlCell").addClass("noDisplay");
             $("tr[name="+fName+"] > .inputCell").removeClass("noDisplay");
@@ -52,6 +53,7 @@
         // checkbox and links.
         $("tr[name="+newName+"] > .boxCell").removeClass("hide");
         $("tr[name="+newName+"] > .labelCell").removeClass("noDisplay");
+        $("tr[name="+newName+"] > .typeCell").removeClass("noDisplay");
         $("tr[name="+newName+"] > .yamlCell").removeClass("noDisplay");
         $("tr[name="+newName+"] > .xmlCell").removeClass("noDisplay");
         $("tr[name="+newName+"] > .inputCell").addClass("noDisplay");
@@ -61,24 +63,17 @@
 
 {% block css %}
     <style type="text/css">
-        div.argstdg {padding-bottom:50px}
-        div.args div {font-weight:bold; padding-bottom:20px}
-        div.displayFile {
-            margin-left:20px;
-            padding-bottom:40px;
-            width:670px;
-            }
-        div.displayFile p {background-color:#E8E8E8;
-                        font-size:12px;
-                        font-family:"Courier New", Monospace;
-                        padding-top:10px;
-                        padding-left:10px;
-                        padding-bottom:10px}
+        input[type="checkbox"] {margin-top:5px}
+        option {font-family: Arial, sans-serif}
+        .labelCell > label {width: 60px}
+        .typeCell > label {width: 130px}
+        .yamlCell {width: 30px}
 
+        div.args div {font-weight:bold; padding-bottom:10px}
         .hide {visibility:hidden}
         .noDisplay {display:none}
         a.fileLinks {color:blue; cursor:pointer}
-
+    
         #files td {
             height:10px;
             padding: 1px;
