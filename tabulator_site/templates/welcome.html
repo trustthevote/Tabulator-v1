@@ -1,6 +1,29 @@
 {% extends "base.html" %}
 
+{% block javascript %}
+    {{ block.super }}
+    
+    //Post login arguments to the server when the user clicks the
+    // "log in" button.
+    $("#loginButton").click( function() {
+        uname = $("#unameField").attr("value");
+        pword = $("#pwordField").attr("value");
+        $.post("{{ HOME }}", {'username':uname, 'password': pword},            
+            function(response) {
+                alert(response['login_status']);
+                if(response['login_status']) {
+                    window.location.href = "{{ ROOT }}tdg";
+                }
+                else {
+                    alert("Bad username/password");
+                }
+            });
+    });
+{% endblock %}
+
 {% block css %}
+    {{ block.super }}
+
     <style type="text/css">
         #welcomeTab, #menu li#welcomeTab:hover {
             border-top:5px solid #6699ff;
@@ -9,6 +32,10 @@
         div#login {
             margin-left:180px;
             margin-top:20px;
+        }
+        
+        div > #loginButton {
+            margin-left:173px;
         }
 
         #login div {
@@ -28,19 +55,18 @@
 
 <p>These few pages demonstrate some of the early software models that we are developing. Some of this software is destined to run inside of stand-alone devices which would make it hard to show to a wide audience. For this reason we are providing this site to show and tell about our early results.</p>
 
-<p>Please talk to your Trust The Vote contact for a password.</p>
+<p>Please talk to your Trust The Vote contact for a username/password.</p>
 
 <div id="login">
-    <form>
-        <div><label>Your Email</label> <input type="text"/></div>
-        <div><label>Password</label> <input type="text"/></div>
-    </form>
+    <div><label>Username</label><input id="unameField" type="text"/></div>
+    <div><label>Password</label><input id="pwordField" type="password"/></div>
+    <div><input id="loginButton" type="submit" value="Log in"></input></div>
 </div>
 
 {% endblock %}
 
 {% block sidebar %}
-<p>Trust The Vote is a project of the <a href="http://osdv.org">Open Source Digital Voting Foundation</a>. All our work is public and open source. The only reason we require a password is so that we can get to know folks who are interested in our work.</p>
+<p>Trust The Vote is a project of the <a href="http://osdv.org">Open Source Digital Voting Foundation</a>. All our work is public and open source. The only reason we require a username and password is so that we can get to know folks who are interested in our work.</p>
 
-<p>If you would like access, please make contact with us and <a href="mailto:info@trustthevote.org">info@trustthevote.org</a> and we will be glad to supply one, ASAP.</p>
+<p>If you would like access, please make contact with us at <a href="mailto:info@trustthevote.org">info@trustthevote.org</a> and we will be glad to supply one, ASAP.</p>
 {% endblock %}

@@ -10,7 +10,7 @@
             checkedFiles.push(this.id);
             $(this).parent().parent().remove();
         });
-        $.post("{{ROOT}}tdg", {'delete':checkedFiles});
+        $.post("{{ ROOT }}tdg", {'delete':checkedFiles});
     });
 
     //When the rename button is clicked, for each checked
@@ -46,7 +46,7 @@
             $("[id="+oldName+"]").attr({id:newName});
 
             //Update the server
-            $.post("{{ROOT}}tdg", {'old_name':oldName, 'new_name':newName});
+            $.post("{{ ROOT }}tdg", {'old_name':oldName, 'new_name':newName});
         }
 
         //Remove the textbox and button, restore the

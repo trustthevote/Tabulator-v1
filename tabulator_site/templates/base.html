@@ -1,12 +1,18 @@
 <html>
     <head>
-        <script type="text/javascript" src="{{MEDIA_URL}}/js/jquery-1.3.2.js"></script>
-        <script type="text/javascript" src="{{MEDIA_URL}}/js/ui.core.js"></script>
-        <script type="text/javascript" src="{{MEDIA_URL}}/js/ui.tabs.js"></script>
-        <script type="text/javascript" src="{{MEDIA_URL}}/js/json2.js"></script>
+        <script type="text/javascript" src="{{ MEDIA_URL }}/js/jquery-1.3.2.js"></script>
+        <script type="text/javascript" src="{{ MEDIA_URL }}/js/ui.core.js"></script>
+        <script type="text/javascript" src="{{ MEDIA_URL }}/js/ui.tabs.js"></script>
+        <script type="text/javascript" src="{{ MEDIA_URL }}/js/json2.js"></script>
         <script type="text/javascript">
             //When the DOM loads, activate some event handler functions
             $(document).ready(function() {
+                //When the user clicks the logout link, log them out
+                $("#logoutLink").click( function() {
+                    $.post(".", {'logout_user':''});
+                    window.location.href = "{{ HOME }}"
+                });
+
                 {% block javascript %}{% endblock %}
                 {% block tdg_tab_js %}{% endblock %}
             });
@@ -17,12 +23,12 @@
                 font-size: 12px;
                 line-height: 25px;
                 margin: 0px;
-                padding: 0px;                
+                padding: 0px;
             }
 
             body {
                 background-color:#424242;
-                background-image:url('{{MEDIA_URL}}/images/bg.gif');
+                background-image:url('{{ MEDIA_URL }}/images/bg.gif');
                 background-repeat:repeat-x;
             }
 
@@ -36,7 +42,7 @@
             p {margin-bottom:15px;}
 
             label {display:block; float:left; width:180px;}
-            
+
             #header, #versionInfo, #content, #footer{
                 margin-left:auto;
                 margin-right:auto;
@@ -46,7 +52,24 @@
             #slash {
                 background-color:#214478;
                 border-bottom:1px solid #6699ff;
-                min-height:20px;
+                min-height:2em;
+            }
+
+            div#logout {
+                color:white;
+                margin-bottom:1em;
+                position:absolute;
+                right:1em;
+            }
+            
+            div#logout > p {margin-bottom:0px}
+            
+            div#logout > #logoutLink {                
+                cursor:pointer;
+            }
+
+            #logoutLink:hover {
+                text-decoration:underline;
             }
 
             #versionInfo {
@@ -147,7 +170,6 @@
 
             #sidebar a:hover {
                 color:green;
-
             }
 
             #logo {
@@ -184,27 +206,33 @@
 
     </head>
     <body>
-        <div id="slash"></div>
+        <div id="slash">
+            {% if user.is_authenticated %}
+                <div id=logout>You are logged in as {{ user.username }} | <a id="logoutLink">Logout</a></div>
+            {% endif %}
+        </div>
         <div id="header">
             <ul id="menu">
-                <li id="welcomeTab"><a href="/welcome" class="tab">Welcome</a></li>
-                <li id="tdgTab"><a href="/tdg" class="tab">Test Data</a></li>
-                <li id="tabulatorTab"><a href="/tabulator" class="tab">Tabulator</a></li>
-                {% block menu %}{% endblock %}
+                <li id="welcomeTab"><a href="{{ ROOT }}welcome" class="tab">Welcome</a></li>
+                {% if user.is_authenticated %}
+                    <li id="tdgTab"><a href="/tdg" class="tab">Test Data</a></li>
+                    <li id="tabulatorTab"><a href="{{ ROOT }}tabulator" class="tab">Tabulator</a></li>
+                    {% block menu %}{% endblock %}
+                {% endif %}
             </ul>
         </div>
         <div id="content">
             {% block content %}
                 <table id="content_table">
                     <tr>
-                        <td id="main">{% block main %}{%endblock%}</td>
-                        <td id="sidebar">{% block sidebar %}{%endblock%}<img id="logo" src="{{MEDIA_URL}}/images/trustthevote.png"/></td>
+                        <td id="main">{% block main %}{% endblock %}</td>
+                        <td id="sidebar">{% block sidebar %}{% endblock %}<img id="logo" src="{{ MEDIA_URL }}/images/trustthevote.png"/></td>
                     </tr>
                 </table>
             {% endblock %}
         </div>
         <div id="footer">
-            <div id="versionInfo">{% for line in version %}{{line}} {%ifequal forloop.counter 1%}<span> | </span>{%endifequal%}{% endfor %}</div>
+            <div id="versionInfo">{% for line in version %}{{ line }} {%ifequal forloop.counter 1%}<span> | </span>{%endifequal%}{% endfor %}</div>
         </div>
     </body>
 </html>

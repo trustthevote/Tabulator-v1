@@ -51,7 +51,7 @@
         // arguments to the server.
         if(overw == true) {
             args = JSON.stringify(args)
-            $.post("{{ROOT}}tabulator", {'arguments':args}, function() {
+            $.post("{{ ROOT }}tabulator", {'arguments':args}, function() {
                 location.reload(true);
             });
         }
@@ -68,7 +68,7 @@
                     <option value="null">(None generated)</option>
                 {% else %}
                     {% for file in prec_files %}
-                        <option value="{{file}}">{{file}}</option>
+                        <option value="{{ file }}">{{ file }}</option>
                     {% endfor %}
                 {% endif %}
             </select></div>
@@ -78,7 +78,7 @@
                     <option value="null">(None generated)</option>
                 {% else %}
                     {% for file in bal_files %}
-                        <option value="{{file}}">{{file}}</option>
+                        <option value="{{ file }}">{{ file }}</option>
                     {% endfor %}
                 {% endif %}
             </select></div>
@@ -88,7 +88,7 @@
                     <option value="null">(None generated)</option>
                 {% else %}
                     {% for file in bal_files %}
-                        <option value="{{file}}">{{file}}</option>
+                        <option value="{{ file }}">{{ file }}</option>
                     {% endfor %}
                 {% endif %}
             </select></div>

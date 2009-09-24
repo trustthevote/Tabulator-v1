@@ -5,6 +5,8 @@ from django.template import Context, loader, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
 from django.shortcuts import render_to_response
 from django.conf import settings
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 import HWT
 import TDG
@@ -13,15 +15,33 @@ import audit_header
 
 
 def welcome_handler(request):
+    # Check to see if the client is posting data
+    if request.method == 'POST':        
+        # Check to see if the client is attempting to log in
+        if request.POST.has_key('username'):
+            print request.POST['username']
+            logout(request)
+            u_attempt = request.POST['username']
+            p_attempt = request.POST['password']
+            user = authenticate(username=u_attempt, password=p_attempt)
+            if user is not None:
+                if user.is_active:
+                    login(request, user)
+            c = Context({'login_status':request.user.is_authenticated()})
+            HttpResponse(c)
+        # Check to see if the client wants to log the user out
+        elif request.POST.has_key('logout_user'):
+            logout(request)
     c = get_render_data()
     return render_to_response('welcome.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
+@login_required
 def tdg_handler(request):
     # Check to see if the client is posting data
     if request.method == 'POST':
         # Check to see if the client wants to generate a file
-        if request.POST.has_key('arguments_tdg'):            
+        if request.POST.has_key('arguments_tdg'):
             # Get and deserialize the users arguments from JSON
             args = request.POST.getlist('arguments_tdg')
             args = json.loads(args[0])
@@ -42,10 +62,14 @@ def tdg_handler(request):
         # Check to see if client wants to rename a file
         elif request.POST.has_key('old_name'):
             rename_file(request.POST)
+        # Check to see if the client wants to log the user out
+        elif request.POST.has_key('logout_user'):
+            logout(request)
     c = get_render_data()
     return render_to_response('tdg.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
+@login_required
 def tab_handler(request):
     # Check to see if the client is posting data
     if request.method == 'POST':
@@ -73,11 +97,21 @@ def tab_handler(request):
         elif request.POST.has_key('old_name'):
             rename_file(request.POST)
             return HttpResponse()
+        # Check to see if the client wants to log the user out
+        elif request.POST.has_key('logout_user'):
+            logout(request)
     c = get_render_data()
     return render_to_response('tabulator.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
+@login_required
 def tdg_file_handler(request, fname):
+    # Check to see if the client is posting data
+    if request.method == 'POST':
+        # Check to see if the client wants to log the user out
+        if request.POST.has_key('logout_user'):
+            logout(request)
+
     if os.listdir(settings.DATA_PATH + 'prec_cont/').count(fname) == 1:
         stream = open(settings.DATA_PATH + 'prec_cont/' + fname, 'r')
     else:
@@ -95,7 +129,14 @@ def tdg_file_handler(request, fname):
     return render_to_response('file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
+@login_required
 def tab_file_handler(request, fname):
+    # Check to see if the client is posting data
+    if request.method == 'POST':
+        # Check to see if the client wants to log the user out
+        if request.POST.has_key('logout_user'):
+            logout(request)
+
     stream = open(settings.DATA_PATH + 'tab_aggr/' + fname, 'r')
     lines = stream.readlines()
     fname = fname[:fname.rfind('.')]
@@ -187,4 +228,4 @@ def rename_file(data):
     return
 
 def settings_processor(request):
-    return {'ROOT':settings.SITE_ROOT}
+    return {'ROOT':settings.SITE_ROOT, 'HOME':settings.LOGIN_URL}

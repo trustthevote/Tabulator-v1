@@ -63,7 +63,7 @@
         // arguments to the server.
         if(overw == true) {
             args = JSON.stringify(args)
-            $.post("{{ROOT}}tdg", {'arguments_tdg':args}, function() {
+            $.post("{{ ROOT }}tdg", {'arguments_tdg':args}, function() {
                 location.reload(true);
             });
         }
@@ -87,7 +87,7 @@
                     <option value="null">(None generated)</option>
                 {% else %}
                     {% for file in prec_files %}
-                        <option value="{{file}}">{{file}}</option>
+                        <option value="{{ file }}">{{ file }}</option>
                     {% endfor %}
                 {% endif %}
             </select></div>
