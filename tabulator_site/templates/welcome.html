@@ -9,9 +9,8 @@
         uname = $("#unameField").attr("value");
         pword = $("#pwordField").attr("value");
         $.post("{{ HOME }}", {'username':uname, 'password': pword},            
-            function(response) {
-                alert(response['login_status']);
-                if(response['login_status']) {
+            function(data) {                
+                if(data) {
                     window.location.href = "{{ ROOT }}tdg";
                 }
                 else {

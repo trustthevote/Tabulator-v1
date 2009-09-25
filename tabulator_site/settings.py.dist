@@ -24,6 +24,9 @@ SITE_ROOT = '/'
 # absolute path to the docroot of this site
 DOC_ROOT = '/'
   
+# Absolute path to the login screen
+LOGIN_URL = '%swelcome' % SITE_ROOT
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -66,7 +69,8 @@ TEMPLATE_LOADERS = (
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.core.context_processors.media',    
+    'django.core.context_processors.media', 
+    'django.core.context_processors.auth',
 )
 
 MIDDLEWARE_CLASSES = (

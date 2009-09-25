@@ -27,8 +27,8 @@ def welcome_handler(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-            c = Context({'login_status':request.user.is_authenticated()})
-            HttpResponse(c)
+            login_status = request.user.is_authenticated()
+            return HttpResponse(login_status)            
         # Check to see if the client wants to log the user out
         elif request.POST.has_key('logout_user'):
             logout(request)
@@ -51,20 +51,25 @@ def tdg_handler(request):
             if len(args) == 1:
                 type = 'election'
                 args[0] = settings.DATA_PATH + 'prec_cont/' + args[0]
+                return HttpResponse()
             elif len(args) == 3:
                 type = 'counts'
                 args[1] = settings.DATA_PATH + 'prec_cont/' + args[1]
                 args[2] = settings.DATA_PATH + 'bal_count_tot/' + args[2]
+                return HttpResponse()
             P = TDG.ProvideRandomBallots(type, args)  # Make a file            
         # Check to see if client wants to delete file(s)
         elif request.POST.has_key('delete'):
             delete_files(request.POST.getlist('delete'))
+            return HttpResponse()
         # Check to see if client wants to rename a file
         elif request.POST.has_key('old_name'):
             rename_file(request.POST)
+            return HttpResponse()
         # Check to see if the client wants to log the user out
         elif request.POST.has_key('logout_user'):
             logout(request)
+            return HttpResponse()
     c = get_render_data()
     return render_to_response('tdg.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
@@ -100,6 +105,7 @@ def tab_handler(request):
         # Check to see if the client wants to log the user out
         elif request.POST.has_key('logout_user'):
             logout(request)
+            return HttpResponse()
     c = get_render_data()
     return render_to_response('tabulator.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
@@ -111,7 +117,7 @@ def tdg_file_handler(request, fname):
         # Check to see if the client wants to log the user out
         if request.POST.has_key('logout_user'):
             logout(request)
-
+            return HttpResponse()
     if os.listdir(settings.DATA_PATH + 'prec_cont/').count(fname) == 1:
         stream = open(settings.DATA_PATH + 'prec_cont/' + fname, 'r')
     else:
@@ -136,7 +142,7 @@ def tab_file_handler(request, fname):
         # Check to see if the client wants to log the user out
         if request.POST.has_key('logout_user'):
             logout(request)
-
+        return HttpResponse()
     stream = open(settings.DATA_PATH + 'tab_aggr/' + fname, 'r')
     lines = stream.readlines()
     fname = fname[:fname.rfind('.')]
