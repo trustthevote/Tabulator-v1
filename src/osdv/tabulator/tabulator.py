@@ -56,11 +56,6 @@ class Tabulator(object):
             stream.readline()
         self.e = yaml.load(stream)
         
-        print self.e.keys()
-        print self.e['contests'][0].keys()
-        print self.e['contests'][0]['candidates'][0].keys()
-        exit()
-
         # Perform some error checks on the input data for robustness
         self.validate()
 
@@ -168,15 +163,26 @@ class Tabulator(object):
         contest_keys = ['ident', 'display_name', 'voting_method_id']
         contest_keys += ['open_seat_count', 'candidates', 'district_id']
         candidate_keys = ['count', 'display_name', 'ident', 'party_id']
-        for election in self.b1:
-            for contest in record:
-                for candidate in contest:
+        for file in (self.e, self.b1, self.b2):
+            for election in file:
+                if not has_only_keys(election, election_keys):
+                    return false
+                for contest in election:
+                    if not has_only_keys(contest, contest_keys):
+                        return false
+                    for candidate in contest:
+                        if not has_only_keys(candidate, candidate_keys):
+                            return false
 
     # Helper function for self.verify_data_structures. Verifies that a
     #  dictionary only contains the given list of keys, no more nor less
-    def has_only_keys(dict, key_list):
-        
-    
+    def has_only_keys(dict, key_list):        
+        for k in key_list:
+            if not dict.has_key(k):
+                return false
+        if len(dict.keys) != len(key_list):
+            return false
+        return True
 
     # Verify that the data stored in each field of each data structure
     #  is valid data for that field, i.e. vote counts should not be
@@ -212,20 +218,15 @@ class Tabulator(object):
     #  and returns the cumulative result as a dictionary.
     def sumation(self):
         sum_dict = {}
-        for rec in self.b1:     
-            for i in range(len(rec['contests'])):
-                for j in range(len(rec['contests'][i]['candidates'])):
-                    c_name = rec['contests'][i]['candidates'][j]['display_name']
-                    if not sum_dict.has_key(c_name):
-                        sum_dict[c_name] = 0                    
-                    c_count = rec['contests'][i]['candidates'][j]['count']
-                    sum_dict[c_name] += c_count
-        for rec in self.b2:
-            for i in range(len(rec['contests'])):
-                for j in range(len(rec['contests'][i]['candidates'])):
-                    c_name = rec['contests'][i]['candidates'][j]['display_name']
-                    c_count = rec['contests'][i]['candidates'][j]['count']
-                    sum_dict[c_name] += c_count
+        for file in (self.b1, self.b2):
+            for rec in file:     
+                for i in range(len(rec['contests'])):
+                    for j in range(len(rec['contests'][i]['candidates'])):
+                        c_name = rec['contests'][i]['candidates'][j]['display_name']
+                        if not sum_dict.has_key(c_name):
+                            sum_dict[c_name] = 0                    
+                        c_count = rec['contests'][i]['candidates'][j]['count']
+                        sum_dict[c_name] += c_count
         return sum_dict
 
 def main():
