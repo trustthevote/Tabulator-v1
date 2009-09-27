@@ -14,7 +14,7 @@ from plistlib import writePlistToString as xmlSerialize
 
 import audit_header
 
-# Provides random election specs or random ballot counts
+# Provide random election specs or random ballot counts
 class ProvideRandomBallots(object):
     # Takes as its arguments the type of random data to generate
     def __init__(self, type, args):
@@ -85,7 +85,7 @@ class ProvideRandomBallots(object):
             
             # Give each file its own audit header            
             a = audit_header.AuditHeader()
-            a.set_fields('precinct_contestlist',
+            a.set_fields('ballot_counter_total',
                          'Pito Salas', 'TTV Tabulator TAB02', 
                          'TTV Tabulator 1.2 JUL-1-2008', [])
 
@@ -105,8 +105,7 @@ class ProvideRandomBallots(object):
         else:
             exit()
     
-    # Makes and returns a ballot of precinct_contestlist type with
-    #  initialized data members
+    # Make and returns a ballot with initialized data members
     def random_elec(self):        
         self.cand_num = 1
                 
@@ -123,7 +122,7 @@ class ProvideRandomBallots(object):
             b['contests'].append(self.random_contest())            
         return b
 
-    # Makes and returns a contest object with initialized data members
+    # Make and returns a contest object with initialized data members
     def random_contest(self):
         cont = {}
 
@@ -212,7 +211,7 @@ class ProvideRandomBallots(object):
         cont['voting_method_id'] = 'VOTM-' + str(random.randint(1,5))
         return cont
 
-    # Makes and returns a candidate object with initialized data members
+    # Make and returns a candidate object with initialized data members
     def random_candidate(self):
         cand = {}
         
@@ -231,7 +230,7 @@ class ProvideRandomBallots(object):
         
         return cand
     
-    # Makes and returns a random full name string
+    # Make and returns a random full name string
     def random_fullname(self):
         # Generate a first and last name combination
         fname = self.fnames[random.randint(0, len(self.fnames) - 1)].strip()

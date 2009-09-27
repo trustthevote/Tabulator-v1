@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 
 import HWT
 import TDG
-import tabulator
+import merger
 import audit_header
 
 
@@ -90,9 +90,8 @@ def tab_handler(request):
             args[2] = settings.DATA_PATH + 'bal_count_tot/' + args[2]
             fname = args[3]
             args[3] = settings.DATA_PATH + 'tab_aggr/' + args[3]
-            args.append(settings.DATA_PATH + 'reports/' + fname + '_report')            
 
-            P = tabulator.Tabulator(args[0], args[1], args[2], args[3], args[4])
+            merger.Merger(args[0], args[1], args[2], args[3], args[4])            
             return HttpResponse()
         # Check to see if client wants to delete file(s)
         elif request.POST.has_key('delete'):
