@@ -51,8 +51,7 @@ class Merger(object):
         self.e = yaml.load(stream)
         stream.close()
 
-        # Combine provenances and guids from input ballot_counter_total
-        #  files
+        # Combine provenances and guids from input files
         self.new_prov = []
         self.new_prov.extend(prov1)
         self.new_prov.extend(prov2)
@@ -112,8 +111,7 @@ class Merger(object):
         return True
 
     # Verify that each GUID contained in the combined provenance of the
-    #  two ballot-counter-total input files is unique, as a check
-    #  against double counting.  
+    #  two input files is unique, as a check against double counting.  
     def validate_GUIDs(self):
         for guid in self.new_prov:
             if self.new_prov.count(guid) > 1:
@@ -168,10 +166,13 @@ class Merger(object):
             for election in file:
                 if type(election['election_name']) != str:                    
                     return False
-                if election['type'] != 'precinct_contestlist' and \
-                   election['type'] != 'ballot_counter_total' and \
-                   election['type'] != 'tabulator_aggregation':
-                    return False
+                if file == [self.e]:
+                    if election['type'] != 'precinct_contestlist':
+                        return False
+                else:
+                    if election['type'] != 'ballot_counter_total' and \
+                    election['type'] != 'tabulator_aggregation':
+                        return False
                 for contest in election['contests']:
                     if type(contest['ident']) != str:
                         return False

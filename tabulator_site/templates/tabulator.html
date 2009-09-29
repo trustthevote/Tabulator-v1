@@ -74,20 +74,20 @@
             </select></div>
             <div><label for="inputFile1">Ballot Counter file 1:</label>
             <select id="inputFile1" class="argInputs">
-                {% if not bal_files %}
+                {% if not merge_files %}
                     <option value="null">(None generated)</option>
                 {% else %}
-                    {% for file in bal_files %}
+                    {% for file in merge_files %}
                         <option value="{{ file }}">{{ file }}</option>
                     {% endfor %}
                 {% endif %}
             </select></div>
             <div><label for="inputFile2">Ballot Counter file 2:</label>
             <select id="inputFile2" class="argInputs">
-                {% if not bal_files %}
+                {% if not merge_files %}
                     <option value="null">(None generated)</option>
                 {% else %}
-                    {% for file in bal_files %}
+                    {% for file in merge_files %}
                         <option value="{{ file }}">{{ file }}</option>
                     {% endfor %}
                 {% endif %}

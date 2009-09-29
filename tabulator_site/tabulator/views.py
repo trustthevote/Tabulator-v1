@@ -84,8 +84,15 @@ def tab_handler(request):
             # Arguments will be made consistent with where data is
             #  stored on the server, as given by DATA_PATH
             args[0] = settings.DATA_PATH + 'prec_cont/' + args[0]
-            args[1] = settings.DATA_PATH + 'bal_count_tot/' + args[1]
-            args[2] = settings.DATA_PATH + 'bal_count_tot/' + args[2]
+
+            if os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(args[1] + '.yaml') == 1:
+                args[1] = settings.DATA_PATH + 'bal_count_tot/' + args[1]
+            else:
+                args[1] = settings.DATA_PATH + 'tab_aggr/' + args[1]
+            if os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(args[2] + '.yaml') == 1:
+                args[2] = settings.DATA_PATH + 'bal_count_tot/' + args[2]
+            else:
+                args[2] = settings.DATA_PATH + 'tab_aggr/' + args[2]
             fname = args[3]
             args[3] = settings.DATA_PATH + 'tab_aggr/' + args[3]
             
@@ -131,7 +138,7 @@ def tdg_file_handler(request, fname):
         formatted_lines.append(line.replace(' ', '&nbsp;'))
     c = get_render_data()
     c['lines'] = formatted_lines
-    return render_to_response('file.html', c,
+    return render_to_response('tdg_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
 @login_required
@@ -162,14 +169,14 @@ def tab_file_handler(request, fname):
         formatted_merged = []
         for line in merged:
             line = line.replace('<', '&lt;')
-            line = line.replace('>', '&gt;')
+            line = line.replace('>', '&gt;')            
             line = line.replace('\t', '   ')
-            line = line.replace('\n', '<br/>')        
+            line = line.replace('\n', '</p>')        
             formatted_merged.append(line.replace(' ', '&nbsp;'))    
         c['merged'] = formatted_merged
 
     c['log'] = formatted_log
-    return render_to_response('file.html', c,
+    return render_to_response('tab_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
     
 
@@ -200,7 +207,9 @@ def get_render_data():
     for i in range(0, len(tab_files)):
         tab_files[i] = tab_files[i][:tab_files[i].rfind('.')]
     tab_files = set(tab_files)
+    
     tdg_files = prec_files.union(bal_files)
+    merge_files = bal_files.union(tab_files)
 
     # Get version / last revision info from file
     stream = open('VERSION', 'r')
@@ -208,7 +217,7 @@ def get_render_data():
 
     return Context({'prec_files':prec_files, 'bal_files':bal_files,
                     'tdg_files':tdg_files, 'tab_files':tab_files,
-                    'version':version})
+                    'merge_files':merge_files, 'version':version})
 
 def delete_files(files):
     for file in files:
