@@ -171,7 +171,7 @@ def tab_file_handler(request, fname):
             line = line.replace('<', '&lt;')
             line = line.replace('>', '&gt;')            
             line = line.replace('\t', '   ')
-            line = line.replace('\n', '</p>')        
+            line = line.replace('\n', '<br/>')        
             formatted_merged.append(line.replace(' ', '&nbsp;'))    
         c['merged'] = formatted_merged
 
