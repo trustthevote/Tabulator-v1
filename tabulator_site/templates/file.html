@@ -20,7 +20,14 @@
             cursor:pointer;
         }
 
-        #file {font-family:Monospace}
+        .file {font-family:Monospace}
+        
+        #log {padding-bottom:30px}
+        
+        #merged {
+            border-top: 1px solid #b2b2b2;
+            padding-top: 30px;
+        }
     </style>
 {% endblock css %}
 
@@ -30,14 +37,21 @@
 
 {% block content %}
 
-    <button id="download" value="Download">Download File</button>
+    <!--<button id="download" value="Download">Download Files</button>-->
 
-    <div id="file">
+    <div id="log" class="file">
     {% autoescape off %}
-        {% for line in lines %}
-            {{ line }}
+        {% for log_line in log %}
+            {{ log_line }}
         {% endfor %}
     {% endautoescape %}
     </div>
 
+    <div id="merged" class="file">
+    {% autoescape off %}
+        {% for merged_line in merged %}
+            {{ merged_line }}
+        {% endfor %}
+    {% endautoescape %}
+    </div>
 {% endblock %}

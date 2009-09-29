@@ -24,7 +24,7 @@ class Merger(object):
         except:
             self.rstream.write('Unable to open ' + record1 + '\n')
             print('Unable to open ' + record1 + '\n')
-            exit()
+            exit(0)
         else:
             a = audit_header.AuditHeader()
             a.load_from_file(stream)
@@ -36,7 +36,7 @@ class Merger(object):
         except:
             self.rstream.write('Unable to open ' + record2 + '\n')
             print('Unable to open ' + record2 + '\n')
-            exit()
+            exit(0)
         else:
             a = audit_header.AuditHeader()
             a.load_from_file(stream)
@@ -49,6 +49,7 @@ class Merger(object):
         for i in range(0,8):  # Ignore the audit header
             stream.readline()
         self.e = yaml.load(stream)
+        stream.close()
 
         # Combine provenances and guids from input ballot_counter_total
         #  files
@@ -58,35 +59,9 @@ class Merger(object):
         self.new_prov.append(guid1)
         self.new_prov.append(guid2)        
 
-        # Perform some error checks on the input data for robustness
-        self.validate(merge_output + ".log")
-
-        # Create an audit header for merge file
-        a = audit_header.AuditHeader()
-        a.set_fields('tabulator_aggregation',
-                     'Pito Salas', 'TTV Tabulator TAB02', 
-                     'TTV Tabulator 1.2 JUL-1-2008', self.new_prov)
-
-        # Dump merge into a file in yaml format
-        stream = open(merge_output + '.yaml', 'w')
-        stream.write(a.serialize_yaml())
-        yaml.dump_all(self.b1, stream)
-        stream.write('---\n')
-        yaml.dump_all(self.b2, stream)
-
-        # Dump merge into a file in xml format        
-        stream = open(merge_output + '.xml', 'w')
-        stream.write(a.serialize_xml())
-        for file in (self.b1, self.b2):
-            for record in file:
-                stream.writelines(xmlSerialize(record)[173:]. \
-                    replace('\t', '    ').replace('\n</plist>', ''))
-
-        stream.close()
-
     # Check to see that all input data is valid, results go to stdout
     #  and into a log file
-    def validate(self, fname):
+    def validate(self, fname):        
         strm = open(fname, 'w')
         print "Data validation results:"
         strm.write("Data validation results:\n")
@@ -99,7 +74,7 @@ class Merger(object):
         else:
             print " No, merge aborted"
             strm.write(" No, merge aborted\n")
-            exit()
+            return False
 
         print " Do input files contain BallotInfo data structures ...",
         strm.write(" Do input files contain BallotInfo data structures ... ")
@@ -109,7 +84,7 @@ class Merger(object):
         else:
             print " No, merge aborted"
             strm.write(" No, merge aborted\n")
-            exit()
+            return False
 
         print " Do all fields contain good values of the proper type ...",
         strm.write(" Do all fields contain good values of the proper type ... ")
@@ -119,7 +94,7 @@ class Merger(object):
         else:
             print "No, merge aborted"
             strm.write("No, merge aborted\n")
-            exit()
+            return False
 
         print " Do both record files match the given election ...",
         strm.write(" Do both record files match the given election ... ")
@@ -129,11 +104,12 @@ class Merger(object):
         else:
             print "No, merge aborted"
             strm.write("No, merge aborted\n")
-            exit()
+            return False
 
         print "All validation tests passed\n"
-        strm.write("All validation tests passed\n\n")
-        strm.close()
+        strm.write("All validation tests passed\n")
+        strm.close()        
+        return True
 
     # Verify that each GUID contained in the combined provenance of the
     #  two ballot-counter-total input files is unique, as a check
@@ -264,15 +240,43 @@ class Merger(object):
             return False
         return True
 
+    # Concatenate the two input files together along with a generated
+    #  audit header. Dump the result in yaml and xml formats
+    def merge(self, merged_output):
+        # Create an audit header
+        a = audit_header.AuditHeader()
+        a.set_fields('tabulator_aggregation',
+                     'Pito Salas', 'TTV Tabulator TAB02', 
+                     'TTV Tabulator 1.2 JUL-1-2008', self.new_prov)
+
+        # Dump merge into a file in yaml format
+        stream = open(merged_output + '.yaml', 'w')
+        stream.write(a.serialize_yaml())
+        yaml.dump_all(self.b1, stream)
+        stream.write('---\n')
+        yaml.dump_all(self.b2, stream)
+
+        # Dump merge into a file in xml format        
+        stream = open(merged_output + '.xml', 'w')
+        stream.write(a.serialize_xml())
+        for file in (self.b1, self.b2):
+            for record in file:
+                stream.writelines(xmlSerialize(record)[173:]. \
+                    replace('\t', '    ').replace('\n</plist>', ''))
+        stream.close()
+
 def main():
     # Output a usage message if incorrect number of command line args
     if( len(sys.argv) != 5 ):
         print "Usage: [ELECTION SPECS FILE] [BALLOT RECORD FILE 1]",
         print "[BALLOT RECORD FILE 2] [MERGED OUTPUT FILE]"
-        exit()
+        return 0
 
     m = Merger(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-
+    if m.validate(sys_argv[4] + ".log") == False:
+        return 0
+    m.merge(sys_argv[4])
+        
     strm = open(sys.argv[4] + '.log', 'a')
     print "Successfully merged " + sys.argv[2] + " and " + sys.argv[3],
     strm.write("Successfully merged " + sys.argv[2] + " and " + sys.argv[3])

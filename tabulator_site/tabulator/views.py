@@ -19,7 +19,6 @@ def welcome_handler(request):
     if request.method == 'POST':        
         # Check to see if the client is attempting to log in
         if request.POST.has_key('username'):
-            print request.POST['username']
             logout(request)
             u_attempt = request.POST['username']
             p_attempt = request.POST['password']
@@ -50,14 +49,13 @@ def tdg_handler(request):
             #  stored on the server, as given by DATA_PATH
             if len(args) == 1:
                 type = 'election'
-                args[0] = settings.DATA_PATH + 'prec_cont/' + args[0]
-                return HttpResponse()
+                args[0] = settings.DATA_PATH + 'prec_cont/' + args[0]                
             elif len(args) == 3:
                 type = 'counts'
                 args[1] = settings.DATA_PATH + 'prec_cont/' + args[1]
-                args[2] = settings.DATA_PATH + 'bal_count_tot/' + args[2]
-                return HttpResponse()
-            P = TDG.ProvideRandomBallots(type, args)  # Make a file            
+                args[2] = settings.DATA_PATH + 'bal_count_tot/' + args[2]                
+            P = TDG.ProvideRandomBallots(type, args)  # Make a file
+            return HttpResponse()      
         # Check to see if client wants to delete file(s)
         elif request.POST.has_key('delete'):
             delete_files(request.POST.getlist('delete'))
@@ -90,8 +88,10 @@ def tab_handler(request):
             args[2] = settings.DATA_PATH + 'bal_count_tot/' + args[2]
             fname = args[3]
             args[3] = settings.DATA_PATH + 'tab_aggr/' + args[3]
-
-            merger.Merger(args[0], args[1], args[2], args[3], args[4])            
+            
+            m = merger.Merger(args[0], args[1], args[2], args[3])
+            if m.validate(args[3] + ".log") == True:
+                m.merge(args[3])
             return HttpResponse()
         # Check to see if client wants to delete file(s)
         elif request.POST.has_key('delete'):
@@ -142,20 +142,33 @@ def tab_file_handler(request, fname):
         if request.POST.has_key('logout_user'):
             logout(request)
         return HttpResponse()
-    stream = open(settings.DATA_PATH + 'tab_aggr/' + fname, 'r')
-    lines = stream.readlines()
-    fname = fname[:fname.rfind('.')]
-    stream = open(settings.DATA_PATH + 'reports/' + fname + '_report', 'r')
-    lines += stream.readlines()
-    formatted_lines=[]
-    for line in lines:
-        line = line.replace('<', '&lt;')
-        line = line.replace('>', '&gt;')
-        line = line.replace('\t', '   ')
-        line = line.replace('\n', '<br/>')        
-        formatted_lines.append(line.replace(' ', '&nbsp;'))
     c = get_render_data()
-    c['lines'] = formatted_lines
+    
+    # Read in file data stored on server. A merged file may not have
+    #  have been created, but try to load it and format it.
+    fname = fname[:fname.rfind('.')]
+    stream = open(settings.DATA_PATH + 'tab_aggr/' + fname + '.log', 'r')
+    log = stream.readlines()
+    formatted_log = []
+    for line in log:
+        line = line.replace('\n', '<br/>')
+        formatted_log.append(line.replace(' ', '&nbsp;'))
+    try:
+        stream = open(settings.DATA_PATH + 'tab_aggr/' + fname + '.yaml', 'r')
+    except IOError:
+        pass
+    else:
+        merged = stream.readlines()
+        formatted_merged = []
+        for line in merged:
+            line = line.replace('<', '&lt;')
+            line = line.replace('>', '&gt;')
+            line = line.replace('\t', '   ')
+            line = line.replace('\n', '<br/>')        
+            formatted_merged.append(line.replace(' ', '&nbsp;'))    
+        c['merged'] = formatted_merged
+
+    c['log'] = formatted_log
     return render_to_response('file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
     
@@ -172,8 +185,6 @@ def get_render_data():
         os.mkdir(settings.DATA_PATH + 'bal_count_tot/')
     if os.listdir(settings.DATA_PATH).count('tab_aggr') == 0:
         os.mkdir(settings.DATA_PATH + 'tab_aggr/')
-    if os.listdir(settings.DATA_PATH).count('reports') == 0:
-        os.mkdir(settings.DATA_PATH + 'reports/')
 
     # Get a list of files so far generated, by type. Leave off the .yaml
     #  and .xml file extensions, as well as redundancies.
