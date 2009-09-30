@@ -97,7 +97,7 @@ def tab_handler(request):
             args[3] = settings.DATA_PATH + 'tab_aggr/' + args[3]
             
             m = merger.Merger(args[0], args[1], args[2], args[3])
-            if m.validate(args[3] + ".log") == True:
+            if m.validate(args[3] + '.log') == True:
                 m.merge(args[3])
             return HttpResponse()
         # Check to see if client wants to delete file(s)
@@ -153,15 +153,8 @@ def tab_file_handler(request, fname):
     
     # Read in file data stored on server. A merged file may not have
     #  have been created, but try to load it and format it.
-    fname = fname[:fname.rfind('.')]
-    stream = open(settings.DATA_PATH + 'tab_aggr/' + fname + '.log', 'r')
-    log = stream.readlines()
-    formatted_log = []
-    for line in log:
-        line = line.replace('\n', '<br/>')
-        formatted_log.append(line.replace(' ', '&nbsp;'))
     try:
-        stream = open(settings.DATA_PATH + 'tab_aggr/' + fname + '.yaml', 'r')
+        stream = open(settings.DATA_PATH + 'tab_aggr/' + fname, 'r')
     except IOError:
         pass
     else:
@@ -175,7 +168,15 @@ def tab_file_handler(request, fname):
             formatted_merged.append(line.replace(' ', '&nbsp;'))    
         c['merged'] = formatted_merged
 
+    fname = fname[:fname.rfind('.')]
+    stream = open(settings.DATA_PATH + 'tab_aggr/' + fname + '.log', 'r')
+    log = stream.readlines()
+    formatted_log = []
+    for line in log:
+        line = line.replace('\n', '<br/>')
+        formatted_log.append(line.replace(' ', '&nbsp;'))
     c['log'] = formatted_log
+
     return render_to_response('tab_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
     

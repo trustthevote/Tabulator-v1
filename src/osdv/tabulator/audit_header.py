@@ -52,18 +52,19 @@ class AuditHeader(object):
 
     # Convert audit header data into an xml formatted string
     def serialize_xml(self):
-        return 'Ballot-header:\n' + \
+        return '<audit-header>\n' + \
             '  <file_id>' + self.file_id + '</file_id>\n' + \
             '  <create_date>' + self.stringify_date(self.create_date) + '</create_date>\n' + \
             '  <type>' + self.type + '</type>\n' + \
             '  <operator>' + self.operator + '</operator>\n' + \
             '  <hardware>' + self.hardware + '</hardware>\n' + \
             '  <software>' + self.software + '</software>\n' + \
-            '  <provenance>' + self.stringify_list(self.provenance) + '</provenance>\n\n\n'
+            '  <provenance>' + self.stringify_list(self.provenance) + '</provenance>\n' + \
+            '</audit-header>\n\n\n'
 
     # Convert audit header data into a yaml formatted string
     def serialize_yaml(self):
-        return 'Ballot-header:\n' + \
+        return 'Audit-header:\n' + \
             '  file_id: ' + self.file_id + '\n' + \
             '  create_date: ' + self.stringify_date(self.create_date) + '\n' + \
             '  type: ' + self.type + '\n' + \
@@ -112,5 +113,8 @@ class AuditHeader(object):
         for i in list_:
             result += i
             if i != list_[len(list_) - 1]:
-                result += ', '        
+                if i % 3 == 2:
+                    result += ',\n'
+                else:
+                    result += ', '
         return result
