@@ -44,11 +44,11 @@ class ProvideRandomBallots(object):
 
             # Give each file its own audit header, generate data
             a = audit_header.AuditHeader()
-            a.set_fields('precinct_contestlist',
+            a.set_fields('jurisdiction_slate',
                          'Pito Salas', 'TTV Tabulator TAB02', 
                          'TTV Tabulator 1.2 JUL-1-2008', [])
             b = self.random_elec()
-            b['type'] = 'precinct_contestlist'
+            b['type'] = 'jurisdiction_slate'
             
             # Dump output into a file in yaml format
             stream = open(args[0] + '.yaml', 'w') 

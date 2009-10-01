@@ -64,19 +64,28 @@
 {% block css %}
     <style type="text/css">
         input[type="checkbox"] {margin-top:5px}
+        
         option {font-family: Arial, sans-serif}
-        .labelCell > label {width: 60px}
-        .typeCell > label {width: 130px}
+        
+        .labelCell > label {width: 100%; padding-right: 1em}
+        
+        .typeCell > label {width: 100%; padding-right: 1em}
+        
         .yamlCell {width: 30px}
 
         div.args div {font-weight:bold; padding-bottom:10px}
+        
         .hide {visibility:hidden}
+        
         .noDisplay {display:none}
+        
         a.fileLinks {color:blue; cursor:pointer}
     
         #files td {
             height:10px;
             padding: 1px;
-        }        
+        }
+        
+        #delButton { margin: 3px }
     </style>
 {% endblock css %}

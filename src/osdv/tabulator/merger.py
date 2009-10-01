@@ -18,6 +18,8 @@ import audit_header
 class Merger(object):
     def __init__(self, election, record1, record2,
                  merge_output):
+        self.rstream = open(merge_output + '.log', 'a')
+        
         # Load ballot records from yaml file
         try:
             stream = open(record1 + '.yaml', 'r')
@@ -60,54 +62,53 @@ class Merger(object):
 
     # Check to see that all input data is valid, results go to stdout
     #  and into a log file
-    def validate(self, fname):        
-        strm = open(fname, 'w')
+    def validate(self):
         print "Data validation results:"
-        strm.write("Data validation results:\n")
+        self.rstream.write("Data validation results:\n")
 
         print " Are all GUIDs unique ...",
-        strm.write(" Are all GUIDs unique ... ")
+        self.rstream.write(" Are all GUIDs unique ... ")
         if self.validate_GUIDs():
             print "Yes"
-            strm.write("Yes\n")
+            self.rstream.write("Yes\n")
         else:
             print " No, merge aborted"
-            strm.write(" No, merge aborted\n")
+            self.rstream.write(" No, merge aborted\n")
             return False
 
         print " Do input files contain BallotInfo data structures ...",
-        strm.write(" Do input files contain BallotInfo data structures ... ")
+        self.rstream.write(" Do input files contain BallotInfo data structures ... ")
         if self.validate_data_structures():
             print "Yes"
-            strm.write("Yes\n")
+            self.rstream.write("Yes\n")
         else:
             print " No, merge aborted"
-            strm.write(" No, merge aborted\n")
+            self.rstream.write(" No, merge aborted\n")
             return False
 
         print " Do all fields contain good values of the proper type ...",
-        strm.write(" Do all fields contain good values of the proper type ... ")
+        self.rstream.write(" Do all fields contain good values of the proper type ... ")
         if self.validate_fields():
             print "Yes"
-            strm.write("Yes\n")
+            self.rstream.write("Yes\n")
         else:
             print "No, merge aborted"
-            strm.write("No, merge aborted\n")
+            self.rstream.write("No, merge aborted\n")
             return False
 
         print " Do both record files match the given election ...",
-        strm.write(" Do both record files match the given election ... ")
+        self.rstream.write(" Do both record files match the given election ... ")
         if self.validate_match_election():
             print "Yes"
-            strm.write("Yes\n")
+            self.rstream.write("Yes\n")
         else:
             print "No, merge aborted"
-            strm.write("No, merge aborted\n")
+            self.rstream.write("No, merge aborted\n")
             return False
 
         print "All validation tests passed\n"
-        strm.write("All validation tests passed\n")
-        strm.close()        
+        self.rstream.write("All validation tests passed\n")
+        self.rstream.close()        
         return True
 
     # Verify that each GUID contained in the combined provenance of the

@@ -97,7 +97,7 @@ def tab_handler(request):
             args[3] = settings.DATA_PATH + 'tab_aggr/' + args[3]
             
             m = merger.Merger(args[0], args[1], args[2], args[3])
-            if m.validate(args[3] + '.log') == True:
+            if m.validate() == True:
                 m.merge(args[3])
             return HttpResponse()
         # Check to see if client wants to delete file(s)
@@ -204,13 +204,16 @@ def get_render_data():
     for i in range(0, len(bal_files)):
         bal_files[i] = bal_files[i][:bal_files[i].rfind('.')]
     bal_files = set(bal_files)
-    tab_files = os.listdir(settings.DATA_PATH + 'tab_aggr/')
+    tab_files = os.listdir(settings.DATA_PATH + 'tab_aggr/')    
     for i in range(0, len(tab_files)):
         tab_files[i] = tab_files[i][:tab_files[i].rfind('.')]
+    for i in tab_files:
+        if tab_files.count(i) == 1:
+            tab_files.remove(i)
     tab_files = set(tab_files)
     
     tdg_files = prec_files.union(bal_files)
-    merge_files = bal_files.union(tab_files)
+    merge_files = bal_files.union(tab_files)    
 
     # Get version / last revision info from file
     stream = open('VERSION', 'r')
