@@ -28,6 +28,7 @@ class Tabulator(object):
         #  sumation(). Write the vote totals for each candidate to the
         #  report stream.
         s = self.sumation()
+        print s
 
     # Sums up the separate vote counts in each record for each candidate
     #  and returns the cumulative result as a dictionary.
