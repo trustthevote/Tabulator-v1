@@ -3,117 +3,15 @@
 {% block css %}
     {{ block.super }}
     <style type="text/css">
-        #tabulatorTab, #menu li#tabulatorTab:hover {
+        #mergerTab, #menu li#tabulatorTab:hover {
             border-top:5px solid #6699ff;
-        }
-
-        #tabulate { padding-bottom: 30px; }
-
-        #mergedfiles {
-            border-top: 1px solid #b2b2b2;
-            padding-top: 30px;
         }
     </style>
 {% endblock css %}
 
-{% block javascript %}
-    //Post file generation arguments to the server when the
-    // user clicks the "run" button.
-    $("#argsButton").click( function() {
-        //Check to see if the user gave an output filename
-        // that is already in use. If so, then prompt to
-        // confirm overwrite. Also check for a null filename.
-        fname = $("#mergeName").attr("value");
-        if( fname == '') {
-            alert("Please provide an output file name");
-            return;
-        }
-        if($("input[type='text'][name='+fname+']").length != 0) {
-            if( !(confirm("Overwrite file " + fname + "?")) ) {
-                return;
-            }
-        }
+{% block javascript %}{% endblock javascript %}
 
-        args = new Array();
-        idx = $("#templateFile").attr("selectedIndex");
-        args.push($("#templateFile > option[index="+idx+"]").attr("value"));
-        idx = $("#inputFile1").attr("selectedIndex");
-        args.push($("#inputFile1 > option[index="+idx+"]").attr("value"));
-        idx = $("#inputFile2").attr("selectedIndex");
-        args.push($("#inputFile2 > option[index="+idx+"]").attr("value"));
-        args.push(fname);
-
-        //If the filename was not already in use, or the
-        // user confirmed the overwrite, then post
-        // arguments to the server.
-        args = JSON.stringify(args)
-        $.post("{{ ROOT }}tabulator", {'arguments':args}, function() {
-            location.reload(true);
-        });
-    });
-{% endblock javascript %}
-
-{% block main %}
-    <div id="tabulate">
-        <h2>Tabulate Files</h2>
-        <div class="args">
-            <div><label for="templateFile">Jurisdiction Slate file:</label>
-            <select id="templateFile" class="argInputs">
-                {% if not prec_files %}
-                    <option value="null">(None generated)</option>
-                {% else %}
-                    {% for file in prec_files %}
-                        <option value="{{ file }}">{{ file }}</option>
-                    {% endfor %}
-                {% endif %}
-            </select></div>
-            <div><label for="inputFile1">Ballot Counter file 1:</label>
-            <select id="inputFile1" class="argInputs">
-                {% if not merge_files %}
-                    <option value="null">(None generated)</option>
-                {% else %}
-                    {% for file in merge_files %}
-                        <option value="{{ file }}">{{ file }}</option>
-                    {% endfor %}
-                {% endif %}
-            </select></div>
-            <div><label for="inputFile2">Ballot Counter file 2:</label>
-            <select id="inputFile2" class="argInputs">
-                {% if not merge_files %}
-                    <option value="null">(None generated)</option>
-                {% else %}
-                    {% for file in merge_files %}
-                        <option value="{{ file }}">{{ file }}</option>
-                    {% endfor %}
-                {% endif %}
-            </select></div>
-            <div><label>Merged output file:</label>
-            <input type="text" id="mergeName" class="argInputs" /></div>
-            <input type="submit" value="Run" id="argsButton" />
-        </div>
-    </div>
-
-    <div id="mergedfiles">
-        <h2>Manage Tabulated Files</h2>
-        <table id="files">
-            {% for file in tab_files %}
-                <tr name="{{ file }}">
-                    <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
-                    <td class="labelCell"><label>{{ file }}</label></td>
-                    <td class="typeCell"><label>(tabulator-aggregation)</label></td>
-                    <td class="yamlCell"><a href="{{ ROOT }}data/tabulator/{{ file }}.yaml">yaml</a></td>
-                    <td class="xmlCell"><a href="{{ ROOT }}data/tabulator/{{ file }}.xml">xml</a></td>
-                    <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>
-                    <td class="buttonCell noDisplay"><input type="submit" id="renDone" name="{{ file }}" value="Done" /></td>
-                </tr>
-             {% endfor %}
-        </table>
-        <div class="fileButtons">
-            <input type = "submit" value = "Delete" id = "delButton" />
-            <input type = "submit" value = "Rename" id = "renButton" />
-        </div>
-    </div>
-{% endblock main %}
+{% block main %}{% endblock main %}
 
 {% block sidebar %}
 <p>The Tabulator takes two Ballot Counter Files, checks them for consistency with the Jurisdiction Slate, does other error and consistency checks, and then creates a resultant Ballot Counter Total file.</p>

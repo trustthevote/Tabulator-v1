@@ -199,7 +199,6 @@
                 margin-right:5px;
                 margin-left:5px;
             }
-
         </style>
 
         {% block css %}{% endblock %}
@@ -216,7 +215,8 @@
                 <li id="welcomeTab"><a href="{{ ROOT }}welcome" class="tab">Welcome</a></li>
                 {% if user.is_authenticated %}
                     <li id="tdgTab"><a href="/tdg" class="tab">Test Data</a></li>
-                    <li id="tabulatorTab"><a href="{{ ROOT }}tabulator" class="tab">Tabulator</a></li>
+                    <li id="mergerTab"><a href="{{ ROOT }}merger" class="tab">Check &amp; Merge</a></li>
+                    <li id="tabulatorTab"><a href="{{ ROOT }}tabulator" class="tab">Report</a></li>
                     {% block menu %}{% endblock %}
                 {% endif %}
             </ul>

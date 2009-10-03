@@ -31,7 +31,7 @@ def welcome_handler(request):
         # Check to see if the client wants to log the user out
         elif request.POST.has_key('logout_user'):
             logout(request)
-    c = get_render_data()
+    c = get_file_data()
     return render_to_response('welcome.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
@@ -68,12 +68,12 @@ def tdg_handler(request):
         elif request.POST.has_key('logout_user'):
             logout(request)
             return HttpResponse()
-    c = get_render_data()
+    c = get_file_data()
     return render_to_response('tdg.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
 @login_required
-def tab_handler(request):
+def merge_handler(request):
     # Check to see if the client is posting data
     if request.method == 'POST':
         # Check to see if client wants to merge files
@@ -95,7 +95,7 @@ def tab_handler(request):
                 args[2] = settings.DATA_PATH + 'tab_aggr/' + args[2]
             fname = args[3]
             args[3] = settings.DATA_PATH + 'tab_aggr/' + args[3]
-            
+
             m = merger.Merger(args[0], args[1], args[2], args[3])
             if m.validate() == True:
                 m.merge(args[3])
@@ -112,7 +112,13 @@ def tab_handler(request):
         elif request.POST.has_key('logout_user'):
             logout(request)
             return HttpResponse()
-    c = get_render_data()
+    c = get_file_data()
+    return render_to_response('merge.html', c,
+     context_instance=RequestContext(request, processors=[settings_processor]))
+
+@login_required
+def tab_handler(request):
+    c = get_file_data()
     return render_to_response('tabulator.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
@@ -136,7 +142,7 @@ def tdg_file_handler(request, fname):
         line = line.replace('\t', '   ')
         line = line.replace('\n', '<br/>')        
         formatted_lines.append(line.replace(' ', '&nbsp;'))
-    c = get_render_data()
+    c = get_file_data()
     c['lines'] = formatted_lines
     return render_to_response('tdg_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
@@ -149,7 +155,7 @@ def tab_file_handler(request, fname):
         if request.POST.has_key('logout_user'):
             logout(request)
         return HttpResponse()
-    c = get_render_data()
+    c = get_file_data()
     
     # Read in file data stored on server. A merged file may not have
     #  have been created, but try to load it and format it.
@@ -181,7 +187,7 @@ def tab_file_handler(request, fname):
      context_instance=RequestContext(request, processors=[settings_processor]))
     
 
-def get_render_data():
+def get_file_data():
     # Make the subdirectory specified by DATA_PATH within the
     #  directory DATA_PARENT, if it does not exist already. Generated
     #  test data files will go here.    
