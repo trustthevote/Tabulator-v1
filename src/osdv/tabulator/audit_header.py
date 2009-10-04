@@ -110,11 +110,8 @@ class AuditHeader(object):
     # Convert a list into a specific string format
     def stringify_list(self, list_):
         result = ''
-        for i in list_:
-            result += i
-            if i != list_[len(list_) - 1]:
-                if i % 3 == 2:
-                    result += ',\n'
-                else:
-                    result += ', '
+        for i in range(len(list_)):
+            result += list_[i]
+            if list_[i] != list_[len(list_) - 1]:
+                result += ', '
         return result

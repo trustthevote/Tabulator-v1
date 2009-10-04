@@ -3,18 +3,64 @@
 {% block css %}
     {{ block.super }}
     <style type="text/css">
-        #mergerTab, #menu li#tabulatorTab:hover {
+        #tabulatorTab, #menu li#tabulatorTab:hover {
             border-top:5px solid #6699ff;
         }
     </style>
 {% endblock css %}
 
-{% block javascript %}{% endblock javascript %}
+{% block javascript %}
+    //Post file generation arguments to the server when the
+    // user clicks the "run" button.
+    $("#argsButton").click( function() {
+        idx = $("#mergedFiles").attr("selectedIndex");
+        fname = $("#mergedFiles > option[index="+idx+"]").attr("value");
+        console.log(fname)
+        $.post("{{ ROOT }}tabulator", {'arguments':fname}, function() {
+            location.reload(true);
+        });
+    });
+{% endblock javascript %}
 
-{% block main %}{% endblock main %}
+{% block main %}
+    <div id="reportGenerator" class="fileGenerator">
+        <h2>Generate Report</h2>
+        <div class="args">
+            <div><label for="mergedFiles">Previously Merged file:</label>
+            <select id="mergedFiles" class="argInputs">
+                {% if not tab_files %}
+                    <option value="null">(None generated)</option>
+                {% else %}
+                    {% for file in tab_files %}
+                        <option value="{{ file }}">{{ file }}</option>
+                    {% endfor %}
+                {% endif %}
+            </select></div>
+        <input type="submit" value="Run" id="argsButton" />
+        </div>        
+    </div>
+
+    <div id="reportFiles" class="fileManager">
+        <h2>Manage Report Files</h2>
+        <table id="files">
+            {% for file in report_files %}
+                <tr name="{{ file }}">
+                    <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
+                    <td class="labelCell"><a href="{{ ROOT }}data/tabulator/{{ file }}_report.csv">{{ file }}</a></td>
+                    <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>
+                    <td class="buttonCell noDisplay"><input type="submit" id="renDone" name="{{ file }}" value="Done" /></td>
+                </tr>
+             {% endfor %}
+        </table>
+        <div class="fileButtons">
+            <input type = "submit" value = "Delete" id = "delButton" />
+            <input type = "submit" value = "Rename" id = "renButton" />
+        </div>
+    </div>
+{% endblock main %}
 
 {% block sidebar %}
 <p>The Tabulator takes two Ballot Counter Files, checks them for consistency with the Jurisdiction Slate, does other error and consistency checks, and then creates a resultant Ballot Counter Total file.</p>
 
 <p>Ballot Counter Total files can be further combined in a reverse cascade to get to further and further roll ups and an election result.</p>
-{% endblock %}
+{% endblock sidebar %}

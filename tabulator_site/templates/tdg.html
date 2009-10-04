@@ -6,13 +6,6 @@
         #tdgTab, #menu li#tdgTab:hover {
             border-top:5px solid #6699ff;
         }
-
-        #generateFile { padding-bottom: 30px }
-        
-        #generatedFiles {
-            border-top: 1px solid #b2b2b2;
-            padding-top: 30px;
-        }
     </style>
 {% endblock css %}
 
@@ -75,7 +68,7 @@
 {% endblock javascript %}
 
 {% block main %}
-    <div id="generateFile">
+    <div id="generateTestData" class="fileGenerator">
         <h2>Generate New Files</h2>
         <div class="args">
             <div><label for="genMode">Data type:</label>
@@ -100,7 +93,7 @@
         </div>
     </div>
 
-    <div id="generatedFiles">
+    <div id="generatedFiles" class="fileManager">
         <h2>Manage Test Data</h2>
         <table id="files">
             {% for file in prec_files %}

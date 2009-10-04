@@ -3,7 +3,7 @@
 # Name: tabulator.py
 # Author: Mike Anderson
 # Created: Aug 5, 2009
-# Purpose: To define a class that takes as input a merged BallotInfo 
+# Purpose: To define a class that takes as input a merged BallotInfo
 #  file and generates a report
 
 import yaml
@@ -17,10 +17,11 @@ class Tabulator(object):
         # Load ballot records from yaml file
         self.input = input_file
         try:
+            print self.input + '.yaml'
             stream = open(self.input + '.yaml', 'r')
-        except:            
-            print('Unable to open ' + input_file + '\n')
-            exit(0)            
+        except:
+            print('Unable to open ' + self.input + '\n')
+            exit(0)
         else:
             a = audit_header.AuditHeader()
             a.load_from_file(stream)
@@ -61,14 +62,18 @@ class Tabulator(object):
         d = date.today()
         stream.write('Report generated on, ' +
                      str(d.month) + '-' + str(d.day) + '-' + str(d.year) + '\n')
-        stream.write('Input BallotInfo File, ' + self.input + '\n')
+        if self.input.rfind('/') != -1:
+            fname = self.input[self.input.rfind('/') + 1:]
+        else:
+            fname = self.input
+        stream.write('Input BallotInfo File, ' + fname + '_report.csv\n')
         stream.write(',,\n')
         for cont in sum_list:
             stream.write(',,\n')
             stream.write('Contest,Label,Total\n')
             stream.write(cont['cont_name'] + ',Number of Precincts,0\n')
             for name in cont['cands'].keys():
-                stream.write(','+ name +','+ str(cont['cands'][name]) +'\n')            
+                stream.write(','+ name +','+ str(cont['cands'][name]) +'\n')
         stream.close()
 
 def main():

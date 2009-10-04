@@ -3,15 +3,8 @@
 {% block css %}
     {{ block.super }}
     <style type="text/css">
-        #mergerTab, #menu li#tabulatorTab:hover {
+        #mergerTab, #menu li#mergerTab:hover {
             border-top:5px solid #6699ff;
-        }
-
-        #tabulate { padding-bottom: 30px; }
-
-        #mergedfiles {
-            border-top: 1px solid #b2b2b2;
-            padding-top: 30px;
         }
     </style>
 {% endblock css %}
@@ -47,14 +40,14 @@
         // user confirmed the overwrite, then post
         // arguments to the server.
         args = JSON.stringify(args)
-        $.post("{{ ROOT }}tabulator", {'arguments':args}, function() {
+        $.post("{{ ROOT }}merger", {'arguments':args}, function() {
             location.reload(true);
         });
     });
 {% endblock javascript %}
 
 {% block main %}
-    <div id="tabulate">
+    <div id="merge" class="fileGenerator">
         <h2>Tabulate Files</h2>
         <div class="args">
             <div><label for="templateFile">Jurisdiction Slate file:</label>
@@ -93,16 +86,16 @@
         </div>
     </div>
 
-    <div id="mergedfiles">
-        <h2>Manage Tabulated Files</h2>
+    <div id="mergedfiles" class="fileManager">
+        <h2>Manage Merged Files</h2>
         <table id="files">
             {% for file in tab_files %}
                 <tr name="{{ file }}">
                     <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
                     <td class="labelCell"><label>{{ file }}</label></td>
                     <td class="typeCell"><label>(tabulator-aggregation)</label></td>
-                    <td class="yamlCell"><a href="{{ ROOT }}data/tabulator/{{ file }}.yaml">yaml</a></td>
-                    <td class="xmlCell"><a href="{{ ROOT }}data/tabulator/{{ file }}.xml">xml</a></td>
+                    <td class="yamlCell"><a href="{{ ROOT }}data/merge/{{ file }}.yaml">yaml</a></td>
+                    <td class="xmlCell"><a href="{{ ROOT }}data/merge/{{ file }}.xml">xml</a></td>
                     <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>
                     <td class="buttonCell noDisplay"><input type="submit" id="renDone" name="{{ file }}" value="Done" /></td>
                 </tr>
@@ -119,4 +112,4 @@
 <p>The Tabulator takes two Ballot Counter Files, checks them for consistency with the Jurisdiction Slate, does other error and consistency checks, and then creates a resultant Ballot Counter Total file.</p>
 
 <p>Ballot Counter Total files can be further combined in a reverse cascade to get to further and further roll ups and an election result.</p>
-{% endblock %}
+{% endblock sidebar %}

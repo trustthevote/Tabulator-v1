@@ -12,6 +12,7 @@ import HWT
 import TDG
 import merger
 import audit_header
+import tabulator
 
 
 def welcome_handler(request):
@@ -79,7 +80,7 @@ def merge_handler(request):
         # Check to see if client wants to merge files
         if request.POST.has_key('arguments'):
             # Get and deserialize the users arguments from JSON
-            args = request.POST.getlist('arguments')
+            args = request.POST.getlist('arguments')            
             args = json.loads(args[0])
             # Arguments will be made consistent with where data is
             #  stored on the server, as given by DATA_PATH
@@ -118,6 +119,18 @@ def merge_handler(request):
 
 @login_required
 def tab_handler(request):
+    # Check to see if the client is posting data
+    if request.method == 'POST':
+        # Check to see if client wants to merge files
+        if request.POST.has_key('arguments'):
+            # Make arguments consistent with where data is stored on the
+            #  server, as given by DATA_PATH
+            fname = request.POST['arguments']
+            fpath = settings.DATA_PATH + 'tab_aggr/' + fname
+            t = tabulator.Tabulator(fpath)
+            os.system('mv ' + fpath + '_report.csv ' + settings.DATA_PATH +
+                      'reports/' + fname + '_report.csv')
+            return HttpResponse()
     c = get_file_data()
     return render_to_response('tabulator.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
@@ -142,20 +155,19 @@ def tdg_file_handler(request, fname):
         line = line.replace('\t', '   ')
         line = line.replace('\n', '<br/>')        
         formatted_lines.append(line.replace(' ', '&nbsp;'))
-    c = get_file_data()
-    c['lines'] = formatted_lines
+    c = Context({'lines':formatted_lines})
     return render_to_response('tdg_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
 @login_required
-def tab_file_handler(request, fname):
+def merge_file_handler(request, fname):
     # Check to see if the client is posting data
     if request.method == 'POST':
         # Check to see if the client wants to log the user out
         if request.POST.has_key('logout_user'):
             logout(request)
         return HttpResponse()
-    c = get_file_data()
+    c = Context()
     
     # Read in file data stored on server. A merged file may not have
     #  have been created, but try to load it and format it.
@@ -183,9 +195,26 @@ def tab_file_handler(request, fname):
         formatted_log.append(line.replace(' ', '&nbsp;'))
     c['log'] = formatted_log
 
+    return render_to_response('merge_file.html', c,
+     context_instance=RequestContext(request, processors=[settings_processor]))
+
+@login_required
+def tab_file_handler(request, fname):
+    # Check to see if the client is posting data
+    if request.method == 'POST':
+        # Check to see if the client wants to log the user out
+        if request.POST.has_key('logout_user'):
+            logout(request)
+        return HttpResponse()
+    stream = open(settings.DATA_PATH + 'reports/' + fname, 'r')
+    lines = stream.readlines()
+    formatted_lines=[]
+    for line in lines:
+        line = line.replace('\n', '<br/>')
+        formatted_lines.append(line.replace(' ', '&nbsp;'))
+    c = Context({'lines':formatted_lines})
     return render_to_response('tab_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
-    
 
 def get_file_data():
     # Make the subdirectory specified by DATA_PATH within the
@@ -199,6 +228,8 @@ def get_file_data():
         os.mkdir(settings.DATA_PATH + 'bal_count_tot/')
     if os.listdir(settings.DATA_PATH).count('tab_aggr') == 0:
         os.mkdir(settings.DATA_PATH + 'tab_aggr/')
+    if os.listdir(settings.DATA_PATH).count('reports') == 0:
+        os.mkdir(settings.DATA_PATH + 'reports/')
 
     # Get a list of files so far generated, by type. Leave off the .yaml
     #  and .xml file extensions, as well as redundancies.
@@ -217,7 +248,10 @@ def get_file_data():
         if tab_files.count(i) == 1:
             tab_files.remove(i)
     tab_files = set(tab_files)
-    
+    report_files = os.listdir(settings.DATA_PATH + 'reports/')
+    for i in range(0, len(report_files)):
+        report_files[i] = report_files[i][:report_files[i].rfind('_')]
+
     tdg_files = prec_files.union(bal_files)
     merge_files = bal_files.union(tab_files)    
 
@@ -227,23 +261,28 @@ def get_file_data():
 
     return Context({'prec_files':prec_files, 'bal_files':bal_files,
                     'tdg_files':tdg_files, 'tab_files':tab_files,
-                    'merge_files':merge_files, 'version':version})
+                    'merge_files':merge_files, 'report_files':report_files, 
+                    'version':version})
 
 def delete_files(files):
     for file in files:
-        if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file + '.yaml') == 1:
+        if os.listdir(settings.DATA_PATH + 'reports/').count(file + '_report.csv') == 1:
+            os.system('rm -f ' + settings.DATA_PATH + 'reports/' + file + '_report.csv')
+        elif os.listdir(settings.DATA_PATH + 'prec_cont/').count(file + '.yaml') == 1:
             os.system('rm -f ' + settings.DATA_PATH + 'prec_cont/' + file + '.*')
         elif os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(file + '.yaml') == 1:
             os.system('rm -f ' + settings.DATA_PATH + 'bal_count_tot/' + file + '.*')                
         else:
             os.system('rm -f ' + settings.DATA_PATH + 'tab_aggr/' + file + '.*')
-            os.system('rm -f ' + settings.DATA_PATH + 'reports/' + file + '_report')
     return
 
 def rename_file(data):
     old_name = data['old_name']
     new_name = data['new_name']
-    if os.listdir(settings.DATA_PATH + 'prec_cont/').count(old_name + ".yaml") == 1:
+    if os.listdir(settings.DATA_PATH + 'reports/').count(old_name + "_report.csv") == 1:
+        os.rename(settings.DATA_PATH + 'reports/' + old_name + '_report.csv',
+            settings.DATA_PATH + 'reports/' + new_name + '_report.csv')
+    elif os.listdir(settings.DATA_PATH + 'prec_cont/').count(old_name + ".yaml") == 1:
         os.rename(settings.DATA_PATH + 'prec_cont/' + old_name + '.yaml',
             settings.DATA_PATH + 'prec_cont/' + new_name + '.yaml')
         os.rename(settings.DATA_PATH + 'prec_cont/' + old_name + '.xml',

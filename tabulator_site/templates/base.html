@@ -39,6 +39,8 @@
                 padding: 1px;
             }
 
+            option { padding-right:10px }
+
             p {margin-bottom:15px;}
 
             label {display:block; float:left; width:180px;}
@@ -199,6 +201,14 @@
                 margin-right:5px;
                 margin-left:5px;
             }
+
+            .fileGenerator { padding-bottom:30px }
+
+            .fileManager {
+                border-top: 1px solid #b2b2b2;
+                padding-top: 30px;
+            }
+
         </style>
 
         {% block css %}{% endblock %}
@@ -229,7 +239,7 @@
                         <td id="sidebar">{% block sidebar %}{% endblock %}<img id="logo" src="{{ MEDIA_URL }}/images/trustthevote.png"/></td>
                     </tr>
                 </table>
-            {% endblock %}
+            {% endblock content %}
         </div>
         <div id="footer">
             <div id="versionInfo">{% for line in version %}{{ line }} {%ifequal forloop.counter 1%}<span> | </span>{%endifequal%}{% endfor %}</div>
