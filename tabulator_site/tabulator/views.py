@@ -255,7 +255,7 @@ def get_file_data():
         report_files[i] = report_files[i][:report_files[i].rfind('_')]
 
     tdg_files = prec_files.union(bal_files)
-    merge_files = bal_files.union(tab_files)    
+    merge_files = bal_files.union(no_log_files)    
 
     # Get version / last revision info from file
     stream = open('VERSION', 'r')
@@ -270,11 +270,11 @@ def delete_files(files):
     for file in files:
         if os.listdir(settings.DATA_PATH + 'reports/').count(file + '_report.csv') == 1:
             os.system('rm -f ' + settings.DATA_PATH + 'reports/' + file + '_report.csv')
-        elif os.listdir(settings.DATA_PATH + 'prec_cont/').count(file + '.yaml') == 1:
+        if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file + '.yaml') == 1:
             os.system('rm -f ' + settings.DATA_PATH + 'prec_cont/' + file + '.*')
-        elif os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(file + '.yaml') == 1:
+        if os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(file + '.yaml') == 1:
             os.system('rm -f ' + settings.DATA_PATH + 'bal_count_tot/' + file + '.*')                
-        else:
+        if os.listdir(settings.DATA_PATH + 'tab_aggr/').count(file + '.yaml') == 1:
             os.system('rm -f ' + settings.DATA_PATH + 'tab_aggr/' + file + '.*')
     return
 
