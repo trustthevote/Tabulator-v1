@@ -28,10 +28,10 @@
         <div class="args">
             <div><label for="mergedFiles">Previously Merged file:</label>
             <select id="mergedFiles" class="argInputs">
-                {% if not tab_files %}
+                {% if not no_log_files %}
                     <option value="null">(None generated)</option>
                 {% else %}
-                    {% for file in tab_files %}
+                    {% for file in no_log_files %}
                         <option value="{{ file }}">{{ file }}</option>
                     {% endfor %}
                 {% endif %}

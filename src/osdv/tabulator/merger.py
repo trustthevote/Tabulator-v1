@@ -168,16 +168,17 @@ class Merger(object):
                 if type(election['election_name']) != str:                    
                     return False
                 if file == [self.e]:
-                    if election['type'] != 'precinct_contestlist':
+                    if election['type'] != 'precinct_contestlist' and \
+                       election['type'] != 'jurisdiction_slate':                        
                         return False
                 else:
                     if election['type'] != 'ballot_counter_total' and \
-                    election['type'] != 'tabulator_aggregation':
+                    election['type'] != 'tabulator_aggregation':                        
                         return False
-                for contest in election['contests']:
+                for contest in election['contests']:                    
                     if type(contest['ident']) != str:
                         return False
-                    if type(contest['display_name']) != str:
+                    if type(contest['display_name']) != str:                        
                         return False
                     if type(contest['voting_method_id']) != str:
                         return False
@@ -275,9 +276,9 @@ def main():
         return 0
 
     m = Merger(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-    if m.validate(sys_argv[4] + ".log") == False:
+    if m.validate() == False:
         return 0
-    m.merge(sys_argv[4])
+    m.merge(sys.argv[4])
         
     strm = open(sys.argv[4] + '.log', 'a')
     print "Successfully merged " + sys.argv[2] + " and " + sys.argv[3],

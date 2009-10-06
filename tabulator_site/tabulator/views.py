@@ -244,9 +244,11 @@ def get_file_data():
     tab_files = os.listdir(settings.DATA_PATH + 'tab_aggr/')    
     for i in range(0, len(tab_files)):
         tab_files[i] = tab_files[i][:tab_files[i].rfind('.')]
+    no_log_files = []
     for i in tab_files:
-        if tab_files.count(i) == 1:
-            tab_files.remove(i)
+        if tab_files.count(i) != 1:
+            no_log_files.append(i)
+    no_log_files = set(no_log_files)
     tab_files = set(tab_files)
     report_files = os.listdir(settings.DATA_PATH + 'reports/')
     for i in range(0, len(report_files)):
@@ -262,7 +264,7 @@ def get_file_data():
     return Context({'prec_files':prec_files, 'bal_files':bal_files,
                     'tdg_files':tdg_files, 'tab_files':tab_files,
                     'merge_files':merge_files, 'report_files':report_files, 
-                    'version':version})
+                    'no_log_files': no_log_files, 'version':version})
 
 def delete_files(files):
     for file in files:
