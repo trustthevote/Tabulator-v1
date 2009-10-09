@@ -15,6 +15,9 @@ import audit_header
 import tabulator
 
 
+def drop_handler(request):
+    return render_to_response('drop_down_test.html')
+
 def welcome_handler(request):
     # Check to see if the client is posting data
     if request.method == 'POST':        
