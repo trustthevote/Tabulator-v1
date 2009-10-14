@@ -52,10 +52,10 @@
         <div class="args">
             <div><label for="templateFile">Template file:</label>
             <select id="templateFile" class="argInputs">
-                {% if not prec_files %}
+                {% if not template_files %}
                     <option value="null">(None generated)</option>
                 {% else %}
-                    {% for file in prec_files %}
+                    {% for file in template_files %}
                         <option value="{{ file }}">{{ file }}</option>
                     {% endfor %}
                 {% endif %}
