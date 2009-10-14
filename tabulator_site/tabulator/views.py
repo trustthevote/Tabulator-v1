@@ -197,6 +197,7 @@ def merge_file_handler(request, fname):
     c['log'] = formatted_log
 
     return render_to_response('merge_file.html', c,
+
      context_instance=RequestContext(request, processors=[settings_processor]))
 
 @login_required
@@ -290,6 +291,8 @@ def delete_files(files):
             os.system('rm -f ' + settings.DATA_PATH + 'bal_count_tot/' + file + '.*')                
         if os.listdir(settings.DATA_PATH + 'tab_aggr/').count(file + '.yaml') == 1:
             os.system('rm -f ' + settings.DATA_PATH + 'tab_aggr/' + file + '.*')
+        if os.listdir(settings.DATA_PATH + 'tab_aggr/').count(file + '.log') == 1:
+            os.system('rm -f ' + settings.DATA_PATH + 'tab_aggr/' + file + '.log')
     return
 
 def rename_file(data):
