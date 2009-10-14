@@ -52,6 +52,11 @@ class Merger(object):
             stream.readline()
         self.e = yaml.load(stream)
         stream.close()
+        if self.e.has_key('precinct_list'):
+            del self.e['precinct_list']
+            del self.e['display_name']
+            del self.e['number_of_precincts']
+
 
         # Combine provenances and guids from input files
         self.new_prov = []
@@ -250,7 +255,7 @@ class Merger(object):
         a = audit_header.AuditHeader()
         a.set_fields('tabulator_aggregation',
                      'Pito Salas', 'TTV Tabulator TAB02', 
-                     'TTV Tabulator 1.2 JUL-1-2008', self.new_prov)
+                     'TTV Tabulator 0.1 JUL-1-2008', self.new_prov)
 
         # Dump merge into a file in yaml format
         stream = open(merged_output + '.yaml', 'w')

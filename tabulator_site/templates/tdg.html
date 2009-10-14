@@ -11,12 +11,12 @@
 
 {% block javascript %}
     //Hide or show the appropriate fields when the user
-    // chooses to generate either an election template or
+    // chooses to generate either a jurisdiction/contestlist or
     // random vote counts within the tdg.
     $("#genMode").change( function() {
         idx = $("#genMode").attr("selectedIndex");
         val = $("#genMode > option[index="+idx+"]").attr("value");
-        if(val=="election") {
+        if(val=="jurisdiction" || val=="contestlist") {
             $(".hideUs").addClass('noDisplay');
         }
         if(val=="counts") {
@@ -33,7 +33,7 @@
         // that is already in use. If so, then prompt to
         // confirm overwrite. Also check for a null filename.
         fname = $("#outputFilename").attr("value");
-        if( fname == '') {
+        if( fname == '' ) {
             alert("Please provide an output file name");
             return;
         }
@@ -47,7 +47,8 @@
         // depends on the type of data to generate.
         idx = $("#genMode").attr("selectedIndex");
         val = $("#genMode > option[index="+idx+"]").attr("value");
-        if(val=="election") {
+        args.push(val);
+        if( (val=="jurisdiction") || (val=="contestlist") ) {
             args.push(fname);
         }
         if(val=="counts") {
@@ -73,17 +74,18 @@
         <div class="args">
             <div><label for="genMode">Data type:</label>
             <select id="genMode" class="argInputs">
-                <option value="election">Jurisdiction Slate</option>
+                <option value="jurisdiction">Jurisdiction Slate</option>
+                <option value="contestlist">Precinct Contestlist</option>
                 <option value="counts">Ballot Counter Total</option>
             </select></div>
             <div class="hideUs noDisplay"><label>Number of records in file:</label>
                 <input type="text" id="howMany" class="argInputs" /></div>
             <div class="hideUs noDisplay"><label for="templateFile">Jurisdiction Slate file:</label>
             <select id="templateFile" class="argInputs">
-                {% if not prec_files %}
+                {% if not template_files %}
                     <option value="null">(None generated)</option>
                 {% else %}
-                    {% for file in prec_files %}
+                    {% for file in template_files %}
                         <option value="{{ file }}">{{ file }}</option>
                     {% endfor %}
                 {% endif %}
@@ -96,11 +98,22 @@
     <div id="generatedFiles" class="fileManager">
         <h2>Manage Test Data</h2>
         <table id="files">
-            {% for file in prec_files %}
+            {% for file in juris_files %}
                 <tr name="{{ file }}">
                     <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
                     <td class="labelCell"><label>{{ file }}</label></td>
                     <td class="typeCell"><label>(jurisdiction-slate)</label></td>
+                    <td class="yamlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yaml">yaml</a></td>
+                    <td class="xmlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>
+                    <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>
+                    <td class="buttonCell noDisplay"><input type="submit" id="renDone" name="{{ file }}" value="Done" /></td>
+                </tr>
+            {% endfor %}
+            {% for file in prec_files %}
+                <tr name="{{ file }}">
+                    <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
+                    <td class="labelCell"><label>{{ file }}</label></td>
+                    <td class="typeCell"><label>(precinct-contestlist)</label></td>
                     <td class="yamlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yaml">yaml</a></td>
                     <td class="xmlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>
                     <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>

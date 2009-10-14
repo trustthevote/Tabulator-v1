@@ -49,16 +49,14 @@ def tdg_handler(request):
             args = request.POST.getlist('arguments_tdg')
             args = json.loads(args[0])
             
-            # Arguments will be made consistent with where data is
-            #  stored on the server, as given by DATA_PATH
-            if len(args) == 1:
-                type = 'election'
-                args[0] = settings.DATA_PATH + 'prec_cont/' + args[0]                
-            elif len(args) == 3:
-                type = 'counts'
-                args[1] = settings.DATA_PATH + 'prec_cont/' + args[1]
-                args[2] = settings.DATA_PATH + 'bal_count_tot/' + args[2]                
-            P = TDG.ProvideRandomBallots(type, args)  # Make a file
+            # Make arguments consistent with where data is stored on the
+            #  server, using DATA_PATH from settings.py
+            if args[0] == 'jurisdiction' or args[0] == 'contestlist':
+                args[1] = settings.DATA_PATH + 'templates/' + args[1]
+            elif args[0] == 'counts':
+                args[2] = settings.DATA_PATH + 'templates/' + args[2]
+                args[3] = settings.DATA_PATH + 'bal_count_tot/' + args[3]
+            P = TDG.ProvideRandomBallots(args)  # Make a file
             return HttpResponse()      
         # Check to see if client wants to delete file(s)
         elif request.POST.has_key('delete'):
@@ -87,7 +85,7 @@ def merge_handler(request):
             args = json.loads(args[0])
             # Arguments will be made consistent with where data is
             #  stored on the server, as given by DATA_PATH
-            args[0] = settings.DATA_PATH + 'prec_cont/' + args[0]
+            args[0] = settings.DATA_PATH + 'templates/' + args[0]
 
             if os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(args[1] + '.yaml') == 1:
                 args[1] = settings.DATA_PATH + 'bal_count_tot/' + args[1]
@@ -146,8 +144,8 @@ def tdg_file_handler(request, fname):
         if request.POST.has_key('logout_user'):
             logout(request)
             return HttpResponse()
-    if os.listdir(settings.DATA_PATH + 'prec_cont/').count(fname) == 1:
-        stream = open(settings.DATA_PATH + 'prec_cont/' + fname, 'r')
+    if os.listdir(settings.DATA_PATH + 'templates/').count(fname) == 1:
+        stream = open(settings.DATA_PATH + 'templates/' + fname, 'r')
     else:
         stream = open(settings.DATA_PATH + 'bal_count_tot/' + fname, 'r')
     lines = stream.readlines()
@@ -225,8 +223,8 @@ def get_file_data():
     #  test data files will go here.    
     if os.listdir(settings.DATA_PARENT).count(settings.DATA_FOLDER) == 0:
         os.mkdir(settings.DATA_PATH)
-    if os.listdir(settings.DATA_PATH).count('prec_cont') == 0:
-        os.mkdir(settings.DATA_PATH + 'prec_cont/')
+    if os.listdir(settings.DATA_PATH).count('templates') == 0:
+        os.mkdir(settings.DATA_PATH + 'templates/')
     if os.listdir(settings.DATA_PATH).count('bal_count_tot') == 0:
         os.mkdir(settings.DATA_PATH + 'bal_count_tot/')
     if os.listdir(settings.DATA_PATH).count('tab_aggr') == 0:
@@ -236,10 +234,22 @@ def get_file_data():
 
     # Get a list of files so far generated, by type. Leave off the .yaml
     #  and .xml file extensions, as well as redundancies.
-    prec_files = os.listdir(settings.DATA_PATH + 'prec_cont/')
-    for i in range(0, len(prec_files)):
-        prec_files[i] = prec_files[i][:prec_files[i].rfind('.')]
-    prec_files = set(prec_files)
+    templates = os.listdir(settings.DATA_PATH + 'templates/')
+    juris_files = []
+    prec_files = []
+    for i in range(0, len(templates)):
+        if templates[i][len(templates[i]) - 5:] == '.yaml':
+            s = open(settings.DATA_PATH + 'templates/' + templates[i], 'r')
+            s.readline()
+            s.readline()
+            s.readline()
+            type_str = s.readline()
+            if type_str.count('jurisdiction_slate') == 1:
+                juris_files.append(templates[i][:len(templates[i]) - 5])
+            else:
+                prec_files.append(templates[i][:len(templates[i]) - 5])
+        templates[i] = templates[i][:templates[i].rfind('.')]
+    template_files = set(templates)
     bal_files = os.listdir(settings.DATA_PATH + 'bal_count_tot/')
     for i in range(0, len(bal_files)):
         bal_files[i] = bal_files[i][:bal_files[i].rfind('.')]
@@ -257,24 +267,25 @@ def get_file_data():
     for i in range(0, len(report_files)):
         report_files[i] = report_files[i][:report_files[i].rfind('_')]
 
-    tdg_files = prec_files.union(bal_files)
+    tdg_files = set(prec_files).union(set(juris_files)).union(bal_files)
     merge_files = bal_files.union(no_log_files)    
 
     # Get version / last revision info from file
     stream = open('VERSION', 'r')
     version = stream.readlines()
 
-    return Context({'prec_files':prec_files, 'bal_files':bal_files,
-                    'tdg_files':tdg_files, 'tab_files':tab_files,
-                    'merge_files':merge_files, 'report_files':report_files, 
-                    'no_log_files': no_log_files, 'version':version})
+    return Context({'prec_files':prec_files, 'juris_files':juris_files,
+                    'bal_files':bal_files, 'tdg_files':tdg_files,
+                    'tab_files':tab_files, 'merge_files':merge_files,
+                    'report_files':report_files, 'no_log_files': no_log_files,
+                    'template_files':template_files, 'version':version})
 
 def delete_files(files):
     for file in files:
         if os.listdir(settings.DATA_PATH + 'reports/').count(file + '_report.csv') == 1:
             os.system('rm -f ' + settings.DATA_PATH + 'reports/' + file + '_report.csv')
-        if os.listdir(settings.DATA_PATH + 'prec_cont/').count(file + '.yaml') == 1:
-            os.system('rm -f ' + settings.DATA_PATH + 'prec_cont/' + file + '.*')
+        if os.listdir(settings.DATA_PATH + 'templates/').count(file + '.yaml') == 1:
+            os.system('rm -f ' + settings.DATA_PATH + 'templates/' + file + '.*')
         if os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(file + '.yaml') == 1:
             os.system('rm -f ' + settings.DATA_PATH + 'bal_count_tot/' + file + '.*')                
         if os.listdir(settings.DATA_PATH + 'tab_aggr/').count(file + '.yaml') == 1:
@@ -287,11 +298,11 @@ def rename_file(data):
     if os.listdir(settings.DATA_PATH + 'reports/').count(old_name + "_report.csv") == 1:
         os.rename(settings.DATA_PATH + 'reports/' + old_name + '_report.csv',
             settings.DATA_PATH + 'reports/' + new_name + '_report.csv')
-    elif os.listdir(settings.DATA_PATH + 'prec_cont/').count(old_name + ".yaml") == 1:
-        os.rename(settings.DATA_PATH + 'prec_cont/' + old_name + '.yaml',
-            settings.DATA_PATH + 'prec_cont/' + new_name + '.yaml')
-        os.rename(settings.DATA_PATH + 'prec_cont/' + old_name + '.xml',
-            settings.DATA_PATH + 'prec_cont/' + new_name + '.xml')
+    elif os.listdir(settings.DATA_PATH + 'templates/').count(old_name + ".yaml") == 1:
+        os.rename(settings.DATA_PATH + 'templates/' + old_name + '.yaml',
+            settings.DATA_PATH + 'templates/' + new_name + '.yaml')
+        os.rename(settings.DATA_PATH + 'templates/' + old_name + '.xml',
+            settings.DATA_PATH + 'templates/' + new_name + '.xml')
     elif os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(old_name + ".yaml") == 1:
         os.rename(settings.DATA_PATH + 'bal_count_tot/' + old_name + '.yaml',
             settings.DATA_PATH + 'bal_count_tot/' + new_name + '.yaml')

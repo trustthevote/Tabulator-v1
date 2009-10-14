@@ -3,7 +3,7 @@
 # Name: test_data_generator.py
 # Author: Mike Anderson
 # Created: Jul 30, 2009
-# Purpose: To generate test files for the ballot tabulator
+# Purpose: To generate test data files for the merger and tabulator
 
 import random
 import yaml
@@ -17,7 +17,7 @@ import audit_header
 # Provide random election specs or random ballot counts
 class ProvideRandomBallots(object):
     # Takes as its arguments the type of random data to generate
-    def __init__(self, type, args):
+    def __init__(self, args):
         # These variables are used to ensure that if the same random
         #  data is generated in some circumstances, it will not appear
         #  twice in the template.
@@ -29,53 +29,75 @@ class ProvideRandomBallots(object):
         self.fname_list = []
         self.lname_list = []
 
-        
-        if type == 'election':
-        # Generate a sample election and output it to the location
-        #  specified by the user in the command line, in yaml and xml
-        #  formats.
+        if args[0] == 'jurisdiction':
+        # Generate a sample jurisdiction_slate and output it to the
+        #  location specified by the user in the command line, in yaml
+        #  and xml formats.
             b = {}
-
-            # Load a list of first and last names from file
-            stream = open('first_names', 'r')
-            self.fnames = stream.readlines()
-            stream = open('last_names', 'r')
-            self.lnames = stream.readlines()
 
             # Give each file its own audit header, generate data
             a = audit_header.AuditHeader()
             a.set_fields('jurisdiction_slate',
                          'Pito Salas', 'TTV Tabulator TAB02', 
-                         'TTV Tabulator 1.2 JUL-1-2008', [])
-            b = self.random_elec()
+                         'TTV Tabulator 0.1 JUL-1-2008', [])
+            b = self.make_juris()
             b['type'] = 'jurisdiction_slate'
-            
+
             # Dump output into a file in yaml format
-            stream = open(args[0] + '.yaml', 'w') 
+            stream = open(args[1] + '.yaml', 'w') 
             stream.write(a.serialize_yaml())
             yaml.dump(b, stream)
             
             # Dump output into a file in XML file
-            stream = open(args[0] + '.xml', 'w')
+            stream = open(args[1] + '.xml', 'w')
             stream.write(a.serialize_xml())
             stream.writelines(xmlSerialize(b)[173:]. \
                 replace('\t', '    ').replace('\n</plist>', ''))
 
+        elif args[0] == 'contestlist':
+        # Generate a sample election and output it to the location
+        #  specified by the user in the command line, in yaml and xml
+        #  formats.
+            b = {}
+
+            # Give each file its own audit header, generate data
+            a = audit_header.AuditHeader()
+            a.set_fields('precinct_contestlist',
+                         'Pito Salas', 'TTV Tabulator TAB02', 
+                         'TTV Tabulator 0.1 JUL-1-2008', [])
+            b = self.random_elec()
+            b['type'] = 'precinct_contestlist'
             
-        elif type == 'counts':
-            # Load election specs from given file in yaml format     
-            stream = open(args[1] + '.yaml', 'r')
+            # Dump output into a file in yaml format
+            stream = open(args[1] + '.yaml', 'w') 
+            stream.write(a.serialize_yaml())
+            yaml.dump(b, stream)
+            
+            # Dump output into a file in XML file
+            stream = open(args[1] + '.xml', 'w')
+            stream.write(a.serialize_xml())
+            stream.writelines(xmlSerialize(b)[173:]. \
+                replace('\t', '    ').replace('\n</plist>', ''))
+
+        elif args[0] == 'counts':
+            # Load election specs from given file in yaml format
+            print args[2]
+            stream = open(args[2] + '.yaml', 'r')
             for i in range(0,8):  # Ignore the audit header
                 stream.readline()
             e = yaml.load(stream)
             e['type'] = 'ballot_counter_total'
-        
+            if e.has_key('precinct_list'):
+                del e['precinct_list']
+                del e['display_name']
+                del e['number_of_precincts']
+
             # Make the number of random ballot_info records specified by
             #  the user. Use the loaded election specs as a template,
             #  assign the vote counts of each candidate a value between 
             #  0 and 99.
             b_list = []
-            for i in range(0, int(args[0])):
+            for i in range(0, int(args[1])):
                 b = copy.deepcopy(e)                
                 for j in range(0, len(b['contests'])):
                     for k in range(0, len(b['contests'][j]['candidates'])):
@@ -87,30 +109,76 @@ class ProvideRandomBallots(object):
             a = audit_header.AuditHeader()
             a.set_fields('ballot_counter_total',
                          'Pito Salas', 'TTV Tabulator TAB02', 
-                         'TTV Tabulator 1.2 JUL-1-2008', [])
+                         'TTV Tabulator 0.1 JUL-1-2008', [])
 
             # Dump output into a file in yaml format
-            stream = open(args[2] + '.yaml', 'w')
+            stream = open(args[3] + '.yaml', 'w')
             stream.write(a.serialize_yaml())
             yaml.dump_all(b_list, stream)
 
             # Dump output into a file in XML file
-            stream = open(args[2] + '.xml', 'w')
+            stream = open(args[3] + '.xml', 'w')
             stream.write(a.serialize_xml())
             for record in b_list:
                 stream.writelines(xmlSerialize(record)[173:]. \
                     replace('\t', '    ').replace('\n</plist>', ''))
 
-
         else:
             exit()
     
-    # Make and returns a ballot with initialized data members
-    def random_elec(self):        
-        self.cand_num = 1
-                
-        b = {}
+    # Make and return a jurisdiction_slate
+    def make_juris(self):
+        b = self.random_elec()
+        b['display_name'] = 'Random County'
+        b['precinct_list'] = []
         
+        # Make some precincts, currently with mostly hardcoded values
+        b['number_of_precincts'] = 8
+        for i in range(1,9):
+            b['precinct_list'].append({})
+            prec = b['precinct_list'][i - 1]
+            prec['ident'] = 'PREC-' + str(i)
+            prec['districts'] = []
+            prec['voting places'] = []
+            prec['voting places'].append({})
+            prec['voting places'][0]['ballot_counters'] = random.randint(1,5)
+            prec['voting places'][0]['ident'] = 'VLPC-' + str(i)
+
+        # Give the precincts some hardcoded districts
+        l = b['precinct_list']
+        n1 = 'City of Random'
+        n2 = 'Random Creek Drainage District'
+        n3 = 'State House District 11'
+        n4 = 'State House District 12'
+        l[0]['districts'].append({'display_name':n1, 'ident':'DIST-1'})
+        l[0]['districts'].append({'display_name':n3, 'ident':'DIST-3'})
+        l[1]['districts'].append({'display_name':n1, 'ident':'DIST-1'})
+        l[1]['districts'].append({'display_name':n4, 'ident':'DIST-4'})
+        l[2]['districts'].append({'display_name':n1, 'ident':'DIST-1'})
+        l[2]['districts'].append({'display_name':n2, 'ident':'DIST-2'})
+        l[2]['districts'].append({'display_name':n4, 'ident':'DIST-4'})
+        l[3]['districts'].append({'display_name':n3, 'ident':'DIST-3'})
+        l[4]['districts'].append({'display_name':n2, 'ident':'DIST-2'})
+        l[4]['districts'].append({'display_name':n3, 'ident':'DIST-3'})
+        l[5]['districts'].append({'display_name':n1, 'ident':'DIST-1'})
+        l[5]['districts'].append({'display_name':n2, 'ident':'DIST-2'})
+        l[5]['districts'].append({'display_name':n4, 'ident':'DIST-4'})
+        l[6]['districts'].append({'display_name':n2, 'ident':'DIST-2'})
+        l[7]['districts'].append({'display_name':n4, 'ident':'DIST-4'})        
+
+        return b
+
+    # Make and return a ballot with initialized data members
+    def random_elec(self):
+        b = {}
+        self.cand_num = 1
+
+        # Load a list of first and last names from file
+        stream = open('first_names', 'r')
+        self.fnames = stream.readlines()
+        stream = open('last_names', 'r')
+        self.lnames = stream.readlines()
+
         # Make the election headliner some random presidential election
         r = random.randint(0,3)
         b['election_name'] = str(r*4+2000) + " Presidential"
@@ -243,36 +311,39 @@ class ProvideRandomBallots(object):
         else:
             return(self.random_fullname())      
 
+def printUsage():
+    print "Usage: test_data_generator.py jurisdiction [OUTPUT ELECTION FILE]"
+    print "   OR: test_data_generator.py contestlist [OUTPUT ELECTION FILE]"
+    print "   OR: test_data_generator.py counts [#  OF SAMPLES]",
+    print "[INPUT ELECTION FILE] [OUTPUT SAMPLES FILE]"
+    exit()
+
 def main(): 
     # First make sure that the command line input is valid. If it is not
     #  then output a usage statement and exit    
     if len(sys.argv) == 1: sys.argv.append("")
     type = sys.argv[1]
-    if sys.argv[1] == "election":
+    if type == "jurisdiction":
         if len(sys.argv) != 3:
-            print "Usage: test_data_generator.py election [OUTPUT ELECTION FILE]"
-            print "   OR: test_data_generator.py counts [#  OF SAMPLES]",
-            print "[INPUT ELECTION FILE] [OUTPUT SAMPLES FILE]"
-            exit()
-    elif sys.argv[1] == "counts":
+            printUsage()
+    elif type == "contestlist":
+        if len(sys.argv) != 3:
+            printUsage()
+    elif type == "counts":
         if len(sys.argv) != 5:
-            print "Usage: test_data_generator.py election [OUTPUT ELECTION FILE]"
-            print "   OR: test_data_generator.py counts [#  OF SAMPLES]",
-            print "[INPUT ELECTION FILE] [OUTPUT SAMPLES FILE]"
-            exit()
+            printUsage()
     else:
-        print "Usage: test_data_generator.py election [OUTPUT ELECTION FILE]"
-        print "   OR: test_data_generator.py counts [#  OF SAMPLES]",
-        print "[INPUT ELECTION FILE] [OUTPUT SAMPLES FILE]"
-        exit()
-    
+        printUsage()
     # Get rid of unneccesary command line arguments and generate random
     #  data of the specified type
-    args = sys.argv[2:]
-    p = ProvideRandomBallots(type, args)
-    
-    if sys.argv[1] == "election":
-        print "Done. Generated sample election template files",
+    args = sys.argv[1:]
+    p = ProvideRandomBallots(args)
+
+    if type == "jurisdiction":
+        print "Done. Generated sample jurisdiction template files",
+        print sys.argv[2] + ".yaml and " + sys.argv[2] + ".xml \n"
+    elif type == "contestlist":
+        print "Done. Generated sample contestlist template files",
         print sys.argv[2] + ".yaml and " + sys.argv[2] + ".xml \n"
     else:
         print "Done. Generated sample ballot files",
