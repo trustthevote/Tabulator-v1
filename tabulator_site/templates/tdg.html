@@ -106,7 +106,7 @@
                     <td class="yamlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yaml">yaml</a></td>
                     <td class="xmlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>
                     <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>
-                    <td class="buttonCell noDisplay"><input type="submit" id="renDone" name="{{ file }}" value="Done" /></td>
+                    <td class="buttonCell noDisplay"><input type="submit" class="renDone" name="{{ file }}" value="Done" /></td>
                 </tr>
             {% endfor %}
             {% for file in prec_files %}
@@ -117,7 +117,7 @@
                     <td class="yamlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yaml">yaml</a></td>
                     <td class="xmlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>
                     <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>
-                    <td class="buttonCell noDisplay"><input type="submit" id="renDone" name="{{ file }}" value="Done" /></td>
+                    <td class="buttonCell noDisplay"><input type="submit" class="renDone" name="{{ file }}" value="Done" /></td>
                 </tr>
             {% endfor %}
             {% for file in bal_files %}
@@ -128,7 +128,7 @@
                     <td class="yamlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yaml">yaml</a></td>
                     <td class="xmlCell"><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>
                     <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>
-                    <td class="buttonCell noDisplay"><input type="submit" id="renDone" name="{{ file }}" value="Done" /></td>
+                    <td class="buttonCell noDisplay"><input type="submit" class="renDone" name="{{ file }}" value="Done" /></td>
                 </tr>
             {% endfor %}
         </table>

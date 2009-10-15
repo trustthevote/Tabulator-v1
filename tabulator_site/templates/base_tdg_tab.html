@@ -32,7 +32,7 @@
 
     //When the user is done renaming a file, post that data
     // to update the server on the change.
-    $("#renDone").click( function() {
+    $(".renDone").click( function() {
         //Gather the original filename and the new filename.
         oldName = $(this).attr("name");
         newName = $("tr[name="+oldName+"] > .inputCell > input").attr("value");

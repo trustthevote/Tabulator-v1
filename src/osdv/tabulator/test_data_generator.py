@@ -80,13 +80,13 @@ class ProvideRandomBallots(object):
                 replace('\t', '    ').replace('\n</plist>', ''))
 
         elif args[0] == 'counts':
-            # Load election specs from given file in yaml format
-            print args[2]
+            # Load election specs from given file in yaml format            
             stream = open(args[2] + '.yaml', 'r')
             for i in range(0,8):  # Ignore the audit header
                 stream.readline()
             e = yaml.load(stream)
             e['type'] = 'ballot_counter_total'
+            e['ident'] = 'PREC-' + str(random.randint(1,8))
             if e.has_key('precinct_list'):
                 del e['precinct_list']
                 del e['display_name']

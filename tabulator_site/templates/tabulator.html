@@ -14,8 +14,7 @@
     // user clicks the "run" button.
     $("#argsButton").click( function() {
         idx = $("#mergedFiles").attr("selectedIndex");
-        fname = $("#mergedFiles > option[index="+idx+"]").attr("value");
-        console.log(fname)
+        fname = $("#mergedFiles > option[index="+idx+"]").attr("value");        
         $.post("{{ ROOT }}tabulator", {'arguments':fname}, function() {
             location.reload(true);
         });

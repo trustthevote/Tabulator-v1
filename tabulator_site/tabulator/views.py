@@ -312,12 +312,13 @@ def rename_file(data):
         os.rename(settings.DATA_PATH + 'bal_count_tot/' + old_name + '.xml',
             settings.DATA_PATH + 'bal_count_tot/' + new_name + '.xml')
     else:
-        os.rename(settings.DATA_PATH + 'tab_aggr/' + old_name + '.yaml',
-            settings.DATA_PATH + 'tab_aggr/' + new_name + '.yaml')
-        os.rename(settings.DATA_PATH + 'tab_aggr/' + old_name + '.xml',
-            settings.DATA_PATH + 'tab_aggr/' + new_name + '.xml')
-        os.rename(settings.DATA_PATH + 'reports/' + old_name + '_report',
-            settings.DATA_PATH + 'reports/' + new_name + '_report')
+        os.rename(settings.DATA_PATH + 'tab_aggr/' + old_name + '.log',
+            settings.DATA_PATH + 'tab_aggr/' + new_name + '.log')
+        if os.listdir(settings.DATA_PATH + 'tab_aggr/').count(old_name + ".yaml") == 1:
+            os.rename(settings.DATA_PATH + 'tab_aggr/' + old_name + '.yaml',
+                settings.DATA_PATH + 'tab_aggr/' + new_name + '.yaml')
+            os.rename(settings.DATA_PATH + 'tab_aggr/' + old_name + '.xml',
+                settings.DATA_PATH + 'tab_aggr/' + new_name + '.xml')
     return
 
 def settings_processor(request):

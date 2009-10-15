@@ -18,7 +18,7 @@ import audit_header
 class Merger(object):
     def __init__(self, election, record1, record2,
                  merge_output):
-        self.rstream = open(merge_output + '.log', 'a')
+        self.rstream = open(merge_output + '.log', 'w')
         
         # Load ballot records from yaml file
         try:
@@ -56,7 +56,6 @@ class Merger(object):
             del self.e['precinct_list']
             del self.e['display_name']
             del self.e['number_of_precincts']
-
 
         # Combine provenances and guids from input files
         self.new_prov = []
@@ -130,6 +129,7 @@ class Merger(object):
     #  less.
     def validate_data_structures(self):
         election_keys = ['election_name', 'contests', 'type']
+        bal_tot_keys = election_keys + ['ident']
         contest_keys = ['ident', 'display_name', 'voting_method_id']
         contest_keys += ['open_seat_count', 'candidates', 'district_id']
         candidate_keys = ['count', 'display_name', 'ident', 'party_id']
@@ -137,8 +137,12 @@ class Merger(object):
             if type(file) != list:
                 return False
             for election in file:
-                if not self.has_only_keys(election, election_keys):
-                    return False                
+                if file == [self.e]:
+                    if not self.has_only_keys(election, election_keys):
+                        return False                
+                else:
+                    if not self.has_only_keys(election, bal_tot_keys):
+                        return False                
                 if type(election['contests']) != list:
                     return False
                 for contest in election['contests']:
@@ -179,6 +183,8 @@ class Merger(object):
                 else:
                     if election['type'] != 'ballot_counter_total' and \
                     election['type'] != 'tabulator_aggregation':                        
+                        return False
+                    if type(election['ident']) != str:
                         return False
                 for contest in election['contests']:                    
                     if type(contest['ident']) != str:
