@@ -13,11 +13,11 @@ from datetime import date
 import audit_header
 
 class Tabulator(object):
-    def __init__(self, input_file):
+    def __init__(self, args):
         # Load ballot records from yaml file
-        self.input = input_file
+        self.input = args[0]
+        self.precs = 0
         try:
-            print self.input + '.yaml'
             stream = open(self.input + '.yaml', 'r')
         except:
             print('Unable to open ' + self.input + '\n')
@@ -27,17 +27,35 @@ class Tabulator(object):
             a.load_from_file(stream)
             self.b = list(yaml.load_all(stream))
 
+        # If a jurisdiction_slate filename was given, then load its
+        #  contents
+        if len(args) == 2:
+            try:
+                stream = open(args[1] + '.yaml', 'r')
+            except:
+                print('Unable to open ' + self.input + '\n')
+                exit(0)
+            else:
+                a = audit_header.AuditHeader()
+                a.load_from_file(stream)
+                self.j = yaml.load_all(stream)
+        else:
+            self.j = False
+
         # Add the vote counts of candidates with the same ID# using
         #  sumation(). Write the vote totals for each candidate to the
         #  report stream.
         self.serialize_csv(self.sumation())
 
-    # Sums up the separate vote counts in each record for each candidate
-    #  and returns the cumulative result as a dictionary.
+    # Sum up the separate vote counts in each record for each candidate
+    #  and return the cumulative result as a dictionary.
     def sumation(self):
         cont_list = []
         sum_list = []
+        prec_list = set()
         for i in range(len(self.b)):
+            if self.j:
+                prec_list = prec_list.union([self.b[i][ident]])
             for j in range(len(self.b[i]['contests'])):
                 if i == 0:
                     sum_list.append({})
@@ -50,10 +68,11 @@ class Tabulator(object):
                         sum_list[j]['cands'][n] = 0
                     c_count = self.b[i]['contests'][j]['candidates'][k]['count']
                     sum_list[j]['cands'][n] += c_count
+        self.precs = len(prec_list)
         return sum_list
 
-    # Serializes a list of contests and their respective candidate vote
-    #  counts into a .csv format, and outputs them to a file
+    # Serialize a list of contests and their respective candidate vote
+    #  counts into a .csv format, and output them to a file
     def serialize_csv(self, sum_list):
         stream = open(self.input + '_report.csv', 'w')
         stream.write('Election Summary Report,,\n')
@@ -71,18 +90,20 @@ class Tabulator(object):
         for cont in sum_list:
             stream.write(',,\n')
             stream.write('Contest,Label,Total\n')
-            stream.write(cont['cont_name'] + ',Number of Precincts,0\n')
+            stream.write(cont['cont_name'] + \
+                         ',Number of Precincts,' + self.precs + '\n')
             for name in cont['cands'].keys():
                 stream.write(','+ name +','+ str(cont['cands'][name]) +'\n')
         stream.close()
 
 def main():
     # Output a usage message if incorrect number of command line args
-    if( len(sys.argv) != 2 ):
+    if( len(sys.argv) != 2 and len(sys.argv) != 3 ):
         print "Usage: [MERGED INPUT FILE]"
+        print "    OR [MERGED INPUT FILE] [JURISDICTION FILE]"
         exit()
 
-    t = Tabulator(sys.argv[1])
+    t = Tabulator(sys.argv[1:])
 
     print 'SOVC report created in ' + sys.argv[1] + '_report.csv\n'
 
