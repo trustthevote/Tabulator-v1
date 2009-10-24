@@ -94,10 +94,10 @@
                     <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
                     <td class="labelCell"><label>{{ file }}</label></td>
                     <td class="typeCell"><label>(tabulator-aggregation)</label></td>
-                    <td class="yamlCell"><a href="{{ ROOT }}data/merge/{{ file }}.yaml">yaml</a></td>
-                    <td class="xmlCell"><a href="{{ ROOT }}data/merge/{{ file }}.xml">xml</a></td>
+                    <td class="linkCell"><a href="{{ ROOT }}data/merge/{{ file }}.yaml">yaml</a></td>
+                    <td class="linkCell"><a href="{{ ROOT }}data/merge/{{ file }}.xml">xml</a></td>
                     <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>
-                    <td class="buttonCell noDisplay"><input type="submit" id="renDone" name="{{ file }}" value="Done" /></td>
+                    <td class="buttonCell noDisplay"><input type="submit" class="renDone" name="{{ file }}" value="Done" /></td>
                 </tr>
              {% endfor %}
         </table>

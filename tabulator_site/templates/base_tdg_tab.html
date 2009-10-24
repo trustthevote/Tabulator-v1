@@ -23,8 +23,7 @@
             $("tr[name="+fName+"] > .boxCell").addClass("hide");
             $("tr[name="+fName+"] > .labelCell").addClass("noDisplay");
             $("tr[name="+fName+"] > .typeCell").addClass("noDisplay");
-            $("tr[name="+fName+"] > .yamlCell").addClass("noDisplay");
-            $("tr[name="+fName+"] > .xmlCell").addClass("noDisplay");
+            $("tr[name="+fName+"] > .linkCell").addClass("noDisplay");
             $("tr[name="+fName+"] > .inputCell").removeClass("noDisplay");
             $("tr[name="+fName+"] > .buttonCell").removeClass("noDisplay");
         });
@@ -40,8 +39,7 @@
         if(!(oldName == newName)) {
             //Change some names/values of corresponding HTML elements
             $("label[innerHTML="+oldName+"]").attr({innerHTML: newName});
-            $("td.yamlCell > a").attr("href", $("td.yamlCell > a").attr("href").replace(oldName, newName));
-            $("td.xmlCell > a").attr("href", $("td.xmlCell > a").attr("href").replace(oldName, newName));
+            $("td.linkCell > a").attr("href", $("td.linkCell > a").attr("href").replace(oldName, newName));
             $("[name="+oldName+"]").attr("name", newName);
             $("[id="+oldName+"]").attr({id:newName});
 
@@ -54,8 +52,7 @@
         $("tr[name="+newName+"] > .boxCell").removeClass("hide");
         $("tr[name="+newName+"] > .labelCell").removeClass("noDisplay");
         $("tr[name="+newName+"] > .typeCell").removeClass("noDisplay");
-        $("tr[name="+newName+"] > .yamlCell").removeClass("noDisplay");
-        $("tr[name="+newName+"] > .xmlCell").removeClass("noDisplay");
+        $("td.linkCell > a").attr("href", $("td.linkCell > a").attr("href").replace(oldName, newName));
         $("tr[name="+newName+"] > .inputCell").addClass("noDisplay");
         $("tr[name="+newName+"] > .buttonCell").addClass("noDisplay");
     });
@@ -71,7 +68,7 @@
         
         .typeCell > label {width: 100%; padding-right: 1em}
         
-        .yamlCell {width: 30px}
+        .linkCell {width: 30px}
 
         div.args div {font-weight:bold; padding-bottom:10px}
         

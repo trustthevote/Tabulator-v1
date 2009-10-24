@@ -124,13 +124,26 @@ def tab_handler(request):
     if request.method == 'POST':
         # Check to see if client wants to merge files
         if request.POST.has_key('arguments'):
-            # Make arguments consistent with where data is stored on the
-            #  server, as given by DATA_PATH
-            fname = request.POST['arguments']
-            fpath = settings.DATA_PATH + 'tab_aggr/' + fname
-            t = tabulator.Tabulator(fpath)
-            os.system('mv ' + fpath + '_report.csv ' + settings.DATA_PATH +
-                      'reports/' + fname + '_report.csv')
+            args = request.POST.getlist('arguments')
+            
+            args[0] = settings.DATA_PATH + 'tab_aggr/' + args[0]
+            
+            # Make the second argument a jurisdiction file, if one was
+            #  posted by the client. Else, eliminate it from the
+            #  arguments list.
+            stream = open(settings.DATA_PATH + \
+                          'templates/' + args[1] + '.yaml', 'r')
+            a = audit_header.AuditHeader()
+            a.load_from_file(stream)
+            if a.type == 'jurisdiction_slate':
+                args[1] = settings.DATA_PATH + 'templates/' + args[1]
+            else:
+                args = [args[0]]
+
+            t = tabulator.Tabulator(args)            
+            # Move the report into the reports/ folder            
+            os.system('mv ' + args[0] + '_report.csv ' +
+                      settings.DATA_PATH + 'reports/')
             return HttpResponse()
     c = get_file_data()
     return render_to_response('tabulator.html', c,
@@ -241,11 +254,9 @@ def get_file_data():
     for i in range(0, len(templates)):
         if templates[i][len(templates[i]) - 5:] == '.yaml':
             s = open(settings.DATA_PATH + 'templates/' + templates[i], 'r')
-            s.readline()
-            s.readline()
-            s.readline()
-            type_str = s.readline()
-            if type_str.count('jurisdiction_slate') == 1:
+            a = audit_header.AuditHeader()
+            a.load_from_file(s)
+            if a.type == 'jurisdiction_slate':
                 juris_files.append(templates[i][:len(templates[i]) - 5])
             else:
                 prec_files.append(templates[i][:len(templates[i]) - 5])
@@ -320,6 +331,16 @@ def rename_file(data):
             os.rename(settings.DATA_PATH + 'tab_aggr/' + old_name + '.xml',
                 settings.DATA_PATH + 'tab_aggr/' + new_name + '.xml')
     return
+
+# Find the line in a file that contains its type, return the part of the
+#  line that specifies type
+def file_type(folder, file):
+    s = open(settings.DATA_PATH + folder + file, 'r')
+    line = s.readline()
+    s.readline()
+    s.readline()
+    a = s.readline()
+    return a[a.index(': ')+2:len(a)-1]
 
 def settings_processor(request):
     return {'ROOT':settings.SITE_ROOT, 'HOME':settings.LOGIN_URL}

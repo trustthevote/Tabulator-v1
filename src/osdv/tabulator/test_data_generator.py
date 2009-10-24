@@ -86,7 +86,6 @@ class ProvideRandomBallots(object):
                 stream.readline()
             e = yaml.load(stream)
             e['type'] = 'ballot_counter_total'
-            e['ident'] = 'PREC-' + str(random.randint(1,8))
             if e.has_key('precinct_list'):
                 del e['precinct_list']
                 del e['display_name']
@@ -99,6 +98,7 @@ class ProvideRandomBallots(object):
             b_list = []
             for i in range(0, int(args[1])):
                 b = copy.deepcopy(e)                
+                b['ident'] = 'PREC-' + str(random.randint(1,8))
                 for j in range(0, len(b['contests'])):
                     for k in range(0, len(b['contests'][j]['candidates'])):
                         r = random.randint(0,99)

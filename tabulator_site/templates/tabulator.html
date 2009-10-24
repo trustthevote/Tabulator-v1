@@ -13,9 +13,11 @@
     //Post file generation arguments to the server when the
     // user clicks the "run" button.
     $("#argsButton").click( function() {
+        idx = $("#templateFiles").attr("selectedIndex");
+        template = $("#templateFiles > option[index="+idx+"]").attr("value");        
         idx = $("#mergedFiles").attr("selectedIndex");
         fname = $("#mergedFiles > option[index="+idx+"]").attr("value");        
-        $.post("{{ ROOT }}tabulator", {'arguments':fname}, function() {
+        $.post("{{ ROOT }}tabulator", {'arguments':[fname, template]}, function() {
             location.reload(true);
         });
     });
@@ -25,6 +27,16 @@
     <div id="reportGenerator" class="fileGenerator">
         <h2>Generate Report</h2>
         <div class="args">
+            <div><label for="templateFiles">Precinct/Jurisdiction file:</label>
+            <select id="templateFiles" class="argInputs">
+                {% if not template_files %}
+                    <option value="null">(None generated)</option>
+                {% else %}
+                    {% for file in template_files %}
+                        <option value="{{ file }}">{{ file }}</option>
+                    {% endfor %}
+                {% endif %}
+            </select></div>
             <div><label for="mergedFiles">Previously Merged file:</label>
             <select id="mergedFiles" class="argInputs">
                 {% if not no_log_files %}
@@ -45,9 +57,11 @@
             {% for file in report_files %}
                 <tr name="{{ file }}">
                     <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
-                    <td class="labelCell"><a href="{{ ROOT }}data/tabulator/{{ file }}_report.csv">{{ file }}</a></td>
+                    <td class="labelCell"><label>{{ file }}</label></td>
+                    <td class="typeCell"><label>(SOVC-report)</label></td>
+                    <td class="linkCell"><a href="{{ ROOT }}data/tabulator/{{ file }}_report.csv">csv</a></td>
                     <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>
-                    <td class="buttonCell noDisplay"><input type="submit" id="renDone" name="{{ file }}" value="Done" /></td>
+                    <td class="buttonCell noDisplay"><input type="submit" class="renDone" name="{{ file }}" value="Done" /></td>
                 </tr>
              {% endfor %}
         </table>

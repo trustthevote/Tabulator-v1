@@ -18,6 +18,7 @@ class Tabulator(object):
         self.input = args[0]
         self.precs = 0
         try:
+            print args
             stream = open(self.input + '.yaml', 'r')
         except:
             print('Unable to open ' + self.input + '\n')
@@ -55,20 +56,21 @@ class Tabulator(object):
         prec_list = set()
         for i in range(len(self.b)):
             if self.j:
-                prec_list = prec_list.union([self.b[i][ident]])
-            for j in range(len(self.b[i]['contests'])):
+                prec_list = prec_list.union([self.b[i]['ident']])
+            for ii in range(len(self.b[i]['contests'])):
                 if i == 0:
                     sum_list.append({})
-                    cont_name = self.b[i]['contests'][j]['display_name']
-                    sum_list[j]['cont_name'] = cont_name
-                    sum_list[j]['cands'] = {}
-                for k in range(len(self.b[i]['contests'][j]['candidates'])):
-                    n =self.b[i]['contests'][j]['candidates'][k]['display_name']
-                    if not sum_list[j]['cands'].has_key(n):
-                        sum_list[j]['cands'][n] = 0
-                    c_count = self.b[i]['contests'][j]['candidates'][k]['count']
-                    sum_list[j]['cands'][n] += c_count
+                    cont_name = self.b[i]['contests'][ii]['display_name']
+                    sum_list[ii]['cont_name'] = cont_name
+                    sum_list[ii]['cands'] = {}
+                for iii in range(len(self.b[i]['contests'][ii]['candidates'])):
+                    n =self.b[i]['contests'][ii]['candidates'][iii]['display_name']
+                    if not sum_list[ii]['cands'].has_key(n):
+                        sum_list[ii]['cands'][n] = 0
+                    c_count = self.b[i]['contests'][ii]['candidates'][iii]['count']
+                    sum_list[ii]['cands'][n] += c_count
         self.precs = len(prec_list)
+        print sum_list
         return sum_list
 
     # Serialize a list of contests and their respective candidate vote
@@ -85,13 +87,13 @@ class Tabulator(object):
             fname = self.input[self.input.rfind('/') + 1:]
         else:
             fname = self.input
-        stream.write('Input BallotInfo File, ' + fname + '_report.csv\n')
+        stream.write('Input BallotInfo File, ' + fname + '.yaml\n')
         stream.write(',,\n')
         for cont in sum_list:
             stream.write(',,\n')
             stream.write('Contest,Label,Total\n')
             stream.write(cont['cont_name'] + \
-                         ',Number of Precincts,' + self.precs + '\n')
+                         ',Number of Precincts,' + str(self.precs) + '\n')
             for name in cont['cands'].keys():
                 stream.write(','+ name +','+ str(cont['cands'][name]) +'\n')
         stream.close()

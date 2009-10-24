@@ -12,3 +12,6 @@
 *.patch
 *.diff
 *.swp
+*.yaml
+*.xml
+*.csv
