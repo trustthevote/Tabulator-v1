@@ -54,19 +54,19 @@ class Tabulator(object):
         for i in range(len(self.b)):
             if not sum_list.has_key('Total'):
                 sum_list['Total'] = []
-            if not sum_list.has_key(self.b[i]['ident']):
+            if not sum_list.has_key(self.b[i]['prec_id']):
                 self.precs += 1
-                sum_list[self.b[i]['ident']] = []            
-            prec = self.b[i]['ident']
+                sum_list[self.b[i]['prec_id']] = []            
+            prec = self.b[i]['prec_id']
             for j in range(len(self.b[i]['contests'])):
                 if len(self.b[i]['contests']) != len(sum_list[prec]):
-                    cont_id = self.b[i]['contests'][j]['ident']
+                    cont_id = self.b[i]['contests'][j]['contest_id']
                     sum_list[prec].append({})
                     sum_list[prec][j]['cont_id'] = cont_id
                     sum_list[prec][j]['cands'] = {}
                 if i == 0:
                     sum_list['Total'].append({})
-                    cont_id = self.b[i]['contests'][j]['ident']
+                    cont_id = self.b[i]['contests'][j]['contest_id']
                     sum_list['Total'][j]['cont_id'] = cont_id
                     sum_list['Total'][j]['cands'] = {}
                 for k in range(len(self.b[i]['contests'][j]['candidates'])):
@@ -100,7 +100,7 @@ class Tabulator(object):
         if self.juris:
             for i in range(len(self.juris['contests'])):
                 stream.write(',,\n')
-                stream.write(self.juris['contests'][i]['ident'] + ',,\n')
+                stream.write(self.juris['contests'][i]['contest_id'] + ',,\n')
                 stream.write('Precinct')
                 for cand in self.juris['contests'][i]['candidates']:
                     stream.write(',' + cand['display_name'])

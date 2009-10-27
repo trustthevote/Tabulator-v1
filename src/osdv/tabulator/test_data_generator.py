@@ -98,7 +98,7 @@ class ProvideRandomBallots(object):
             b_list = []
             for i in range(0, int(args[1])):
                 b = copy.deepcopy(e)                
-                b['ident'] = 'PREC-' + str(random.randint(1,8))
+                b['prec_id'] = 'PREC-' + str(random.randint(1,8))
                 for j in range(0, len(b['contests'])):
                     for k in range(0, len(b['contests'][j]['candidates'])):
                         r = random.randint(0,99)
@@ -122,10 +122,9 @@ class ProvideRandomBallots(object):
             for record in b_list:
                 stream.writelines(xmlSerialize(record)[173:]. \
                     replace('\t', '    ').replace('\n</plist>', ''))
-
         else:
             exit()
-    
+
     # Make and return a jurisdiction_slate
     def make_juris(self):
         b = self.random_elec()
@@ -137,7 +136,8 @@ class ProvideRandomBallots(object):
         for i in range(1,9):
             b['precinct_list'].append({})
             prec = b['precinct_list'][i - 1]
-            prec['ident'] = 'PREC-' + str(i)
+            prec['display_name'] = random.randint(1000,9999)
+            prec['prec_id'] = 'PREC-' + str(i)
             prec['districts'] = []
             prec['voting places'] = []
             prec['voting places'].append({})
@@ -219,13 +219,13 @@ class ProvideRandomBallots(object):
                 if self.already_used_dreps.count(r) == 0:
                     self.already_used_dreps.append(r)
                     if r == 1:
-                        cont['ident'] = 'Rep1stDistrict'
+                        cont['contest_id'] = 'Rep1stDistrict'
                     elif r == 2:
-                        cont['ident'] = 'Rep2ndDistrict'
+                        cont['contest_id'] = 'Rep2ndDistrict'
                     elif r == 3:
-                        cont['ident'] = 'Rep3rdDistrict'
+                        cont['contest_id'] = 'Rep3rdDistrict'
                     else:
-                        cont['ident'] = 'Rep'+str(r)+'thDistrict'
+                        cont['contest_id'] = 'Rep'+str(r)+'thDistrict'
                     break
         elif r == 2:
             cont['display_name'] = 'State Representative'
@@ -238,22 +238,19 @@ class ProvideRandomBallots(object):
                 if self.already_used_streps.count(r) == 0:
                     self.already_used_streps.append(r)
                     if r == 1:
-                        cont['ident'] = 'StateRep1stHouse'
+                        cont['contest_id'] = 'StateRep1stHouse'
                     elif r == 2:
-                        cont['ident'] = 'StateRep2ndHouse'
+                        cont['contest_id'] = 'StateRep2ndHouse'
                     elif r == 3:
-                        cont['ident'] = 'StateRep3rdHouse'
+                        cont['contest_id'] = 'StateRep3rdHouse'
                     else:
-                        cont['ident'] = 'StateRep'+str(r)+'thHouse'
+                        cont['contest_id'] = 'StateRep'+str(r)+'thHouse'
                     break
         else:
             cont['display_name'] = 'Supreme Court Justice'
-            cont['ident'] = 'JustSupCrt'
+            cont['contest_id'] = 'JustSupCrt'
             self.already_used_supreme = True
     
-        r = random.randint(1,2)
-        cont['open_seat_count'] = r
-        
         # The district number and the voting machine number are 
         #  randomly generated.
         r = random.randint(0,6)

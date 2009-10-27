@@ -70,44 +70,44 @@ class Merger(object):
         print "Data validation results:"
         self.rstream.write("Data validation results:\n")
 
-        print " Are all GUIDs unique ...",
-        self.rstream.write(" Are all GUIDs unique ... ")
+        print " Check 1: Check that GUIDs are unique => ",
+        self.rstream.write(" Check 1: Check that GUIDs are unique => ")
         if self.validate_GUIDs():
-            print "Yes"
-            self.rstream.write("Yes\n")
+            print "SUCCEEDED"
+            self.rstream.write("SUCCEEDED\n")
         else:
-            print " No, merge aborted"
-            self.rstream.write(" No, merge aborted\n")
+            print "FAILED\nMerge aborted"
+            self.rstream.write("FAILED\nMerge aborted\n")
             return False
 
-        print " Do input files contain BallotInfo data structures ...",
-        self.rstream.write(" Do input files contain BallotInfo data structures ... ")
+        print " Check 2: Check that input files contain BallotInfo data structures => ",
+        self.rstream.write(" Check 2: Check that input files contain BallotInfo data structures => ")
         if self.validate_data_structures():
-            print "Yes"
-            self.rstream.write("Yes\n")
+            print "SUCCEEDED"
+            self.rstream.write("SUCCEEDED\n")
         else:
-            print " No, merge aborted"
-            self.rstream.write(" No, merge aborted\n")
+            print "FAILED\nMerge aborted"
+            self.rstream.write("FAILED\nMerge aborted\n")
             return False
 
-        print " Do all fields contain good values of the proper type ...",
-        self.rstream.write(" Do all fields contain good values of the proper type ... ")
+        print " Check 3: Check that all fields contain values of the proper type => ",
+        self.rstream.write(" Check 3: Check that all fields contain values of the proper type => ")
         if self.validate_fields():
-            print "Yes"
-            self.rstream.write("Yes\n")
+            print "SUCCEEDED"
+            self.rstream.write("SUCCEEDED\n")
         else:
-            print "No, merge aborted"
-            self.rstream.write("No, merge aborted\n")
+            print "FAILED\nMerge aborted"
+            self.rstream.write("FAILED\nMerge aborted\n")
             return False
 
-        print " Do both record files match the given election ...",
-        self.rstream.write(" Do both record files match the given election ... ")
+        print " Check 4: Check that both record files match the given election => ",
+        self.rstream.write(" Check 4: Check that both record files match the given election => ")
         if self.validate_match_election():
-            print "Yes"
-            self.rstream.write("Yes\n")
+            print "SUCCEEDED"
+            self.rstream.write("SUCCEEDED\n")
         else:
-            print "No, merge aborted"
-            self.rstream.write("No, merge aborted\n")
+            print "FAILED"
+            self.rstream.write("FAILED\n")
             return False
 
         print "All validation tests passed\n"
@@ -129,9 +129,9 @@ class Merger(object):
     #  less.
     def validate_data_structures(self):
         election_keys = ['election_name', 'contests', 'type']
-        bal_tot_keys = election_keys + ['ident']
-        contest_keys = ['ident', 'display_name', 'voting_method_id']
-        contest_keys += ['open_seat_count', 'candidates', 'district_id']
+        bal_tot_keys = election_keys + ['prec_id']
+        contest_keys = ['contest_id', 'display_name', 'voting_method_id']
+        contest_keys += ['candidates', 'district_id']
         candidate_keys = ['count', 'display_name', 'ident', 'party_id']
         for file in ([self.e], self.b1, self.b2):            
             if type(file) != list:
@@ -184,18 +184,14 @@ class Merger(object):
                     if election['type'] != 'ballot_counter_total' and \
                     election['type'] != 'tabulator_aggregation':                        
                         return False
-                    if type(election['ident']) != str:
+                    if type(election['prec_id']) != str:
                         return False
                 for contest in election['contests']:                    
-                    if type(contest['ident']) != str:
+                    if type(contest['contest_id']) != str:
                         return False
                     if type(contest['display_name']) != str:                        
                         return False
                     if type(contest['voting_method_id']) != str:
-                        return False
-                    if type(contest['open_seat_count']) != int:
-                        return False
-                    if not contest['open_seat_count'] >= 1:
                         return False
                     if type(contest['district_id']) != str:
                         return False
@@ -234,8 +230,7 @@ class Merger(object):
     def match_contest(self, cont1, cont2):
         if (cont1['display_name'] != cont2['display_name']) or \
         (cont1['district_id'] != cont2['district_id']) or \
-        (cont1['ident'] != cont2['ident']) or \
-        (cont1['open_seat_count'] != cont2['open_seat_count']) or \
+        (cont1['contest_id'] != cont2['contest_id']) or \
         (cont1['voting_method_id'] != cont2['voting_method_id']) or \
         (len(cont1['candidates']) != len(cont2['candidates'])):            
             return False
