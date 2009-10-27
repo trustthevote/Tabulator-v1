@@ -14,11 +14,10 @@ import audit_header
 
 class Tabulator(object):
     def __init__(self, args):
+        self.precs = 0
         # Load ballot records from yaml file
         self.input = args[0]
-        self.precs = 0
         try:
-            print args
             stream = open(self.input + '.yaml', 'r')
         except:
             print('Unable to open ' + self.input + '\n')
@@ -39,9 +38,9 @@ class Tabulator(object):
             else:
                 a = audit_header.AuditHeader()
                 a.load_from_file(stream)
-                self.j = yaml.load_all(stream)
+                self.juris = yaml.load(stream)
         else:
-            self.j = False
+            self.juris = False
 
         # Add the vote counts of candidates with the same ID# using
         #  sumation(). Write the vote totals for each candidate to the
@@ -51,26 +50,34 @@ class Tabulator(object):
     # Sum up the separate vote counts in each record for each candidate
     #  and return the cumulative result as a dictionary.
     def sumation(self):
-        cont_list = []
-        sum_list = []
-        prec_list = set()
+        sum_list = {}        
         for i in range(len(self.b)):
-            if self.j:
-                prec_list = prec_list.union([self.b[i]['ident']])
-            for ii in range(len(self.b[i]['contests'])):
+            if not sum_list.has_key('Total'):
+                sum_list['Total'] = []
+            if not sum_list.has_key(self.b[i]['ident']):
+                self.precs += 1
+                sum_list[self.b[i]['ident']] = []            
+            prec = self.b[i]['ident']
+            for j in range(len(self.b[i]['contests'])):
+                if len(self.b[i]['contests']) != len(sum_list[prec]):
+                    cont_id = self.b[i]['contests'][j]['ident']
+                    sum_list[prec].append({})
+                    sum_list[prec][j]['cont_id'] = cont_id
+                    sum_list[prec][j]['cands'] = {}
                 if i == 0:
-                    sum_list.append({})
-                    cont_name = self.b[i]['contests'][ii]['display_name']
-                    sum_list[ii]['cont_name'] = cont_name
-                    sum_list[ii]['cands'] = {}
-                for iii in range(len(self.b[i]['contests'][ii]['candidates'])):
-                    n =self.b[i]['contests'][ii]['candidates'][iii]['display_name']
-                    if not sum_list[ii]['cands'].has_key(n):
-                        sum_list[ii]['cands'][n] = 0
-                    c_count = self.b[i]['contests'][ii]['candidates'][iii]['count']
-                    sum_list[ii]['cands'][n] += c_count
-        self.precs = len(prec_list)
-        print sum_list
+                    sum_list['Total'].append({})
+                    cont_id = self.b[i]['contests'][j]['ident']
+                    sum_list['Total'][j]['cont_id'] = cont_id
+                    sum_list['Total'][j]['cands'] = {}
+                for k in range(len(self.b[i]['contests'][j]['candidates'])):
+                    n = self.b[i]['contests'][j]['candidates'][k]['display_name']
+                    if not sum_list['Total'][j]['cands'].has_key(n):
+                        sum_list['Total'][j]['cands'][n] = 0
+                    if not sum_list[prec][j]['cands'].has_key(n):
+                        sum_list[prec][j]['cands'][n] = 0
+                    c_count = self.b[i]['contests'][j]['candidates'][k]['count']
+                    sum_list['Total'][j]['cands'][n] += c_count
+                    sum_list[prec][j]['cands'][n] += c_count                    
         return sum_list
 
     # Serialize a list of contests and their respective candidate vote
@@ -89,13 +96,30 @@ class Tabulator(object):
             fname = self.input
         stream.write('Input BallotInfo File, ' + fname + '.yaml\n')
         stream.write(',,\n')
-        for cont in sum_list:
-            stream.write(',,\n')
-            stream.write('Contest,Label,Total\n')
-            stream.write(cont['cont_name'] + \
-                         ',Number of Precincts,' + str(self.precs) + '\n')
-            for name in cont['cands'].keys():
-                stream.write(','+ name +','+ str(cont['cands'][name]) +'\n')
+
+        if self.juris:
+            for i in range(len(self.juris['contests'])):
+                stream.write(',,\n')
+                stream.write(self.juris['contests'][i]['ident'] + ',,\n')
+                stream.write('Precinct')
+                for cand in self.juris['contests'][i]['candidates']:
+                    stream.write(',' + cand['display_name'])
+                stream.write('\n')
+                for prec in sorted(sum_list.keys()):
+                    stream.write(prec)
+                    for cand in sum_list[prec][i]['cands'].keys():
+                        stream.write(',' + str(sum_list[prec][i]['cands'][cand]))
+                    stream.write('\n')
+
+        else:
+            for cont in sum_list['Total']:
+                stream.write(',,\n')
+                stream.write('Contest,Label,Total\n')
+                stream.write(cont['cont_id'] + \
+                             ',Number of Precincts,' + str(self.precs) + '\n')
+                for name in cont['cands'].keys():
+                    stream.write(','+ name +','+ str(cont['cands'][name]) +'\n')
+
         stream.close()
 
 def main():
