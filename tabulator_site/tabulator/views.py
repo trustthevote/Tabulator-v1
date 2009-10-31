@@ -162,13 +162,14 @@ def tdg_file_handler(request, fname):
     else:
         stream = open(settings.DATA_PATH + 'bal_count_tot/' + fname, 'r')
     lines = stream.readlines()
-    formatted_lines=[]
+    formatted_lines = []
     for line in lines:
         line = line.replace('<', '&lt;')
         line = line.replace('>', '&gt;')
         line = line.replace('\t', '   ')
         line = line.replace('\n', '<br/>')        
         formatted_lines.append(line.replace(' ', '&nbsp;'))
+        print line        
     c = Context({'lines':formatted_lines})
     return render_to_response('tdg_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))

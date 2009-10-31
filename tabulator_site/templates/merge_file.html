@@ -1,27 +1,8 @@
-{% extends "base.html" %}
+{% extends "files.html" %}
 
 {% block css %}
     {{ block.super }}
     <style type="text/css">
-        #dataTab, #menu li#dataTab:hover {
-            border-top:5px solid #6699ff;
-        }
-
-        #download {
-            background-color:#4dc05e;
-            border: 1px solid green;
-            color:white;
-            font-weight:bold;
-            margin-bottom:30px;
-            -moz-border-radius:5px;
-            -webkit-border-radius: 5px;
-            padding:5px;
-            width:200px;
-            cursor:pointer;
-        }
-
-        .file {font-family:Monospace}
-        
         #log {padding-bottom:30px}
         
         #merged {
