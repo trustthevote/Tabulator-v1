@@ -6,9 +6,7 @@
 
 {% block content %}
 
-    <!--<button id="download" value="Download">Download Files</button>-->
-
-    <div id="log" class="file">
+    <div class="file">
     {% autoescape off %}
         {% for line in lines %}
             {{ line }}

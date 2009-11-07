@@ -15,9 +15,7 @@ import audit_header
 import tabulator
 
 
-def drop_handler(request):
-    return render_to_response('drop_down_test.html')
-
+# Handle requests/responses to and from the welcome template
 def welcome_handler(request):
     # Check to see if the client is posting data
     if request.method == 'POST':        
@@ -39,6 +37,7 @@ def welcome_handler(request):
     return render_to_response('welcome.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
+# Handle requests/responses to and from the test data generator template
 @login_required
 def tdg_handler(request):
     # Check to see if the client is posting data
@@ -74,6 +73,7 @@ def tdg_handler(request):
     return render_to_response('tdg.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
+# Handle requests/responses to and from the merger template
 @login_required
 def merge_handler(request):
     # Check to see if the client is posting data
@@ -118,6 +118,7 @@ def merge_handler(request):
     return render_to_response('merge.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
+# Handle requests/responses to and from the tabulator template
 @login_required
 def tab_handler(request):
     # Check to see if the client is posting data
@@ -149,6 +150,8 @@ def tab_handler(request):
     return render_to_response('tabulator.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
+# Read the contents of a requested tdg file from memory, mark it up so
+#  that it displays correctly as html, and render it.
 @login_required
 def tdg_file_handler(request, fname):
     # Check to see if the client is posting data
@@ -161,19 +164,13 @@ def tdg_file_handler(request, fname):
         stream = open(settings.DATA_PATH + 'templates/' + fname, 'r')
     else:
         stream = open(settings.DATA_PATH + 'bal_count_tot/' + fname, 'r')
-    lines = stream.readlines()
-    formatted_lines = []
-    for line in lines:
-        line = line.replace('<', '&lt;')
-        line = line.replace('>', '&gt;')
-        line = line.replace('\t', '   ')
-        line = line.replace('\n', '<br/>')        
-        formatted_lines.append(line.replace(' ', '&nbsp;'))
-        print line        
-    c = Context({'lines':formatted_lines})
+    lines = stream.readlines()    
+    c = Context({'lines':mark_up(lines)})
     return render_to_response('tdg_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
+# Read the contents of a requested merge file from memory, mark it up so
+#  that it displays correctly as html, and render it.
 @login_required
 def merge_file_handler(request, fname):
     # Check to see if the client is posting data
@@ -191,29 +188,17 @@ def merge_file_handler(request, fname):
     except IOError:
         pass
     else:
-        merged = stream.readlines()
-        formatted_merged = []
-        for line in merged:
-            line = line.replace('<', '&lt;')
-            line = line.replace('>', '&gt;')            
-            line = line.replace('\t', '   ')
-            line = line.replace('\n', '<br/>')        
-            formatted_merged.append(line.replace(' ', '&nbsp;'))    
-        c['merged'] = formatted_merged
+        c['merged'] = mark_up(stream.readlines())
 
     fname = fname[:fname.rfind('.')]
-    stream = open(settings.DATA_PATH + 'tab_aggr/' + fname + '.log', 'r')
-    log = stream.readlines()
-    formatted_log = []
-    for line in log:
-        line = line.replace('\n', '<br/>')
-        formatted_log.append(line.replace(' ', '&nbsp;'))
-    c['log'] = formatted_log
+    stream = open(settings.DATA_PATH + 'tab_aggr/' + fname + '.log', 'r')    
+    c['log'] = mark_up(stream.readlines())
 
     return render_to_response('merge_file.html', c,
-
      context_instance=RequestContext(request, processors=[settings_processor]))
 
+# Read the contents of a requested tabulator file from memory, mark it
+#  up so that it displays correctly as html, and render it.
 @login_required
 def tab_file_handler(request, fname):
     # Check to see if the client is posting data
@@ -227,11 +212,46 @@ def tab_file_handler(request, fname):
     formatted_lines=[]
     for line in lines:
         line = line.replace('\n', '<br/>')
-        formatted_lines.append(line.replace(' ', '&nbsp;'))
+        formatted_lines.append(line.replace(' ', '&nbsp;'))    
     c = Context({'lines':formatted_lines})
     return render_to_response('tab_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
 
+# Helper function for mark_up. Find the combined number of spaces and
+#  dashes that begin a string.
+def indent( str ):
+    if str == '' or str[:3] == '---':
+        return -1
+    for i in range( len(str) ):
+        if str[i] != ' ' and str[i] != '-':
+            return i
+
+# Html-ize the contents of a file so that they display correctly in the
+#  front end.
+def mark_up( lines ):
+    for i in range( len(lines) ):
+        lines[i] = lines[i].replace('<', '&lt;')
+        lines[i] = lines[i].replace('>', '&gt;')
+        lines[i] = lines[i].replace('\t', '   ')
+        lines[i] = lines[i].replace('\n', '')
+        if i != len(lines) - 1:
+            print str(lines[i]) + ' ' + str(indent(lines[i])) + ' ' + str(indent(lines[i + 1]))
+        if i == len(lines) - 1:
+            lines[i] = '<li>' + lines[i] + '</li></ul>'
+            lines[i] = lines[i].replace(' ', '&nbsp;')
+            return lines
+        else:
+            if indent(lines[i]) == -1 or indent(lines[i]) == indent(lines[i + 1]):
+                lines[i] = '<li>' + lines[i] + '</li></br>'
+            elif indent(lines[i]) > indent(lines[i + 1]):
+                lines[i] = '<li>' + lines[i] + '</li></ul></li></br>'
+            else:
+                lines[i] = '<li><a>' + lines[i] + u' \u25BC</a><ul></br>'
+        lines[i] = lines[i].replace(' ', '&nbsp;')
+
+# Get and categorize all the files created by this system, so that a
+#  list of them broken down by category can be displayed in the front
+#  end.
 def get_file_data():
     # Make the subdirectory specified by DATA_PATH within the
     #  directory DATA_PARENT, if it does not exist already. Generated
@@ -293,6 +313,7 @@ def get_file_data():
                     'report_files':report_files, 'no_log_files': no_log_files,
                     'template_files':template_files, 'version':version})
 
+# Find and delete a list of files that were generated by this system
 def delete_files(files):
     for file in files:
         if os.listdir(settings.DATA_PATH + 'reports/').count(file + '_report.csv') == 1:
@@ -307,6 +328,7 @@ def delete_files(files):
             os.system('rm -f ' + settings.DATA_PATH + 'tab_aggr/' + file + '.log')
     return
 
+# Find and rename a file that was generated by this system
 def rename_file(data):
     old_name = data['old_name']
     new_name = data['new_name']

@@ -9,8 +9,6 @@ urlpatterns = patterns('',
     (r'^static/(?P<path>.*)$', 'django.views.static.serve',
      {'document_root':  settings.MEDIA_ROOT}),
 
-    (r'^drop/?$', 'tabulator.views.drop_handler'),
-
     (r'^$', 'tabulator.views.welcome_handler'),
     (r'^welcome/?$', 'tabulator.views.welcome_handler'),
     (r'^tdg/?$', 'tabulator.views.tdg_handler'),
