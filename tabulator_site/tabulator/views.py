@@ -234,8 +234,6 @@ def mark_up( lines ):
         lines[i] = lines[i].replace('>', '&gt;')
         lines[i] = lines[i].replace('\t', '   ')
         lines[i] = lines[i].replace('\n', '')
-        if i != len(lines) - 1:
-            print str(lines[i]) + ' ' + str(indent(lines[i])) + ' ' + str(indent(lines[i + 1]))
         if i == len(lines) - 1:
             lines[i] = '<li>' + lines[i] + '</li></ul>'
             lines[i] = lines[i].replace(' ', '&nbsp;')
