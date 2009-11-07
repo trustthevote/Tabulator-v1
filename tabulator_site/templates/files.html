@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block javascript %}
+    $("a").click( function() {
+        $(this).parent().children("ul").toggle("slow");
+        if( $(this).html().indexOf('▼') != -1 ) {
+            $(this).html($(this).html().replace('▼', '▶'));
+        }
+        else {
+            $(this).html($(this).html().replace('▶', '▼'));
+        }
+    });
+{% endblock javascript %}
+
+{% block css %}    
+    <style type="text/css">
+        #dataTab, #menu li#dataTab:hover {
+            border-top:5px solid #6699ff;
+        }
+
+        #download {
+            background-color:#4dc05e;
+            border: 1px solid green;
+            color:white;
+            font-weight:bold;
+            margin-bottom:30px;
+            -moz-border-radius:5px;
+            -webkit-border-radius: 5px;
+            padding:5px;
+            width:200px;
+            cursor:pointer;
+        }
+
+        li, ul {
+            font-family: Monospace;
+            list-style: none;
+            line-height: 0px;
+        }
+
+        .file a {
+            line-height: 0px;
+            font-family: Monospace;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .noDisplay {
+            display: none;
+        }
+        
+        .file {font-family: Monospace;}
+
+    </style>
+{% endblock css %}
+
+    <!--<button id="download" value="Download">Download Files</button>-->
