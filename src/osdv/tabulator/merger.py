@@ -129,23 +129,25 @@ class Merger(object):
     #  less.
     def validate_data_structures(self):
         election_keys = ['election_name', 'contests', 'type']
+        election_keys += ['uncounted_ballots', 'vote_type']
         bal_tot_keys = election_keys + ['prec_id']
         contest_keys = ['contest_id', 'display_name', 'voting_method_id']
         contest_keys += ['candidates', 'district_id']
         candidate_keys = ['count', 'display_name', 'ident', 'party_id']
+        ub_keys = ['blank_votes', 'over_votes', 'under_votes']
         for file in ([self.e], self.b1, self.b2):            
             if type(file) != list:
                 return False
-            for election in file:
+            for elec in file:
                 if file == [self.e]:
-                    if not self.has_only_keys(election, election_keys):
+                    if not self.has_only_keys(elec, election_keys):
                         return False                
                 else:
-                    if not self.has_only_keys(election, bal_tot_keys):
+                    if not self.has_only_keys(elec, bal_tot_keys):
                         return False                
-                if type(election['contests']) != list:
+                if type(elec['contests']) != list:
                     return False
-                for contest in election['contests']:
+                for contest in elec['contests']:
                     if not self.has_only_keys(contest, contest_keys):
                         return False
                     if type(contest['candidates']) != list:
@@ -153,6 +155,10 @@ class Merger(object):
                     for candidate in contest['candidates']:
                         if not self.has_only_keys(candidate, candidate_keys):
                             return False
+                if type(elec['uncounted_ballots']) != dict:
+                    return False
+                if not self.has_only_keys(elec['uncounted_ballots'], ub_keys):
+                    return False
         return True
 
     # Helper function for self.verify_data_structures. Verifies that d
@@ -206,6 +212,12 @@ class Merger(object):
                             return False
                         if type(candidate['party_id']) != str:
                             return False
+                if type(election['uncounted_ballots']['blank_votes']) != int:
+                    return False
+                if type(election['uncounted_ballots']['over_votes']) != int:
+                    return False
+                if type(election['uncounted_ballots']['under_votes']) != int:
+                    return False
         return True
   
     # Verify that the two ballot record files are consistent with the

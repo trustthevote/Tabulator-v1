@@ -29,7 +29,8 @@ class ProvideRandomBallots(object):
         self.fname_list = []
         self.lname_list = []
 
-        if args[0] == 'jurisdiction':
+        self.type = args[0]
+        if self.type == 'jurisdiction':
         # Generate a sample jurisdiction_slate and output it to the
         #  location specified by the user in the command line, in yaml
         #  and xml formats.
@@ -54,7 +55,7 @@ class ProvideRandomBallots(object):
             stream.writelines(xmlSerialize(b)[173:]. \
                 replace('\t', '    ').replace('\n</plist>', ''))
 
-        elif args[0] == 'contestlist':
+        elif self.type == 'contestlist':
         # Generate a sample election and output it to the location
         #  specified by the user in the command line, in yaml and xml
         #  formats.
@@ -67,7 +68,7 @@ class ProvideRandomBallots(object):
                          'TTV Tabulator 0.1 JUL-1-2008', [])
             b = self.random_elec()
             b['type'] = 'precinct_contestlist'
-            
+
             # Dump output into a file in yaml format
             stream = open(args[1] + '.yaml', 'w') 
             stream.write(a.serialize_yaml())
@@ -79,7 +80,7 @@ class ProvideRandomBallots(object):
             stream.writelines(xmlSerialize(b)[173:]. \
                 replace('\t', '    ').replace('\n</plist>', ''))
 
-        elif args[0] == 'counts':
+        elif self.type == 'counts':
             # Load election specs from given file in yaml format            
             stream = open(args[2] + '.yaml', 'r')
             for i in range(0,8):  # Ignore the audit header
@@ -101,11 +102,27 @@ class ProvideRandomBallots(object):
                 b['prec_id'] = 'PREC-' + str(random.randint(1,8))
                 for j in range(0, len(b['contests'])):
                     for k in range(0, len(b['contests'][j]['candidates'])):
-                        r = random.randint(0,99)
+                        r = random.randint(1,99)
                         b['contests'][j]['candidates'][k]['count'] = r
                 b_list.append(b)
-            
-            # Give each file its own audit header            
+
+            # Generate a random number of blank, over, and under votes
+            #  for this session. Change the vote type to either polling,
+            #  early voting, absentee, or other
+            b['uncounted_ballots']['blank_votes'] = random.randint(1,10)
+            b['uncounted_ballots']['over_votes'] = random.randint(1,10)
+            b['uncounted_ballots']['under_votes'] = random.randint(1,10)
+            r = random.randint(0,3)
+            if r == 0:
+                b['vote_type'] = 'Polling'
+            elif r == 1:
+                b['vote_type'] = 'Early Voting'
+            elif r == 2:
+                b['vote_type'] = 'Absentee'
+            else:
+                b['vote_type'] = 'Other'
+
+            # Give each file its own audit header
             a = audit_header.AuditHeader()
             a.set_fields('ballot_counter_total',
                          'Pito Salas', 'TTV Tabulator TAB02', 
@@ -182,6 +199,14 @@ class ProvideRandomBallots(object):
         # Make the election headliner some random presidential election
         r = random.randint(0,3)
         b['election_name'] = str(r*4+2000) + " Presidential"
+
+        # Make space for blank, over, and undervotes in this election,
+        #  and a voting type.
+        b['uncounted_ballots'] = {}
+        b['uncounted_ballots']['blank_votes'] = 0
+        b['uncounted_ballots']['over_votes'] = 0
+        b['uncounted_ballots']['under_votes'] = 0
+        b['vote_type'] = 'NULL'
         
         # Generate a few contests
         b['contests'] = []
@@ -198,8 +223,9 @@ class ProvideRandomBallots(object):
         cont['candidates'] = []
         r = random.randint(3,5)
         for i in range(0,r):            
-            cont['candidates'].append(self.random_candidate())
-        
+            cont['candidates'].append(self.random_candidate(False))
+        cont['candidates'].append(self.random_candidate(True))
+
         # Make sure that a maximum of one supreme court justice contest
         #  is generated.
         if self.already_used_supreme:
@@ -251,47 +277,55 @@ class ProvideRandomBallots(object):
             cont['contest_id'] = 'JustSupCrt'
             self.already_used_supreme = True
     
-        # The district number and the voting machine number are 
-        #  randomly generated.
-        r = random.randint(0,6)
-        if r == 0:
-            cont['district_id'] = "PRES"
-        if r == 1:
-            r2 = random.randint(1,10)
-            cont['district_id'] = 'USREP ' + str(r2)
-        if r == 2:
-            r2 = random.randint(1,10)
-            cont['district_id'] = 'HOUSE ' + str(r2)
-        if r == 3:
-            r2 = random.randint(1,10)
-            cont['district_id'] = 'SENATE ' + str(r2)
-        if r == 4:
-            cont['district_id'] = 'SOILWATER'
-        if r == 5:
-            cont['district_id'] = 'HARBOR'       
-        if r == 6:
-            r2 = random.randint(1,5)
-            cont['district_id'] = 'SCHOOL ' + str(r2)
-
+        
+        cont['district_id'] = self.generate_district_name();
         cont['voting_method_id'] = 'VOTM-' + str(random.randint(1,5))
         return cont
 
+    def generate_district_name(self):
+        r = random.randint(0,6)
+        if r == 0:
+            return "PRES"
+        if r == 1:
+            r2 = random.randint(1,10)
+            return 'USREP ' + str(r2)
+        if r == 2:
+            r2 = random.randint(1,10)
+            return 'HOUSE ' + str(r2)
+        if r == 3:
+            r2 = random.randint(1,10)
+            return 'SENATE ' + str(r2)
+        if r == 4:
+            return 'SOILWATER'
+        if r == 5:
+            return 'HARBOR'       
+        if r == 6:
+            r2 = random.randint(1,5)
+            return 'SCHOOL ' + str(r2)
+
     # Make and returns a candidate object with initialized data members
-    def random_candidate(self):
+    def random_candidate(self, write_in):
         cand = {}
         
         # Count just gets a null value, since it is irrelevant to the
         #  specs generated here.
         cand['count'] = 0
         
-        cand['display_name'] = self.random_fullname()
-        while True:
-            r = random.randint(100,999)
-            if self.already_used_cand_idents.count(r) == 0:
-                self.already_used_cand_idents.append(r)
-                cand['ident'] = 'CAND-' + str(r)
-                break           
-        cand['party_id'] = 'PART-' + str(random.randint(1,9))
+        # If the "candidate" to be generated is just a placeholder for
+        #  write-in candidates, then use some hardcoded field values
+        if write_in:
+            cand['display_name'] = "Write-In Votes"
+            cand['ident'] = 'CAND-000'
+            cand['party_id'] = 'PART-0'
+        else:
+            cand['display_name'] = self.random_fullname()
+            while True:
+                r = random.randint(100,999)
+                if self.already_used_cand_idents.count(r) == 0:
+                    self.already_used_cand_idents.append(r)
+                    cand['ident'] = 'CAND-' + str(r)
+                    break           
+            cand['party_id'] = 'PART-' + str(random.randint(1,9))
         
         return cand
     
