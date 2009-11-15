@@ -128,13 +128,12 @@ class Merger(object):
     #  not contain more fields than the specs, nor should it contain
     #  less.
     def validate_data_structures(self):
-        election_keys = ['election_name', 'contests', 'type']
-        election_keys += ['uncounted_ballots', 'vote_type']
+        election_keys = ['election_name', 'contests', 'type', 'vote_type']
         bal_tot_keys = election_keys + ['prec_id']
-        contest_keys = ['contest_id', 'display_name', 'voting_method_id']
-        contest_keys += ['candidates', 'district_id']
+        contest_keys = ['contest_id', 'display_name', 'voting_method_id',
+         'candidates', 'district_id', 'uncounted_ballots', 'total_votes']
         candidate_keys = ['count', 'display_name', 'ident', 'party_id']
-        ub_keys = ['blank_votes', 'over_votes', 'under_votes']
+        ub_keys = ['blank_votes', 'over_votes']
         for file in ([self.e], self.b1, self.b2):            
             if type(file) != list:
                 return False
@@ -155,10 +154,9 @@ class Merger(object):
                     for candidate in contest['candidates']:
                         if not self.has_only_keys(candidate, candidate_keys):
                             return False
-                if type(elec['uncounted_ballots']) != dict:
-                    return False
-                if not self.has_only_keys(elec['uncounted_ballots'], ub_keys):
-                    return False
+                    if not self.has_only_keys(contest['uncounted_ballots'],
+                     ub_keys):
+                        return False
         return True
 
     # Helper function for self.verify_data_structures. Verifies that d
@@ -201,6 +199,12 @@ class Merger(object):
                         return False
                     if type(contest['district_id']) != str:
                         return False
+                    if type(contest['uncounted_ballots']['blank_votes']) != int:
+                        return False
+                    if type(contest['uncounted_ballots']['over_votes']) != int:
+                        return False
+                    if type(contest['total_votes']) != int:
+                        return False
                     for candidate in contest['candidates']:
                         if type(candidate['count']) != int:
                             return False
@@ -212,12 +216,6 @@ class Merger(object):
                             return False
                         if type(candidate['party_id']) != str:
                             return False
-                if type(election['uncounted_ballots']['blank_votes']) != int:
-                    return False
-                if type(election['uncounted_ballots']['over_votes']) != int:
-                    return False
-                if type(election['uncounted_ballots']['under_votes']) != int:
-                    return False
         return True
   
     # Verify that the two ballot record files are consistent with the

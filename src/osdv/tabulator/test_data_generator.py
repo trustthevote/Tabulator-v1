@@ -86,41 +86,56 @@ class ProvideRandomBallots(object):
             for i in range(0,8):  # Ignore the audit header
                 stream.readline()
             e = yaml.load(stream)
-            e['type'] = 'ballot_counter_total'
-            if e.has_key('precinct_list'):
-                del e['precinct_list']
-                del e['display_name']
-                del e['number_of_precincts']
 
             # Make the number of random ballot_info records specified by
             #  the user. Use the loaded election specs as a template,
             #  assign the vote counts of each candidate a value between 
             #  0 and 99.
             b_list = []
-            for i in range(0, int(args[1])):
-                b = copy.deepcopy(e)                
+            for i in range(int(args[1])):
+                b = {}
+                for key in e.keys():
+                    if key != 'contests' and key != 'precinct_list':
+                        b[key] = e[key]
+                b['contests'] = []
+                b['type'] = 'ballot_counter_total'
                 b['prec_id'] = 'PREC-' + str(random.randint(1,8))
-                for j in range(0, len(b['contests'])):
-                    for k in range(0, len(b['contests'][j]['candidates'])):
-                        r = random.randint(1,99)
-                        b['contests'][j]['candidates'][k]['count'] = r
-                b_list.append(b)
+                for j in range(len(e['contests'])):
+                    # If the template was a jurisdiction_slate, then
+                    #  do not include contests that were not generated
+                    #  in a district in this precinct.
+                    if e.has_key('precinct_list'):
+                        valid_contest = False
+                        for prec in e['precinct_list']:
+                            if prec['prec_id'] == b['prec_id']:
+                                for dist in prec['districts']:
+                                    if dist['ident'] == \
+                                     e['contests'][j]['district_id']:
+                                        valid_contest = True
+                                        break
+                        if not valid_contest:
+                            continue
+                    b['contests'].append(copy.deepcopy(e['contests'][j]))
+                    for cand in b['contests'][-1]['candidates']:
+                        cand['count'] = random.randint(1,99)
+                        b['contests'][-1]['total_votes'] += cand['count']
+                    b['contests'][-1]['uncounted_ballots']['blank_votes'] = \
+                     random.randint(1,10)
+                    b['contests'][-1]['uncounted_ballots']['over_votes'] = \
+                     random.randint(1,10)
 
-            # Generate a random number of blank, over, and under votes
-            #  for this session. Change the vote type to either polling,
-            #  early voting, absentee, or other
-            b['uncounted_ballots']['blank_votes'] = random.randint(1,10)
-            b['uncounted_ballots']['over_votes'] = random.randint(1,10)
-            b['uncounted_ballots']['under_votes'] = random.randint(1,10)
-            r = random.randint(0,3)
-            if r == 0:
-                b['vote_type'] = 'Polling'
-            elif r == 1:
-                b['vote_type'] = 'Early Voting'
-            elif r == 2:
-                b['vote_type'] = 'Absentee'
-            else:
-                b['vote_type'] = 'Other'
+                # Generate a random polling type for this session
+                r = random.randint(0,3)
+                if r == 0:
+                    b['vote_type'] = 'Polling'
+                elif r == 1:
+                    b['vote_type'] = 'Early Voting'
+                elif r == 2:
+                    b['vote_type'] = 'Absentee'
+                else:
+                    b['vote_type'] = 'Other'
+
+                b_list.append(b)
 
             # Give each file its own audit header
             a = audit_header.AuditHeader()
@@ -160,6 +175,7 @@ class ProvideRandomBallots(object):
             prec['voting places'].append({})
             prec['voting places'][0]['ballot_counters'] = random.randint(1,5)
             prec['voting places'][0]['ident'] = 'VLPC-' + str(i)
+            prec['registered_voters'] = random.randint(900,1100)
 
         # Give the precincts some hardcoded districts
         l = b['precinct_list']
@@ -200,18 +216,11 @@ class ProvideRandomBallots(object):
         r = random.randint(0,3)
         b['election_name'] = str(r*4+2000) + " Presidential"
 
-        # Make space for blank, over, and undervotes in this election,
-        #  and a voting type.
-        b['uncounted_ballots'] = {}
-        b['uncounted_ballots']['blank_votes'] = 0
-        b['uncounted_ballots']['over_votes'] = 0
-        b['uncounted_ballots']['under_votes'] = 0
         b['vote_type'] = 'NULL'
         
         # Generate a few contests
         b['contests'] = []
-        r = random.randint(2,5)
-        for i in range(0,r):
+        for i in range(10):
             b['contests'].append(self.random_contest())            
         return b
 
@@ -221,7 +230,7 @@ class ProvideRandomBallots(object):
 
         # Generate a few candidates per contest
         cont['candidates'] = []
-        r = random.randint(3,5)
+        r = random.randint(2,4)
         for i in range(0,r):            
             cont['candidates'].append(self.random_candidate(False))
         cont['candidates'].append(self.random_candidate(True))
@@ -277,31 +286,16 @@ class ProvideRandomBallots(object):
             cont['contest_id'] = 'JustSupCrt'
             self.already_used_supreme = True
     
-        
-        cont['district_id'] = self.generate_district_name();
+        # Generate a space for blank and over votes for this contest,
+        #  and also for total votes
+        cont['uncounted_ballots'] = {}
+        cont['uncounted_ballots']['blank_votes'] = 0
+        cont['uncounted_ballots']['over_votes'] = 0
+        cont['total_votes'] = 0
+
+        cont['district_id'] = 'DIST-' + str(random.randint(1,4))
         cont['voting_method_id'] = 'VOTM-' + str(random.randint(1,5))
         return cont
-
-    def generate_district_name(self):
-        r = random.randint(0,6)
-        if r == 0:
-            return "PRES"
-        if r == 1:
-            r2 = random.randint(1,10)
-            return 'USREP ' + str(r2)
-        if r == 2:
-            r2 = random.randint(1,10)
-            return 'HOUSE ' + str(r2)
-        if r == 3:
-            r2 = random.randint(1,10)
-            return 'SENATE ' + str(r2)
-        if r == 4:
-            return 'SOILWATER'
-        if r == 5:
-            return 'HARBOR'       
-        if r == 6:
-            r2 = random.randint(1,5)
-            return 'SCHOOL ' + str(r2)
 
     # Make and returns a candidate object with initialized data members
     def random_candidate(self, write_in):
