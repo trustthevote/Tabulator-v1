@@ -160,7 +160,6 @@ class ProvideRandomBallots(object):
     # Make and return a jurisdiction_slate
     def make_juris(self):
         b = self.random_elec()
-        b['display_name'] = 'Random County'
         b['precinct_list'] = []
         
         # Make some precincts, currently with mostly hardcoded values
@@ -215,8 +214,9 @@ class ProvideRandomBallots(object):
         # Make the election headliner some random presidential election
         r = random.randint(0,3)
         b['election_name'] = str(r*4+2000) + " Presidential"
-
+        b['number_of_precincts'] = 0
         b['vote_type'] = 'NULL'
+        b['prec_id'] = 'NULL'
         
         # Generate a few contests
         b['contests'] = []

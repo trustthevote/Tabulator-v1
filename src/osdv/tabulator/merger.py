@@ -54,8 +54,6 @@ class Merger(object):
         stream.close()
         if self.e.has_key('precinct_list'):
             del self.e['precinct_list']
-            del self.e['display_name']
-            del self.e['number_of_precincts']
 
         # Combine provenances and guids from input files
         self.new_prov = []
@@ -128,22 +126,18 @@ class Merger(object):
     #  not contain more fields than the specs, nor should it contain
     #  less.
     def validate_data_structures(self):
-        election_keys = ['election_name', 'contests', 'type', 'vote_type']
-        bal_tot_keys = election_keys + ['prec_id']
+        election_keys = ['election_name', 'contests', 'type', 'vote_type',
+         'prec_id', 'number_of_precincts']
         contest_keys = ['contest_id', 'display_name', 'voting_method_id',
          'candidates', 'district_id', 'uncounted_ballots', 'total_votes']
         candidate_keys = ['count', 'display_name', 'ident', 'party_id']
         ub_keys = ['blank_votes', 'over_votes']
-        for file in ([self.e], self.b1, self.b2):            
+        for file in ([self.e], self.b1, self.b2):
             if type(file) != list:
                 return False
             for elec in file:
-                if file == [self.e]:
-                    if not self.has_only_keys(elec, election_keys):
-                        return False                
-                else:
-                    if not self.has_only_keys(elec, bal_tot_keys):
-                        return False                
+                if not self.has_only_keys(elec, election_keys):
+                    return False                
                 if type(elec['contests']) != list:
                     return False
                 for contest in elec['contests']:
@@ -226,13 +220,22 @@ class Merger(object):
         #  false.
         for file in (self.b1, self.b2):
             for b in file:
-                if ((b['election_name'] != self.e['election_name']) or \
-                (len(b['contests']) != len(self.e['contests']))):
+                if b['election_name'] != self.e['election_name']:
                     return False
-                for i in range(len(self.e['contests'])):
-                    if not self.match_contest(self.e['contests'][i],
-                                              b['contests'][i]):
+                id_list = []
+                for elec_cont in self.e['contests']:
+                    id_list.append(elec_cont['contest_id'])
+                print id_list
+                for bal_cont in b['contests']:
+                    print bal_cont['contest_id']
+                    if id_list.count(bal_cont['contest_id']) == 0:
+                        print 'Bad index'
                         return False
+                    else:
+                        if not self.match_contest(bal_cont, self.e['contests'] \
+                         [id_list.index(bal_cont['contest_id'])]):
+                             print 'Good index, but still no bueno'
+                             return False
         return True
 
     # This returns true if the data members of two contests have the
