@@ -9,6 +9,7 @@
 import yaml
 import sys
 from datetime import date
+from plistlib import writePlistToString as xmlSerialize
 
 import audit_header
 
@@ -47,37 +48,55 @@ class Tabulator(object):
         #  report stream.
         self.serialize_csv(self.sumation())
 
+        """
+        # Dump output into a file in yaml format
+        stream = open(args[1] + '_report.yaml', 'w') 
+        stream.write(self.sumation().serialize_yaml())
+        yaml.dump(b, stream)
+        
+        # Dump output into a file in XML file
+        stream = open(args[1] + '_report.xml', 'w')
+        stream.write(self.sumation().serialize_xml())
+        stream.writelines(xmlSerialize(b)[173:]. \
+            replace('\t', '    ').replace('\n</plist>', ''))
+        """
+
     # Sum up the separate vote counts in each record for each candidate
     #  and return the cumulative result as a dictionary.
     def sumation(self):
-        sum_list = {}        
-        for i in range(len(self.b)):
-            if not sum_list.has_key('Total'):
-                sum_list['Total'] = []
-            if not sum_list.has_key(self.b[i]['prec_id']):
-                self.precs += 1
-                sum_list[self.b[i]['prec_id']] = []            
-            prec = self.b[i]['prec_id']
-            for j in range(len(self.b[i]['contests'])):
-                if len(self.b[i]['contests']) != len(sum_list[prec]):
-                    cont_id = self.b[i]['contests'][j]['contest_id']
-                    sum_list[prec].append({})
-                    sum_list[prec][j]['cont_id'] = cont_id
-                    sum_list[prec][j]['cands'] = {}
-                if i == 0:
-                    sum_list['Total'].append({})
-                    cont_id = self.b[i]['contests'][j]['contest_id']
-                    sum_list['Total'][j]['cont_id'] = cont_id
-                    sum_list['Total'][j]['cands'] = {}
-                for k in range(len(self.b[i]['contests'][j]['candidates'])):
-                    n = self.b[i]['contests'][j]['candidates'][k]['display_name']
-                    if not sum_list['Total'][j]['cands'].has_key(n):
-                        sum_list['Total'][j]['cands'][n] = 0
-                    if not sum_list[prec][j]['cands'].has_key(n):
-                        sum_list[prec][j]['cands'][n] = 0
-                    c_count = self.b[i]['contests'][j]['candidates'][k]['count']
-                    sum_list['Total'][j]['cands'][n] += c_count
-                    sum_list[prec][j]['cands'][n] += c_count                    
+        sum_list = {}
+        for prec in self.juris['precinct_list']:
+            sum_list[prec['display_name']] = {}
+            sum_list[prec['display_name']]['Polling'] = {}
+            sum_list[prec['display_name']]['Absentee'] = {}
+            sum_list[prec['display_name']]['Early Voting'] = {}
+            sum_list[prec['display_name']]['Other'] = {}
+        for rec in self.b:
+            for precinct in self.juris['precinct_list']:
+                if precinct['prec_id'] == rec['prec_id']:
+                    prec = precinct['display_name']            
+            type = rec['vote_type']
+            for i in range(len(rec['contests'])):
+                cont = rec['contests'][i]
+                co_name = cont['contest_id']
+                if not sum_list[prec][type].has_key(co_name):
+                    sum_list[prec][type][co_name] = {}
+                    sum_list[prec][type][co_name]['Total'] = 0
+                    sum_list[prec][type][co_name]['Blank'] = 0
+                    sum_list[prec][type][co_name]['Over'] = 0
+                sum_list[prec][type][co_name]['Total'] += \
+                 cont['total_votes']
+                sum_list[prec][type][co_name]['Blank'] += \
+                 cont['uncounted_ballots']['blank_votes']
+                sum_list[prec][type][co_name]['Over'] += \
+                 cont['uncounted_ballots']['over_votes']
+                for j in range(len(cont['candidates'])):
+                    cand = cont['candidates'][j]
+                    ca_name = cand['display_name']
+                    if not sum_list[prec][type][co_name].has_key(ca_name):
+                        sum_list[prec][type][co_name][ca_name] = 0
+                    sum_list[prec][type][co_name][ca_name] += \
+                     cand['count']
         return sum_list
 
     # Serialize a list of contests and their respective candidate vote
@@ -97,28 +116,40 @@ class Tabulator(object):
         stream.write('Input BallotInfo File, ' + fname + '.yaml\n')
         stream.write(',,\n')
 
-        if self.juris:
-            for i in range(len(self.juris['contests'])):
-                stream.write(',,\n')
-                stream.write(self.juris['contests'][i]['contest_id'] + ',,\n')
-                stream.write('Precinct')
-                for cand in self.juris['contests'][i]['candidates']:
-                    stream.write(',' + cand['display_name'])
-                stream.write('\n')
-                for prec in sorted(sum_list.keys()):
-                    stream.write(prec)
-                    for cand in sum_list[prec][i]['cands'].keys():
-                        stream.write(',' + str(sum_list[prec][i]['cands'][cand]))
+        for cont in self.juris['contests']:
+            co_name = cont['contest_id']
+            stream.write(',,\nTURN OUT,' + cont['display_name'].upper() + '\n')
+            stream.write(',Reg. Voters,Cards Cast,%Turnout,')
+            stream.write('Reg. Voters,Times Counted,Total Votes,')
+            stream.write('Times Blank Voted,Times Over Voted,\n')
+            for cand in cont['candidates']:
+                stream.write(cand['display_name'])
+                if cand['display_name'] != 'Write-In Votes':
+                    stream.write(',')
+                
+            stream.write('\n')
+            for prec in self.juris['precinct_list']:
+                pr_name = prec['display_name']
+                stream.write(str(pr_name) + '\n')
+                for type in ['Polling','Absentee','Early Voting','Other']:
+                    if sum_list[pr_name][type].has_key(co_name):
+                        temp = sum_list[pr_name][type][co_name]
+                    else:
+                        continue
+                    num_voters = (prec['registered_voters'])
+                    cards_cast = temp['Total'] + temp['Blank'] + temp['Over']
+                    stream.write(type + ',' + str(num_voters) + ',' + \
+                     str(cards_cast) + ',' + \
+                     str(int(round(float(cards_cast)/num_voters * 100))) + '%'\
+                     ',' + str(num_voters) + ',' + str(cards_cast) + ',' + \
+                     str(temp['Total']) + ',' + str(temp['Blank']) + ',' + \
+                     str(temp['Over']) + ',')
+                    for cand in cont['candidates']:
+                        ca_name = cand['display_name']
+                        print co_name, temp, ca_name
+                        stream.write(str(temp[ca_name]))
+                        stream.write(',')
                     stream.write('\n')
-
-        else:
-            for cont in sum_list['Total']:
-                stream.write(',,\n')
-                stream.write('Contest,Label,Total\n')
-                stream.write(cont['cont_id'] + \
-                             ',Number of Precincts,' + str(self.precs) + '\n')
-                for name in cont['cands'].keys():
-                    stream.write(','+ name +','+ str(cont['cands'][name]) +'\n')
 
         stream.close()
 
@@ -131,7 +162,8 @@ def main():
 
     t = Tabulator(sys.argv[1:])
 
-    print 'SOVC report created in ' + sys.argv[1] + '_report.csv\n'
+    print 'SOVC report created in ' + sys.argv[1] + '_report.csv, '
+    print sys.argv[1] + '_report.yaml, and ' + sys.argv[1] + '_report.xml\n'
 
     return 0
 

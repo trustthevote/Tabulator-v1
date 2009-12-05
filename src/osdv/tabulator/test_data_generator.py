@@ -99,7 +99,11 @@ class ProvideRandomBallots(object):
                         b[key] = e[key]
                 b['contests'] = []
                 b['type'] = 'ballot_counter_total'
-                b['prec_id'] = 'PREC-' + str(random.randint(1,8))
+                prec_num = random.randint(1,8)
+                b['prec_id'] = 'PREC-' + str(prec_num)
+                if e.has_key('precinct_list'):
+                    b['registered_voters'] = \
+                     e['precinct_list'][prec_num-1]['registered_voters']
                 for j in range(len(e['contests'])):
                     # If the template was a jurisdiction_slate, then
                     #  do not include contests that were not generated
@@ -117,7 +121,10 @@ class ProvideRandomBallots(object):
                             continue
                     b['contests'].append(copy.deepcopy(e['contests'][j]))
                     for cand in b['contests'][-1]['candidates']:
-                        cand['count'] = random.randint(1,99)
+                        if cand['display_name'] == 'Write-In Votes':
+                            cand['count'] = random.randint(1,9)
+                        else:
+                            cand['count'] = random.randint(1,99)
                         b['contests'][-1]['total_votes'] += cand['count']
                     b['contests'][-1]['uncounted_ballots']['blank_votes'] = \
                      random.randint(1,10)
@@ -217,6 +224,7 @@ class ProvideRandomBallots(object):
         b['number_of_precincts'] = 0
         b['vote_type'] = 'NULL'
         b['prec_id'] = 'NULL'
+        b['registered_voters'] = 0
         
         # Generate a few contests
         b['contests'] = []
@@ -318,7 +326,7 @@ class ProvideRandomBallots(object):
                 if self.already_used_cand_idents.count(r) == 0:
                     self.already_used_cand_idents.append(r)
                     cand['ident'] = 'CAND-' + str(r)
-                    break           
+                    break
             cand['party_id'] = 'PART-' + str(random.randint(1,9))
         
         return cand

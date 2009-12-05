@@ -127,7 +127,7 @@ class Merger(object):
     #  less.
     def validate_data_structures(self):
         election_keys = ['election_name', 'contests', 'type', 'vote_type',
-         'prec_id', 'number_of_precincts']
+         'prec_id', 'number_of_precincts', 'registered_voters']
         contest_keys = ['contest_id', 'display_name', 'voting_method_id',
          'candidates', 'district_id', 'uncounted_ballots', 'total_votes']
         candidate_keys = ['count', 'display_name', 'ident', 'party_id']
@@ -182,8 +182,17 @@ class Merger(object):
                     if election['type'] != 'ballot_counter_total' and \
                     election['type'] != 'tabulator_aggregation':                        
                         return False
+                    if type(election['election_name']) != str:
+                        return False
+                    if type(election['number_of_precincts']) != int:
+                        return False
                     if type(election['prec_id']) != str:
                         return False
+                    if type(election['registered_voters']) != int:
+                        return False
+                    if type(election['vote_type']) != str:
+                        return False
+
                 for contest in election['contests']:                    
                     if type(contest['contest_id']) != str:
                         return False
@@ -225,16 +234,12 @@ class Merger(object):
                 id_list = []
                 for elec_cont in self.e['contests']:
                     id_list.append(elec_cont['contest_id'])
-                print id_list
                 for bal_cont in b['contests']:
-                    print bal_cont['contest_id']
                     if id_list.count(bal_cont['contest_id']) == 0:
-                        print 'Bad index'
                         return False
                     else:
                         if not self.match_contest(bal_cont, self.e['contests'] \
                          [id_list.index(bal_cont['contest_id'])]):
-                             print 'Good index, but still no bueno'
                              return False
         return True
 
