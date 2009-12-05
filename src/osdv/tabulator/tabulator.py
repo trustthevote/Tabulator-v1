@@ -71,6 +71,7 @@ class Tabulator(object):
             sum_list[prec['display_name']]['Absentee'] = {}
             sum_list[prec['display_name']]['Early Voting'] = {}
             sum_list[prec['display_name']]['Other'] = {}
+            sum_list[prec['display_name']]['Totals'] = {}
         for rec in self.b:
             for precinct in self.juris['precinct_list']:
                 if precinct['prec_id'] == rec['prec_id']:
@@ -84,19 +85,32 @@ class Tabulator(object):
                     sum_list[prec][type][co_name]['Total'] = 0
                     sum_list[prec][type][co_name]['Blank'] = 0
                     sum_list[prec][type][co_name]['Over'] = 0
+                if not sum_list[prec]['Totals'].has_key(co_name):
+                    sum_list[prec]['Totals'][co_name] = {}
+                    sum_list[prec]['Totals'][co_name]['Total'] = 0
+                    sum_list[prec]['Totals'][co_name]['Blank'] = 0
+                    sum_list[prec]['Totals'][co_name]['Over'] = 0
                 sum_list[prec][type][co_name]['Total'] += \
                  cont['total_votes']
                 sum_list[prec][type][co_name]['Blank'] += \
                  cont['uncounted_ballots']['blank_votes']
                 sum_list[prec][type][co_name]['Over'] += \
                  cont['uncounted_ballots']['over_votes']
+                sum_list[prec]['Totals'][co_name]['Total'] += \
+                 cont['total_votes']
+                sum_list[prec]['Totals'][co_name]['Blank'] += \
+                 cont['uncounted_ballots']['blank_votes']
+                sum_list[prec]['Totals'][co_name]['Over'] += \
+                 cont['uncounted_ballots']['over_votes']
                 for j in range(len(cont['candidates'])):
                     cand = cont['candidates'][j]
                     ca_name = cand['display_name']
                     if not sum_list[prec][type][co_name].has_key(ca_name):
                         sum_list[prec][type][co_name][ca_name] = 0
-                    sum_list[prec][type][co_name][ca_name] += \
-                     cand['count']
+                    if not sum_list[prec]['Totals'][co_name].has_key(ca_name):
+                        sum_list[prec]['Totals'][co_name][ca_name] = 0
+                    sum_list[prec][type][co_name][ca_name] += cand['count']
+                    sum_list[prec]['Totals'][co_name][ca_name] += cand['count']
         return sum_list
 
     # Serialize a list of contests and their respective candidate vote
@@ -118,10 +132,10 @@ class Tabulator(object):
 
         for cont in self.juris['contests']:
             co_name = cont['contest_id']
-            stream.write(',,\nTURN OUT,' + cont['display_name'].upper() + '\n')
+            stream.write(',,\n,TURN OUT,,,' + cont['display_name'].upper() + '\n')
             stream.write(',Reg. Voters,Cards Cast,%Turnout,')
             stream.write('Reg. Voters,Times Counted,Total Votes,')
-            stream.write('Times Blank Voted,Times Over Voted,\n')
+            stream.write('Times Blank Voted,Times Over Voted,')
             for cand in cont['candidates']:
                 stream.write(cand['display_name'])
                 if cand['display_name'] != 'Write-In Votes':
@@ -131,7 +145,7 @@ class Tabulator(object):
             for prec in self.juris['precinct_list']:
                 pr_name = prec['display_name']
                 stream.write(str(pr_name) + '\n')
-                for type in ['Polling','Absentee','Early Voting','Other']:
+                for type in ['Polling','Absentee','Early Voting','Other','Totals']:
                     if sum_list[pr_name][type].has_key(co_name):
                         temp = sum_list[pr_name][type][co_name]
                     else:
