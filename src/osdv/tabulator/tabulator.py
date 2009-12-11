@@ -174,7 +174,7 @@ class Tabulator(object):
                         ca_name = cand['display_name']
                         stream.write(str(temp[ca_name]))
                         stream.write(',')
-                        if type != ['Totals']:
+                        if type != 'Totals':
                             s_pvt.write( co_name + ',' + str(pr_name) + ',' + \
                              type + ',' + ca_name + ',' + cand['party_id']  + \
                              ',' + str(temp[ca_name]) + ',\n')
