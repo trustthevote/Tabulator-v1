@@ -28,32 +28,29 @@ class Tabulator(object):
             a.load_from_file(stream)
             self.b = list(yaml.load_all(stream))
 
-        # If a jurisdiction_slate filename was given, then load its
-        #  contents
-        if len(args) == 2:
-            try:
-                stream = open(args[1] + '.yaml', 'r')
-            except:
-                print('Unable to open ' + self.input + '\n')
-                exit(0)
-            else:
-                a = audit_header.AuditHeader()
-                a.load_from_file(stream)
-                self.juris = yaml.load(stream)
+        # Load the jurisdiction slate or precinct contestlist template
+        try:
+            stream = open(args[1] + '.yaml', 'r')
+        except:
+            print('Unable to open ' + self.input + '\n')
+            exit(0)
         else:
-            self.juris = False
+            a = audit_header.AuditHeader()
+            a.load_from_file(stream)
+            self.templ = yaml.load(stream)
 
         # Add the vote counts of candidates with the same ID# using
         #  sumation(). Write the vote totals for each candidate to the
         #  report stream.
-        self.serialize_csv(self.sumation())
+        self.serialize_csv_pvt(self.sumation())
+        #self.serialize_pvt(self.sumation())
 
         """
         # Dump output into a file in yaml format
         stream = open(args[1] + '_report.yaml', 'w') 
         stream.write(self.sumation().serialize_yaml())
         yaml.dump(b, stream)
-        
+
         # Dump output into a file in XML file
         stream = open(args[1] + '_report.xml', 'w')
         stream.write(self.sumation().serialize_xml())
@@ -65,7 +62,19 @@ class Tabulator(object):
     #  and return the cumulative result as a dictionary.
     def sumation(self):
         sum_list = {}
-        for prec in self.juris['precinct_list']:
+
+        # If the template is a precinct_contestlist, then populate its
+        #  precinct_list with only the one precinct
+
+        """
+        a = audit_header.AuditHeader()
+        a.load_from_file(self.templ)
+        if a.type == 'precinct contestlist':
+            self.templ['precinct_list'] = []
+            self.templ['precinct
+        """
+
+        for prec in self.templ['precinct_list']:
             sum_list[prec['display_name']] = {}
             sum_list[prec['display_name']]['Polling'] = {}
             sum_list[prec['display_name']]['Absentee'] = {}
@@ -73,7 +82,7 @@ class Tabulator(object):
             sum_list[prec['display_name']]['Other'] = {}
             sum_list[prec['display_name']]['Totals'] = {}
         for rec in self.b:
-            for precinct in self.juris['precinct_list']:
+            for precinct in self.templ['precinct_list']:
                 if precinct['prec_id'] == rec['prec_id']:
                     prec = precinct['display_name']            
             type = rec['vote_type']
@@ -114,8 +123,10 @@ class Tabulator(object):
         return sum_list
 
     # Serialize a list of contests and their respective candidate vote
-    #  counts into a .csv format, and output them to a file
-    def serialize_csv(self, sum_list):
+    #  counts into a .csv & .pvt format, and output each to a file
+    def serialize_csv_pvt(self, sum_list):
+        s_pvt = open(self.input + '_report_pvt.csv', 'w')
+        s_pvt.write('Contest,Precinct,Type,Name,Party,Count,\n')
         stream = open(self.input + '_report.csv', 'w')
         stream.write('Election Summary Report,,\n')
         stream.write(
@@ -130,7 +141,7 @@ class Tabulator(object):
         stream.write('Input BallotInfo File, ' + fname + '.yaml,\n')
         stream.write(',,\n')
 
-        for cont in self.juris['contests']:
+        for cont in self.templ['contests']:
             co_name = cont['contest_id']
             stream.write(',,\n,TURN OUT,,,' + cont['display_name'].upper() + \
                          ',\n')
@@ -143,7 +154,7 @@ class Tabulator(object):
                     stream.write(',')
                 
             stream.write('\n')
-            for prec in self.juris['precinct_list']:
+            for prec in self.templ['precinct_list']:
                 pr_name = prec['display_name']
                 stream.write(str(pr_name) + ',\n')
                 for type in ['Polling','Absentee','Early Voting','Other','Totals']:
@@ -161,24 +172,27 @@ class Tabulator(object):
                      str(temp['Over']) + ',')
                     for cand in cont['candidates']:
                         ca_name = cand['display_name']
-                        print co_name, temp, ca_name
                         stream.write(str(temp[ca_name]))
                         stream.write(',')
+                        if type != ['Totals']:
+                            s_pvt.write( co_name + ',' + str(pr_name) + ',' + \
+                             type + ',' + ca_name + ',' + cand['party_id']  + \
+                             ',' + str(temp[ca_name]) + ',\n')
                     stream.write('\n')
-
+        s_pvt.close()
         stream.close()
 
 def main():
     # Output a usage message if incorrect number of command line args
-    if( len(sys.argv) != 2 and len(sys.argv) != 3 ):
-        print "Usage: [MERGED INPUT FILE]"
-        print "    OR [MERGED INPUT FILE] [JURISDICTION FILE]"
+    if( len(sys.argv) != 3 ):
+        print "Usage: [MERGED INPUT FILE][JURISDICTION FILE]"
         exit()
 
     t = Tabulator(sys.argv[1:])
 
     print 'SOVC report created in ' + sys.argv[1] + '_report.csv, '
-    print sys.argv[1] + '_report.yaml, and ' + sys.argv[1] + '_report.xml\n'
+    print sys.argv[1] + '_report_pvt.csv' + sys.argv[1] + '_report.yaml, and '
+    print sys.argv[1] + '_report.xml\n'
 
     return 0
 

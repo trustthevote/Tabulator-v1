@@ -142,8 +142,8 @@ def tab_handler(request):
                 args = [args[0]]
 
             t = tabulator.Tabulator(args)            
-            # Move the report into the reports/ folder            
-            os.system('mv ' + args[0] + '_report.csv ' +
+            # Move the reports into the reports/ folder
+            os.system('mv ' + args[0] + '_report* ' +
                       settings.DATA_PATH + 'reports/')
             return HttpResponse()
     c = get_file_data()
@@ -296,7 +296,8 @@ def get_file_data():
     tab_files = set(tab_files)
     report_files = os.listdir(settings.DATA_PATH + 'reports/')
     for i in range(0, len(report_files)):
-        report_files[i] = report_files[i][:report_files[i].rfind('_')]
+        report_files[i] = report_files[i][:report_files[i].rfind('_report')]
+    report_files = set(report_files)
 
     tdg_files = set(prec_files).union(set(juris_files)).union(bal_files)
     merge_files = bal_files.union(no_log_files)    
@@ -315,7 +316,7 @@ def get_file_data():
 def delete_files(files):
     for file in files:
         if os.listdir(settings.DATA_PATH + 'reports/').count(file + '_report.csv') == 1:
-            os.system('rm -f ' + settings.DATA_PATH + 'reports/' + file + '_report.csv')
+            os.system('rm -f ' + settings.DATA_PATH + 'reports/' + file + '_report*')
         if os.listdir(settings.DATA_PATH + 'templates/').count(file + '.yaml') == 1:
             os.system('rm -f ' + settings.DATA_PATH + 'templates/' + file + '.*')
         if os.listdir(settings.DATA_PATH + 'bal_count_tot/').count(file + '.yaml') == 1:
@@ -352,16 +353,6 @@ def rename_file(data):
             os.rename(settings.DATA_PATH + 'tab_aggr/' + old_name + '.xml',
                 settings.DATA_PATH + 'tab_aggr/' + new_name + '.xml')
     return
-
-# Find the line in a file that contains its type, return the part of the
-#  line that specifies type
-def file_type(folder, file):
-    s = open(settings.DATA_PATH + folder + file, 'r')
-    line = s.readline()
-    s.readline()
-    s.readline()
-    a = s.readline()
-    return a[a.index(': ')+2:len(a)-1]
 
 def settings_processor(request):
     return {'ROOT':settings.SITE_ROOT, 'HOME':settings.LOGIN_URL}
