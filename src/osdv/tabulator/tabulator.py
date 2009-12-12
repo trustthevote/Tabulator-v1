@@ -37,6 +37,7 @@ class Tabulator(object):
         else:
             a = audit_header.AuditHeader()
             a.load_from_file(stream)
+            self.template_type = a.type
             self.templ = yaml.load(stream)
 
         # Add the vote counts of candidates with the same ID# using
@@ -65,14 +66,8 @@ class Tabulator(object):
 
         # If the template is a precinct_contestlist, then populate its
         #  precinct_list with only the one precinct
-
-        """
-        a = audit_header.AuditHeader()
-        a.load_from_file(self.templ)
-        if a.type == 'precinct contestlist':
-            self.templ['precinct_list'] = []
-            self.templ['precinct
-        """
+        if self.template_type == 'precinct_contestlist':
+            self.templ['precinct_list']=[{'display_name':self.templ['prec_id']}]
 
         for prec in self.templ['precinct_list']:
             sum_list[prec['display_name']] = {}
@@ -91,25 +86,25 @@ class Tabulator(object):
                 co_name = cont['contest_id']
                 if not sum_list[prec][type].has_key(co_name):
                     sum_list[prec][type][co_name] = {}
-                    sum_list[prec][type][co_name]['Total'] = 0
-                    sum_list[prec][type][co_name]['Blank'] = 0
-                    sum_list[prec][type][co_name]['Over'] = 0
+                    sum_list[prec][type][co_name]['*TOTAL'] = 0
+                    sum_list[prec][type][co_name]['*BLANK'] = 0
+                    sum_list[prec][type][co_name]['*OVER'] = 0
                 if not sum_list[prec]['Totals'].has_key(co_name):
                     sum_list[prec]['Totals'][co_name] = {}
-                    sum_list[prec]['Totals'][co_name]['Total'] = 0
-                    sum_list[prec]['Totals'][co_name]['Blank'] = 0
-                    sum_list[prec]['Totals'][co_name]['Over'] = 0
-                sum_list[prec][type][co_name]['Total'] += \
+                    sum_list[prec]['Totals'][co_name]['*TOTAL'] = 0
+                    sum_list[prec]['Totals'][co_name]['*BLANK'] = 0
+                    sum_list[prec]['Totals'][co_name]['*OVER'] = 0
+                sum_list[prec][type][co_name]['*TOTAL'] += \
                  cont['total_votes']
-                sum_list[prec][type][co_name]['Blank'] += \
+                sum_list[prec][type][co_name]['*BLANK'] += \
                  cont['uncounted_ballots']['blank_votes']
-                sum_list[prec][type][co_name]['Over'] += \
+                sum_list[prec][type][co_name]['*OVER'] += \
                  cont['uncounted_ballots']['over_votes']
-                sum_list[prec]['Totals'][co_name]['Total'] += \
+                sum_list[prec]['Totals'][co_name]['*TOTAL'] += \
                  cont['total_votes']
-                sum_list[prec]['Totals'][co_name]['Blank'] += \
+                sum_list[prec]['Totals'][co_name]['*BLANK'] += \
                  cont['uncounted_ballots']['blank_votes']
-                sum_list[prec]['Totals'][co_name]['Over'] += \
+                sum_list[prec]['Totals'][co_name]['*OVER'] += \
                  cont['uncounted_ballots']['over_votes']
                 for j in range(len(cont['candidates'])):
                     cand = cont['candidates'][j]
@@ -152,8 +147,13 @@ class Tabulator(object):
                 stream.write(cand['display_name'])
                 if cand['display_name'] != 'Write-In Votes':
                     stream.write(',')
-                
+
             stream.write('\n')
+
+            TBO_list = [{'display_name':'*TOTAL','party_id':''},
+                        {'display_name':'*BLANK','party_id':''},
+                        {'display_name':'*OVER','party_id':''}]
+
             for prec in self.templ['precinct_list']:
                 pr_name = prec['display_name']
                 stream.write(str(pr_name) + ',\n')
@@ -163,18 +163,16 @@ class Tabulator(object):
                     else:
                         continue
                     num_voters = (prec['registered_voters'])
-                    cards_cast = temp['Total'] + temp['Blank'] + temp['Over']
+                    cards_cast = temp['*TOTAL'] + temp['*BLANK'] + temp['*OVER']
                     stream.write(type + ',' + str(num_voters) + ',' + \
                      str(cards_cast) + ',' + \
                      str(int(round(float(cards_cast)/num_voters * 100))) + '%'\
-                     ',' + str(num_voters) + ',' + str(cards_cast) + ',' + \
-                     str(temp['Total']) + ',' + str(temp['Blank']) + ',' + \
-                     str(temp['Over']) + ',')
-                    for cand in cont['candidates']:
+                     ',' + str(num_voters) + ',' + str(cards_cast) + ',')
+                    for cand in TBO_list + cont['candidates']:
                         ca_name = cand['display_name']
                         stream.write(str(temp[ca_name]))
                         stream.write(',')
-                        if type != 'Totals':
+                        if type != 'Totals' and ca_name != '*TOTAL':
                             s_pvt.write( co_name + ',' + str(pr_name) + ',' + \
                              type + ',' + ca_name + ',' + cand['party_id']  + \
                              ',' + str(temp[ca_name]) + ',\n')

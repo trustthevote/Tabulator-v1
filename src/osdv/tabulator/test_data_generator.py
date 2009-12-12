@@ -73,7 +73,7 @@ class ProvideRandomBallots(object):
             stream = open(args[1] + '.yaml', 'w') 
             stream.write(a.serialize_yaml())
             yaml.dump(b, stream)
-            
+
             # Dump output into a file in XML file
             stream = open(args[1] + '.xml', 'w')
             stream.write(a.serialize_xml())
@@ -182,6 +182,7 @@ class ProvideRandomBallots(object):
             prec['voting places'][0]['ballot_counters'] = random.randint(1,5)
             prec['voting places'][0]['ident'] = 'VLPC-' + str(i)
             prec['registered_voters'] = random.randint(900,1100)
+            b['registered_voters'] += prec['registered_voters']
 
         # Give the precincts some hardcoded districts
         l = b['precinct_list']
