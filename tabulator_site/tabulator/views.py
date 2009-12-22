@@ -128,18 +128,7 @@ def tab_handler(request):
             args = request.POST.getlist('arguments')
             
             args[0] = settings.DATA_PATH + 'tab_aggr/' + args[0]
-            
-            # Make the second argument a jurisdiction file, if one was
-            #  posted by the client. Else, eliminate it from the
-            #  arguments list.
-            stream = open(settings.DATA_PATH + \
-                          'templates/' + args[1] + '.yaml', 'r')
-            a = audit_header.AuditHeader()
-            a.load_from_file(stream)
-            if a.type == 'jurisdiction_slate':
-                args[1] = settings.DATA_PATH + 'templates/' + args[1]
-            else:
-                args = [args[0]]
+            args[1] = settings.DATA_PATH + 'templates/' + args[1]
 
             t = tabulator.Tabulator(args)            
             # Move the reports into the reports/ folder
@@ -209,10 +198,16 @@ def tab_file_handler(request, fname):
         return HttpResponse()
     stream = open(settings.DATA_PATH + 'reports/' + fname, 'r')
     lines = stream.readlines()
-    formatted_lines=[]
-    for line in lines:
-        line = line.replace('\n', '<br/>')
-        formatted_lines.append(line.replace(' ', '&nbsp;'))    
+    formatted_lines = []
+    
+    # If requested file is a .yaml or .xml, fully markup. If not, then
+    #  only do a little bit of formatting
+    if fname.rfind('.yaml') != -1 or fname.rfind('.xml') != -1:
+        formatted_lines = mark_up(lines)
+    else:
+        for line in lines:
+            line = line.replace('\n', '<br/>')
+            formatted_lines.append(line.replace(' ', '&nbsp;'))    
     c = Context({'lines':formatted_lines})
     return render_to_response('tab_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))

@@ -274,9 +274,9 @@ class PlistWriter(DumbXMLWriter):
         items = d.items()
         items.sort()
         for key, value in items:
-            if not isinstance(key, (str, unicode)):
-                raise TypeError("keys must be strings")
-            self.simpleElement("key", key)
+            #if not isinstance(key, (str, unicode)):
+            #    raise TypeError("keys must be strings")
+            self.simpleElement("key", str(key))
             self.writeValue(value)
         self.endElement("dict")
 
