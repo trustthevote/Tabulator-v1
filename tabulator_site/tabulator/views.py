@@ -234,7 +234,7 @@ def mark_up( lines ):
             lines[i] = lines[i].replace(' ', '&nbsp;')
             return lines
         else:
-            if indent(lines[i]) == -1 or indent(lines[i]) == indent(lines[i + 1]):
+            if indent(lines[i]) == -1 or indent(lines[i]) == indent(lines[i+1]):
                 lines[i] = '<li>' + lines[i] + '</li></br>'
             elif indent(lines[i]) > indent(lines[i + 1]):
                 lines[i] = '<li>' + lines[i] + '</li></ul></li></br>'

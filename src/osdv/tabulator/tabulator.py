@@ -164,11 +164,11 @@ class Tabulator(object):
                 stream.write(str(num_voters) + ',' + str(cards_cast) + ',' + \
                  turnout + ',\n')
                 s_pvt.write('*TURNOUT,' + d_name + ',' + type + \
-                 ',Reg. Voters,' + str(num_voters) + ',\n')
+                 ',Reg. Voters,,' + str(num_voters) + ',\n')
                 s_pvt.write('*TURNOUT,' + d_name + ',' + type + \
-                 ',Cards Cast,' + str(cards_cast) + ',\n')
+                 ',Cards Cast,,' + str(cards_cast) + ',\n')
                 s_pvt.write('*TURNOUT,' + d_name + ',' + type + \
-                 ',% Turnout,' + turnout + ',\n')
+                 ',% Turnout,,' + turnout + ',\n')
 
         for cont in self.templ['contests']:
             co_name = cont['contest_id']
