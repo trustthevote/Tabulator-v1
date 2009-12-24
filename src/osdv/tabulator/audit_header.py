@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # Python 2.6.2
 # Name: audit_header.py
 # Author: Mike Anderson
