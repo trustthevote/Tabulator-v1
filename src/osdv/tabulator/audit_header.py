@@ -105,7 +105,7 @@ class AuditHeader(object):
         time = str(date.time())
         time = time[:time.index('.')]
         
-        return str(date.day) + '-' + mstr + '-' + str(date.year) + ' ' + time        
+        return str(date.day) + '-' + mstr + '-' + str(date.year) + ' ' + time
 
     # Convert a list into a specific string format
     def stringify_list(self, list_):

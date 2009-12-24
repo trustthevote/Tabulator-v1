@@ -73,15 +73,6 @@ class Tabulator(object):
         if self.template_type == 'precinct_contestlist':
             self.templ['precinct_list']=[{'display_name':self.templ['prec_id']}]
 
-        # Make keys in sum_list for each precinct and voting type
-        for prec in self.templ['precinct_list']:
-            sum_list[prec['display_name']] = {}
-            sum_list[prec['display_name']]['Polling'] = {}
-            sum_list[prec['display_name']]['Absentee'] = {}
-            sum_list[prec['display_name']]['Early Voting'] = {}
-            sum_list[prec['display_name']]['Other'] = {}
-            sum_list[prec['display_name']]['Totals'] = {}
-
         # Iterate through all ballot_counter records given as input
         for rec in self.b:
             # Find the precinct associated with the current record
@@ -89,6 +80,15 @@ class Tabulator(object):
                 if precinct['prec_id'] == rec['prec_id']:
                     prec = precinct['display_name']
             type = rec['vote_type']
+            # Make a set of keys for the given precinct if they don't
+            #  yet exist.
+            if not sum_list.has_key(prec):
+                sum_list[prec] = {}
+                sum_list[prec]['Polling'] = {}
+                sum_list[prec]['Absentee'] = {}
+                sum_list[prec]['Early Voting'] = {}
+                sum_list[prec]['Other'] = {}
+                sum_list[prec]['Totals'] = {}
             # Iterate through all of the contests in the given record
             for i in range(len(rec['contests'])):
                 cont = rec['contests'][i]
@@ -149,20 +149,18 @@ class Tabulator(object):
         stream.write(',,\n')
 
         # Output voter turnout information first
-        stream.write(',Turnout,\n')
-        stream.write(',Reg. Voters,Cards Cast,%Turnout,\n')
+        stream.write(',,Turnout,\n')
+        stream.write(',,Reg. Voters,Cards Cast,%Turnout,\n')
         for prec in self.templ['precinct_list']:
+            stream.write(str(prec['display_name']) + ',\n')
             for type in ['Polling','Absentee','Early Voting','Other','Totals']:
                 num_voters = prec['registered_voters']
-                #temp = sum_list[prec['display_name']]['Totals']\
-                # [self.templ['contests'][0]['contest_id']]
-                #cards_cast = temp['*TOTAL'] + temp['*BLANK'] + temp['*OVER']
                 cards_cast = 200
                 turnout = str(float(cards_cast * 10000/num_voters)/100)
                 d_name = str(prec['display_name'])
                 
-                stream.write(str(num_voters) + ',' + str(cards_cast) + ',' + \
-                 turnout + ',\n')
+                stream.write(',' + type + ',' + str(num_voters) + ',' + \
+                 str(cards_cast) + ',' + turnout + ',\n')
                 s_pvt.write('*TURNOUT,' + d_name + ',' + type + \
                  ',Reg. Voters,,' + str(num_voters) + ',\n')
                 s_pvt.write('*TURNOUT,' + d_name + ',' + type + \
@@ -170,38 +168,49 @@ class Tabulator(object):
                 s_pvt.write('*TURNOUT,' + d_name + ',' + type + \
                  ',% Turnout,,' + turnout + ',\n')
 
+        # Make a list of "candidates" that will be included in every
+        #  contest by default
+        TBO_list = [{'display_name':'*TOTAL','party_id':''},
+                    {'display_name':'*BLANK','party_id':''},
+                    {'display_name':'*OVER','party_id':''}]
+
         for cont in self.templ['contests']:
             co_name = cont['contest_id']
-            stream.write('\n,' + cont['display_name'].upper() + ',\n')
-            stream.write(',Reg. Voters,Times Counted,Total Votes,')
+            stream.write('\n,,' + cont['display_name'].upper() + ',\n')
+            stream.write(',,Reg. Voters,Times Counted,Total Votes,')
             stream.write('Times Blank Voted,Times Over Voted,')
             for cand in cont['candidates']:
                 stream.write(cand['display_name'])
                 if cand['display_name'] != 'Write-In Votes':
                     stream.write(',')
-
             stream.write('\n')
-
-            TBO_list = [{'display_name':'*TOTAL','party_id':''},
-                        {'display_name':'*BLANK','party_id':''},
-                        {'display_name':'*OVER','party_id':''}]
 
             for prec in self.templ['precinct_list']:
                 pr_name = prec['display_name']
+                # If no voting data is available for the given precinct
+                #  and contest combination, then go on to the next
+                #  precinct.
+                if not sum_list.has_key(pr_name) or \
+                 (not sum_list[pr_name]['Polling'].has_key(co_name) and \
+                 not sum_list[pr_name]['Absentee'].has_key(co_name) and \
+                 not sum_list[pr_name]['Early Voting'].has_key(co_name) and \
+                 not sum_list[pr_name]['Other'].has_key(co_name) and \
+                 not sum_list[pr_name]['Totals'].has_key(co_name)):
+                     continue
+
                 stream.write(str(pr_name) + ',\n')
                 for type in ['Polling','Absentee','Early Voting','Other','Totals']:
                     if sum_list[pr_name][type].has_key(co_name):
                         temp = sum_list[pr_name][type][co_name]
                     else:
+                        stream.write(',' + type + ',\n')
                         continue
                     num_voters = (prec['registered_voters'])
                     cards_cast = temp['*TOTAL'] + temp['*BLANK'] + temp['*OVER']
-                    stream.write(type + ',' + str(num_voters) + ',' +
-                                 str(cards_cast) + ',')
+                    stream.write(',' + type + ',' + str(num_voters) + ',' +
+                     str(cards_cast) + ',')
                     for cand in TBO_list + cont['candidates']:
                         ca_name = cand['display_name']
-                        #print yaml.dump(sum_list)
-                        #print co_name,type,pr_name,ca_name,'\n\n'
                         stream.write(str(temp[ca_name]) + ',')                        
                         if type != 'Totals' and ca_name != '*TOTAL':
                             s_pvt.write( co_name + ',' + str(pr_name) + ',' + \
