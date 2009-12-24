@@ -120,15 +120,23 @@ class ProvideRandomBallots(object):
                         if not valid_contest:
                             continue
                     b['contests'].append(copy.deepcopy(e['contests'][j]))
-                    for cand in b['contests'][-1]['candidates']:
+                    cont = b['contests'][-1]
+                    if not cont.has_key('total_votes'):
+                        cont['total_votes'] = 0
+                        cont['uncounted_ballots'] = {}
+                        cont['uncounted_ballots']['blank_votes'] = 0
+                        cont['uncounted_ballots']['over_votes'] = 0
+                        cont['voting_method_id'] = 'VOTM-' + \
+                         str(random.randint(1,5))
+                    for cand in cont['candidates']:
                         if cand['display_name'] == 'Write-In Votes':
                             cand['count'] = random.randint(1,9)
                         else:
                             cand['count'] = random.randint(1,99)
-                        b['contests'][-1]['total_votes'] += cand['count']
-                    b['contests'][-1]['uncounted_ballots']['blank_votes'] = \
+                        cont['total_votes'] += cand['count']
+                    cont['uncounted_ballots']['blank_votes'] = \
                      random.randint(1,10)
-                    b['contests'][-1]['uncounted_ballots']['over_votes'] = \
+                    cont['uncounted_ballots']['over_votes'] = \
                      random.randint(1,10)
 
                 # Generate a random polling type for this session
@@ -221,7 +229,7 @@ class ProvideRandomBallots(object):
 
         # Make the election headliner some random presidential election
         r = random.randint(0,3)
-        b['election_name'] = str(r*4+2000) + " Presidential"
+        b['election_name'] = str(r*4+2000) + ' Presidential'
         b['number_of_precincts'] = 0
         b['vote_type'] = 'NULL'
         b['prec_id'] = 'NULL'
@@ -295,15 +303,7 @@ class ProvideRandomBallots(object):
             cont['contest_id'] = 'JustSupCrt'
             self.already_used_supreme = True
     
-        # Generate a space for blank and over votes for this contest,
-        #  and also for total votes
-        cont['uncounted_ballots'] = {}
-        cont['uncounted_ballots']['blank_votes'] = 0
-        cont['uncounted_ballots']['over_votes'] = 0
-        cont['total_votes'] = 0
-
         cont['district_id'] = 'DIST-' + str(random.randint(1,4))
-        cont['voting_method_id'] = 'VOTM-' + str(random.randint(1,5))
         return cont
 
     # Make and returns a candidate object with initialized data members
