@@ -3,6 +3,7 @@ from django.core.management import execute_manager
 import sys
 
 sys.path.append('../src/osdv/tabulator/')
+sys.path.append('../src/osdv/test_data_generator/')
 
 try:
     import settings # Assumed to be in the same directory.

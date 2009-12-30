@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
-import test_data_generator
+import test_data_generator as TDG
 import merger
 import audit_header
 import tabulator
