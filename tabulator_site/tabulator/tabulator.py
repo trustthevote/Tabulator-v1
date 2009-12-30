@@ -1,1 +1,0 @@
-../../src/osdv/tabulator/tabulator.py
