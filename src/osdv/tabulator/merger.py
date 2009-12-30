@@ -134,12 +134,12 @@ class Merger(object):
         candidate_keys = ['count', 'display_name', 'ident', 'party_id']
         ub_keys = ['blank_votes', 'over_votes']
         for file in ([self.e], self.b1, self.b2):
-            if type(file) != list:
+            if not isinstance(file, list):
                 return False
             for elec in file:
                 if not self.has_only_keys(elec, election_keys):
                     return False                
-                if type(elec['contests']) != list:
+                if not isinstance(elec['contests'], list):
                     return False
                 for contest in elec['contests']:
                     if file == [self.e]:
@@ -151,7 +151,7 @@ class Merger(object):
                         if not self.has_only_keys(contest['uncounted_ballots'],
                          ub_keys):
                             return False
-                    if type(contest['candidates']) != list:
+                    if not isinstance(contest['candidates'], list):
                         return False
                     for candidate in contest['candidates']:
                         if not self.has_only_keys(candidate, candidate_keys):
@@ -162,7 +162,7 @@ class Merger(object):
     #  is a dictionary and it only contains the given list of keys, no
     #  more nor less.
     def has_only_keys(self, d, key_list):        
-        if not type(d) == dict:
+        if not isinstance(d, dict):
             return False
         for k in key_list:
             if not d.has_key(k):
@@ -177,7 +177,7 @@ class Merger(object):
     def validate_fields(self):
         for file in ([self.e], self.b1, self.b2):
             for election in file:
-                if type(election['election_name']) != str:                    
+                if not isinstance(election['election_name'], str):
                     return False
                 if file == [self.e]:
                     if election['type'] != 'precinct_contestlist' and \
@@ -187,43 +187,43 @@ class Merger(object):
                     if election['type'] != 'ballot_counter_total' and \
                      election['type'] != 'tabulator_aggregation':                        
                         return False
-                    if type(election['election_name']) != str:
+                    if not isinstance(election['election_name'], str):
                         return False
-                    if type(election['number_of_precincts']) != int:
+                    if not isinstance(election['number_of_precincts'], int):
                         return False
-                    if type(election['prec_id']) != str:
+                    if not isinstance(election['prec_id'], str):
                         return False
-                    if type(election['registered_voters']) != int:
+                    if not isinstance(election['registered_voters'], int):
                         return False
-                    if type(election['vote_type']) != str:
+                    if not isinstance(election['vote_type'], str):
                         return False
 
                 for contest in election['contests']:
                     if file != [self.e]:
-                        if type(contest['voting_method_id']) != str:
+                        if not isinstance(contest['voting_method_id'], str):
                             return False
-                        if type(contest['uncounted_ballots']['blank_votes']) != int:
+                        if not isinstance(contest['uncounted_ballots']['blank_votes'], int):
                             return False
-                        if type(contest['uncounted_ballots']['over_votes']) != int:
+                        if not isinstance(contest['uncounted_ballots']['over_votes'], int):
                             return False
-                        if type(contest['total_votes']) != int:
+                        if not isinstance(contest['total_votes'], int):
                             return False
-                        if type(contest['contest_id']) != str:
+                        if not isinstance(contest['contest_id'], str):
                             return False
-                    if type(contest['district_id']) != str:
+                    if not isinstance(contest['district_id'], str):
                         return False
-                    if type(contest['display_name']) != str:                        
+                    if not isinstance(contest['display_name'], str): 
                         return False
                     for candidate in contest['candidates']:
-                        if type(candidate['count']) != int:
+                        if not isinstance(candidate['count'], int):
                             return False
                         if not candidate['count'] >= 0:
                             return False
-                        if type(candidate['display_name']) != str:
+                        if not isinstance(candidate['display_name'], str):
                             return False
-                        if type(candidate['ident']) != str:
+                        if not isinstance(candidate['ident'], str):
                             return False
-                        if type(candidate['party_id']) != str:
+                        if not isinstance(candidate['party_id']), str):
                             return False
         return True
 
