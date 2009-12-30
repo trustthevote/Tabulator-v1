@@ -8,8 +8,10 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
-from tab_src import test_data_generator as TDG
-from tab_src import merger, audit_header, tabulator
+import test_data_generator
+import merger
+import audit_header
+import tabulator
 
 # Handle requests/responses to and from the welcome template
 def welcome_handler(request):
