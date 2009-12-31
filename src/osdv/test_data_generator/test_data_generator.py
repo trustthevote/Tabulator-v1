@@ -12,7 +12,7 @@ import copy
 import uuid
 from plistlib import writePlistToString as xmlSerialize
 
-import audit_header
+import tabulator_source.audit_header as audit_header
 
 # Provide random election specs or random ballot counts
 class ProvideRandomBallots(object):
@@ -45,15 +45,15 @@ class ProvideRandomBallots(object):
             b['type'] = 'jurisdiction_slate'
 
             # Dump output into a file in yaml format
-            stream = open(args[1] + '.yaml', 'w') 
-            stream.write(a.serialize_yaml())
-            yaml.dump(b, stream)
+            with open(args[1] + '.yaml', 'w') as stream:
+                stream.write(a.serialize_yaml())
+                yaml.dump(b, stream)
             
             # Dump output into a file in XML file
-            stream = open(args[1] + '.xml', 'w')
-            stream.write(a.serialize_xml())
-            stream.writelines(xmlSerialize(b)[173:]. \
-                replace('\t', '    ').replace('\n</plist>', ''))
+            with open(args[1] + '.xml', 'w') as stream:
+                stream.write(a.serialize_xml())
+                stream.writelines(xmlSerialize(b)[173:]. \
+                    replace('\t', '    ').replace('\n</plist>', ''))
 
         elif self.type == 'contestlist':
         # Generate a sample election and output it to the location
@@ -70,22 +70,22 @@ class ProvideRandomBallots(object):
             b['type'] = 'precinct_contestlist'
 
             # Dump output into a file in yaml format
-            stream = open(args[1] + '.yaml', 'w') 
-            stream.write(a.serialize_yaml())
-            yaml.dump(b, stream)
+            with open(args[1] + '.yaml', 'w') as stream:
+                stream.write(a.serialize_yaml())
+                yaml.dump(b, stream)
 
             # Dump output into a file in XML file
-            stream = open(args[1] + '.xml', 'w')
-            stream.write(a.serialize_xml())
-            stream.writelines(xmlSerialize(b)[173:]. \
-                replace('\t', '    ').replace('\n</plist>', ''))
+            with open(args[1] + '.xml', 'w') as stream:
+                stream.write(a.serialize_xml())
+                stream.writelines(xmlSerialize(b)[173:]. \
+                    replace('\t', '    ').replace('\n</plist>', ''))
 
         elif self.type == 'counts':
             # Load election specs from given file in yaml format            
-            stream = open(args[2] + '.yaml', 'r')
-            for i in range(0,8):  # Ignore the audit header
-                stream.readline()
-            e = yaml.load(stream)
+            with open(args[2] + '.yaml', 'r') as stream:
+                for i in range(0,8):  # Ignore the audit header
+                    stream.readline()
+                e = yaml.load(stream)
 
             # Make the number of random ballot_info records specified by
             #  the user. Use the loaded election specs as a template,
@@ -159,16 +159,16 @@ class ProvideRandomBallots(object):
                          'TTV Tabulator 0.1 JUL-1-2008', [])
 
             # Dump output into a file in yaml format
-            stream = open(args[3] + '.yaml', 'w')
-            stream.write(a.serialize_yaml())
-            yaml.dump_all(b_list, stream)
+            with open(args[3] + '.yaml', 'w') as stream:
+                stream.write(a.serialize_yaml())
+                yaml.dump_all(b_list, stream)
 
             # Dump output into a file in XML file
-            stream = open(args[3] + '.xml', 'w')
-            stream.write(a.serialize_xml())
-            for record in b_list:
-                stream.writelines(xmlSerialize(record)[173:]. \
-                    replace('\t', '    ').replace('\n</plist>', ''))
+            with open(args[3] + '.xml', 'w') as stream:
+                stream.write(a.serialize_xml())
+                for record in b_list:
+                    stream.writelines(xmlSerialize(record)[173:]. \
+                        replace('\t', '    ').replace('\n</plist>', ''))
         else:
             exit()
 
@@ -222,10 +222,10 @@ class ProvideRandomBallots(object):
         self.cand_num = 1
 
         # Load a list of first and last names from file
-        stream = open('first_names', 'r')
-        self.fnames = stream.readlines()
-        stream = open('last_names', 'r')
-        self.lnames = stream.readlines()
+        with open('first_names', 'r') as stream:
+            self.fnames = stream.readlines()
+        with open('last_names', 'r') as stream:
+            self.lnames = stream.readlines()
 
         # Make the election headliner some random presidential election
         r = random.randint(0,3)

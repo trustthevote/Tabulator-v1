@@ -8,10 +8,10 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
-import test_data_generator as TDG
-import merger
-import audit_header
-import tabulator
+import test_data_generator.test_data_generator as TDG
+import tabulator_source.merger as merger
+import tabulator_source.audit_header as audit_header
+import tabulator_source.tabulator as tabulator
 
 # Handle requests/responses to and from the welcome template
 def welcome_handler(request):
@@ -124,12 +124,12 @@ def tab_handler(request):
         # Check to see if client wants to merge files
         if request.POST.has_key('arguments'):
             args = request.POST.getlist('arguments')
-            
+
             args[0] = settings.DATA_PATH + 'tab_aggr/' + args[0]
             args[1] = settings.DATA_PATH + 'templates/' + args[1]
 
-            t = tabulator.Tabulator(args)            
-            # Move the reports into the reports/ folder
+            t = tabulator.Tabulator(args)
+            # Move the newly generated reports into the reports/ folder
             os.system('mv ' + args[0] + '_report* ' +
                       settings.DATA_PATH + 'reports/')
             return HttpResponse()
@@ -148,10 +148,11 @@ def tdg_file_handler(request, fname):
             logout(request)
             return HttpResponse()
     if os.listdir(settings.DATA_PATH + 'templates/').count(fname) == 1:
-        stream = open(settings.DATA_PATH + 'templates/' + fname, 'r')
+        fpath = settings.DATA_PATH + 'templates/' + fname
     else:
-        stream = open(settings.DATA_PATH + 'bal_count_tot/' + fname, 'r')
-    lines = stream.readlines()    
+        fpath = settings.DATA_PATH + 'bal_count_tot/' + fname
+    with open(fpath, 'r') as stream:
+        lines = stream.readlines()    
     c = Context({'lines':mark_up(lines)})
     return render_to_response('tdg_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
@@ -178,8 +179,8 @@ def merge_file_handler(request, fname):
         c['merged'] = mark_up(stream.readlines())
 
     fname = fname[:fname.rfind('.')]
-    stream = open(settings.DATA_PATH + 'tab_aggr/' + fname + '.log', 'r')    
-    c['log'] = mark_up(stream.readlines())
+    with open(settings.DATA_PATH + 'tab_aggr/' + fname + '.log', 'r') as stream:
+        c['log'] = mark_up(stream.readlines())
 
     return render_to_response('merge_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
@@ -194,8 +195,8 @@ def tab_file_handler(request, fname):
         if request.POST.has_key('logout_user'):
             logout(request)
         return HttpResponse()
-    stream = open(settings.DATA_PATH + 'reports/' + fname, 'r')
-    lines = stream.readlines()
+    with open(settings.DATA_PATH + 'reports/' + fname, 'r') as stream:
+        lines = stream.readlines()
     formatted_lines = []
     
     # If requested file is a .yaml or .xml, fully markup. If not, then
@@ -265,9 +266,9 @@ def get_file_data():
     prec_files = []
     for i in range(0, len(templates)):
         if templates[i][len(templates[i]) - 5:] == '.yaml':
-            s = open(settings.DATA_PATH + 'templates/' + templates[i], 'r')
             a = audit_header.AuditHeader()
-            a.load_from_file(s)
+            with open(settings.DATA_PATH+'templates/'+templates[i],'r') as s:
+                a.load_from_file(s)
             if a.type == 'jurisdiction_slate':
                 juris_files.append(templates[i][:len(templates[i]) - 5])
             else:
@@ -296,8 +297,8 @@ def get_file_data():
     merge_files = bal_files.union(no_log_files)    
 
     # Get version / last revision info from file
-    stream = open('VERSION', 'r')
-    version = stream.readlines()
+    with open('VERSION', 'r') as stream:
+        version = stream.readlines()
 
     return Context({'prec_files':prec_files, 'juris_files':juris_files,
                     'bal_files':bal_files, 'tdg_files':tdg_files,

@@ -11,7 +11,7 @@ import sys
 import uuid
 from plistlib import writePlistToString as xmlSerialize
 
-import audit_header
+import tabulator_source.audit_header as audit_header
 
 # Check validity of two ballot record files and an election spec, and
 #  generate a report.
@@ -19,7 +19,6 @@ class Merger(object):
     def __init__(self, election, record1, record2,
                  merge_output):
         self.rstream = open(merge_output + '.log', 'w')
-        
         # Load ballot records from yaml file
         try:
             stream = open(record1 + '.yaml', 'r')
@@ -33,6 +32,7 @@ class Merger(object):
             guid1 = a.file_id
             prov1 = a.provenance
             self.b1 = list(yaml.load_all(stream))
+            stream.close()
         try:
             stream = open(record2 + '.yaml', 'r')
         except:
@@ -45,22 +45,22 @@ class Merger(object):
             guid2 = a.file_id
             prov2 = a.provenance
             self.b2 = list(yaml.load_all(stream))
+            stream.close()
 
         # Get the election specs from file
-        stream = open(election + '.yaml', 'r')
-        for i in range(0,8):  # Ignore the audit header
-            stream.readline()
-        self.e = yaml.load(stream)
-        stream.close()
-        if self.e.has_key('precinct_list'):
-            del self.e['precinct_list']
+        with open(election + '.yaml', 'r') as stream:
+            for i in range(0,8):  # Ignore the audit header
+                stream.readline()
+            self.e = yaml.load(stream)
+            if self.e.has_key('precinct_list'):
+                del self.e['precinct_list']
 
         # Combine provenances and guids from input files
         self.new_prov = []
         self.new_prov.extend(prov1)
         self.new_prov.extend(prov2)
         self.new_prov.append(guid1)
-        self.new_prov.append(guid2)        
+        self.new_prov.append(guid2)
 
     # Check to see that all input data is valid, results go to stdout
     #  and into a log file
@@ -223,7 +223,7 @@ class Merger(object):
                             return False
                         if not isinstance(candidate['ident'], str):
                             return False
-                        if not isinstance(candidate['party_id']), str):
+                        if not isinstance(candidate['party_id'], str):
                             return False
         return True
 
@@ -282,20 +282,19 @@ class Merger(object):
                      'TTV Tabulator 0.1 JUL-1-2008', self.new_prov)
 
         # Dump merge into a file in yaml format
-        stream = open(merged_output + '.yaml', 'w')
-        stream.write(a.serialize_yaml())
-        yaml.dump_all(self.b1, stream)
-        stream.write('---\n')
-        yaml.dump_all(self.b2, stream)
+        with open(merged_output + '.yaml', 'w') as stream:
+            stream.write(a.serialize_yaml())
+            yaml.dump_all(self.b1, stream)
+            stream.write('---\n')
+            yaml.dump_all(self.b2, stream)
 
         # Dump merge into a file in xml format        
-        stream = open(merged_output + '.xml', 'w')
-        stream.write(a.serialize_xml())
-        for file in (self.b1, self.b2):
-            for record in file:
-                stream.writelines(xmlSerialize(record)[173:]. \
-                    replace('\t', '    ').replace('\n</plist>', ''))
-        stream.close()
+        with open(merged_output + '.xml', 'w') as stream:
+            stream.write(a.serialize_xml())
+            for file in (self.b1, self.b2):
+                for record in file:
+                    stream.writelines(xmlSerialize(record)[173:]. \
+                        replace('\t', '    ').replace('\n</plist>', ''))
 
 def main():
     # Output a usage message if incorrect number of command line args
@@ -308,15 +307,15 @@ def main():
     if m.validate() == False:
         return 0
     m.merge(sys.argv[4])
-        
-    strm = open(sys.argv[4] + '.log', 'a')
-    print "Successfully merged " + sys.argv[2] + " and " + sys.argv[3],
-    strm.write("Successfully merged " + sys.argv[2] + " and " + sys.argv[3])
-    print "together\nThe result is stored in " + sys.argv[4] + ".yaml",
-    strm.write(" together\nThe result is stored in " + sys.argv[4] + ".yaml")
-    print "and " + sys.argv[4] + ".xml"
-    strm.write(" and " + sys.argv[4] + ".xml\n")
-    print "An error log was created in " + sys.argv[4] + ".log"
+
+    with open(sys.argv[4] + '.log', 'a') as strm:
+        print "Successfully merged " + sys.argv[2] + " and " + sys.argv[3],
+        strm.write("Successfully merged " + sys.argv[2] + " and " + sys.argv[3])
+        print "together\nThe result is stored in " + sys.argv[4] + ".yaml",
+        strm.write(" together\nThe result is stored in " + sys.argv[4] + ".yaml")
+        print "and " + sys.argv[4] + ".xml"
+        strm.write(" and " + sys.argv[4] + ".xml\n")
+        print "A log for this run was created in " + sys.argv[4] + ".log"
 
     return 0
 

@@ -11,7 +11,7 @@ import sys
 from datetime import date
 from plistlib import writePlistToString as xmlSerialize
 
-import audit_header
+import tabulator_source.audit_header as audit_header
 
 class Tabulator(object):
     def __init__(self, args):
@@ -53,15 +53,13 @@ class Tabulator(object):
         self.serialize_csv_pvt(b)
 
         # Dump output into a file in yaml format
-        stream = open(self.input + '_report.yaml', 'w') 
-        yaml.dump(b, stream)
+        with open(self.input + '_report.yaml', 'w') as stream:
+            yaml.dump(b, stream)
 
         # Dump output into a file in XML file
-        stream = open(self.input + '_report.xml', 'w')
-        stream.writelines(xmlSerialize(b)[173:]. \
-            replace('\t', '    ').replace('\n</plist>', ''))
-
-        stream.close()
+        with open(self.input + '_report.xml', 'w') as stream:
+            stream.writelines(xmlSerialize(b)[173:]. \
+                replace('\t', '    ').replace('\n</plist>', ''))
 
     # Sum up the separate vote counts in each record for each candidate
     #  and return the cumulative result as a dictionary.
@@ -223,14 +221,14 @@ class Tabulator(object):
 def main():
     # Output a usage message if incorrect number of command line args
     if( len(sys.argv) != 3 ):
-        print "Usage: [MERGED INPUT FILE][JURISDICTION FILE]"
+        print "Usage: [MERGED INPUT FILE] [ELECTION TEMPLATE FILE]"
         exit()
 
     t = Tabulator(sys.argv[1:])
 
-    print 'SOVC report created in ' + sys.argv[1] + '_report.csv, '
-    print sys.argv[1] + '_report_pvt.csv' + sys.argv[1] + '_report.yaml, and '
-    print sys.argv[1] + '_report.xml\n'
+    print 'SOVC report created in ' + sys.argv[1] + '_report.csv,',
+    print sys.argv[1] + '_report_pvt.csv,\n',
+    print sys.argv[1] + '_report.yaml, and ' + sys.argv[1] + '_report.xml\n'
 
     return 0
 
