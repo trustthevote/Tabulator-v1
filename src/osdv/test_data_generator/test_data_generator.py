@@ -15,7 +15,7 @@ import copy
 import uuid
 from plistlib import writePlistToString as xmlSerialize
 
-import tabulator_source.audit_header as audit_header
+import audit_header
 
 class ProvideRandomBallots(object):
 
@@ -177,7 +177,7 @@ class ProvideRandomBallots(object):
                     stream.writelines(xmlSerialize(record)[173:]. \
                         replace('\t', '    ').replace('\n</plist>', ''))
         else:
-            exit()
+            raise StandardError('Incorrect data generation type')
 
     def make_juris(self):
         """

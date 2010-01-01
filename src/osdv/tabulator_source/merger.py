@@ -29,10 +29,10 @@ class Merger(object):
         # Load ballot records from yaml file
         try:
             stream = open(''.join([record1,'.yaml']), 'r')
-        except:
+        except IOError:
             self.rstream.write(''.join(['Unable to open ',record1,'\n']))
             print(''.join(['Unable to open ',record1,'\n']))
-            exit(0)
+            raise
         else:
             a = audit_header.AuditHeader()
             a.load_from_file(stream)
@@ -42,10 +42,10 @@ class Merger(object):
             stream.close()
         try:
             stream = open(''.join([record2,'.yaml']), 'r')
-        except:
+        except IOError:
             self.rstream.write(''.join(['Unable to open ',record2,'\n']))
             print(''.join(['Unable to open ',record2,'\n']))
-            exit(0)
+            raise
         else:
             a = audit_header.AuditHeader()
             a.load_from_file(stream)

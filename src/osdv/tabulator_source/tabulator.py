@@ -23,9 +23,9 @@ class Tabulator(object):
         self.input = args[0]
         try:
             stream = open(''.join([self.input,'.yaml']), 'r')
-        except:
+        except IOError:
             print(''.join(['Unable to open ',self.input,'\n']))
-            exit(0)
+            raise
         else:
             a = audit_header.AuditHeader()
             a.load_from_file(stream)
@@ -34,9 +34,9 @@ class Tabulator(object):
         # Load the jurisdiction slate or precinct contestlist template
         try:
             stream = open(''.join([args[1],'.yaml']), 'r')
-        except:
+        except IOError:
             print(''.join(['Unable to open ',self.input,'\n']))
-            exit(0)
+            raise
         else:
             a = audit_header.AuditHeader()
             a.load_from_file(stream)

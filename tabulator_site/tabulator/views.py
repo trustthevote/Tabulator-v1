@@ -15,7 +15,6 @@ import tabulator_source.tabulator as tabulator
 
 
 def welcome_handler(request):
-
     """
     Handle requests/responses to and from the welcome template
     """
