@@ -47,8 +47,7 @@
             $.post("{{ ROOT }}tdg", {'old_name':oldName, 'new_name':newName});
         }
 
-        //Remove the textbox and button, restore the
-        // checkbox and links.
+        //Remove the textbox and button, restore the checkbox and links.
         $("tr[name="+newName+"] > .boxCell").removeClass("hide");
         $("tr[name="+newName+"] > .labelCell").removeClass("noDisplay");
         $("tr[name="+newName+"] > .typeCell").removeClass("noDisplay");

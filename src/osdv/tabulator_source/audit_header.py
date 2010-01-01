@@ -1,17 +1,21 @@
-# Python 2.6.2
-# Name: audit_header.py
-# Author: Mike Anderson
-# Created: Sep 2, 2009
-# Purpose: To define behaviors and attributes of an audit header class.
+"""
+Developed with Python 2.6.2
+Name: audit_header.py
+Author: Mike Anderson
+Created: Sep 2, 2009
+Purpose: To define behaviors and attributes of an audit header class.
+"""
 
 from uuid import uuid1
 from datetime import datetime
 
-# A data structure and API for audit headers
-class AuditHeader(object):    
+class AuditHeader(object):
+
+    """
+    A data structure and API for voting machine audit headers
+    """
+
     def __init__ (self):
-        # Put a new GUID into file_id, put a UTC timestamp in
-        #  create_date. The other variables are specified by the caller.
         self.file_id = ''
         self.create_date = ''
         self.type = ''
@@ -20,8 +24,12 @@ class AuditHeader(object):
         self.software = ''
         self.provenance = ''
 
-    # Set the last five data members, generate the first two
     def set_fields (self, type, operator, hardware, software, provenance):
+        """
+        Initialize the data members of an audit header object
+        """
+        
+        #Generate the first two data members, set the last five
         self.file_id = uuid1().hex.upper()
         self.create_date = datetime.utcnow()
         self.type = type
@@ -30,9 +38,12 @@ class AuditHeader(object):
         self.software = software
         self.provenance = provenance
     
-    # Loads and deserializes the file_id, type, and provenance of a
-    #  ballot header pulled from a given file stream
     def load_from_file(self, stream):
+        """
+        Loads and deserializes the file_id, type, and provenance of a
+         ballot header pulled from a given file stream
+        """
+        
         stream.readline()  # Ignore the title part of the header
         
         temp = stream.readline()
@@ -49,31 +60,40 @@ class AuditHeader(object):
         prov2_str = temp[temp.find(':') + 2:].strip()
         self.provenance = prov2_str.replace(',','').split()
 
-    # Convert audit header data into an xml formatted string
     def serialize_xml(self):
-        return '<audit-header>\n' + \
-            '  <file_id>' + self.file_id + '</file_id>\n' + \
-            '  <create_date>' + self.stringify_date(self.create_date) + '</create_date>\n' + \
-            '  <type>' + self.type + '</type>\n' + \
-            '  <operator>' + self.operator + '</operator>\n' + \
-            '  <hardware>' + self.hardware + '</hardware>\n' + \
-            '  <software>' + self.software + '</software>\n' + \
-            '  <provenance>' + self.stringify_list(self.provenance) + '</provenance>\n' + \
-            '</audit-header>\n\n\n'
+        """
+        Convert audit header data into an xml formatted string
+        """
+        
+        return '\n'.join(['<audit-header>',
+         '  <file_id>%s</file_id>' % self.file_id,
+         '  <create_date>%s</create_date>' % self.stringify_date(self.create_date),
+         '  <type>%s</type>' % self.type,
+         '  <operator>%s</operator>' % self.operator,
+         '  <hardware>%s</hardware>' % self.hardware,
+         '  <software>%s</software>' % self.software,
+         '  <provenance>%s</provenance>' % ', '.join(self.provenance),
+         '</audit-header>\n\n\n'])
 
-    # Convert audit header data into a yaml formatted string
     def serialize_yaml(self):
-        return 'Audit-header:\n' + \
-            '  file_id: ' + self.file_id + '\n' + \
-            '  create_date: ' + self.stringify_date(self.create_date) + '\n' + \
-            '  type: ' + self.type + '\n' + \
-            '  operator: ' + self.operator + '\n' + \
-            '  hardware: ' + self.hardware + '\n' + \
-            '  software: ' + self.software + '\n' + \
-            '  provenance: ' + self.stringify_list(self.provenance) + '\n\n\n'
+        """
+        Convert audit header data into a yaml formatted string
+        """
 
-    # Convert a date object to a specific string format
+        return '\n'.join(['Audit-header:',
+         '  file_id: %s' % self.file_id,
+         '  create_date: %s' % self.stringify_date(self.create_date),
+         '  type: %s' % self.type,
+         '  operator: %s' % self.operator,
+         '  hardware: %s' % self.hardware,
+         '  software: %s' % self.software,
+         '  provenance: %s\n\n\n' % ', '.join(self.provenance)])
+
     def stringify_date(self, date):
+        """
+        Convert a date object to a specific string format
+        """
+
         # Convert the month number to a string
         if date.month == 1:
             mstr = 'JAN'
@@ -104,13 +124,4 @@ class AuditHeader(object):
         time = str(date.time())
         time = time[:time.index('.')]
         
-        return str(date.day) + '-' + mstr + '-' + str(date.year) + ' ' + time
-
-    # Convert a list into a specific string format
-    def stringify_list(self, list_):
-        result = ''
-        for i in range(len(list_)):
-            result += list_[i]
-            if list_[i] != list_[len(list_) - 1]:
-                result += ', '
-        return result
+        return '%d-%s-%d %s' % (date.day, mstr, date.year, time)
