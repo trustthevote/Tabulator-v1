@@ -14,4 +14,56 @@
     {% endautoescape %}
     </div>
 
-{% endblock %}
+{% endblock content %}
+
+{% block css %}
+    {{ block.super }}
+
+    <style type="text/css">
+        table {
+            padding: 2em 0em 10em 2em;
+        }
+
+        .contest {
+            text-align: left;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        tr.header {
+            height:7em;
+        }
+
+        td {
+            font-size:9px;
+            font-family: Ariel;
+            text-align: center;
+            border: 1px solid black;
+        }
+
+        td:first-child {
+            text-align: left;
+            border-right: 1px solid black;
+        }
+
+        tr.header td {
+        }
+
+        tr.header td span {
+            font-size:9px;
+            font-family: Ariel;
+            -webkit-transform: rotate(-90deg); 
+            -moz-transform: rotate(-90deg);
+        }
+
+    </style>
+
+    <!--[if IE]>
+    <style>
+        tr.header td span {
+            filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+        }
+    </style>
+    <![endif]-->
+
+{% endblock css %}

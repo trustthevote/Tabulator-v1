@@ -52,7 +52,7 @@ class Tabulator(object):
          'Report generated on, %d-%d-%d,\n' % (d.month, d.day, d.year)])
 
         b = self.sumation()
-        self.serialize_csv_pvt(b)
+        self.serialize_csv_pvt_html(b)
 
         # Dump output into a file in yaml format
         with open(''.join([self.input,'_report.yaml']), 'w') as stream:
@@ -136,16 +136,13 @@ class Tabulator(object):
                     sum_list[prec]['Totals'][co_name][ca_name] += cand['count']
         return sum_list
 
-    def serialize_csv_pvt(self, sum_list):
+    def serialize_csv_pvt_html(self, sum_list):
         """
         Serialize a list of contests and their respective candidate
-         vote counts into a .csv & .pvt format, and output each to a
-         file.
+         vote counts into a .csv, .pvt, & .html format, and output each
+         to a file.
         """
 
-        s_pvt = open(''.join([self.input,'_report_pvt.csv']), 'w')
-        s_pvt.write(self.header)
-        s_pvt.write('Contest,Precinct,Type,Name,Party,Count,\n')
         stream = open(''.join([self.input, '_report.csv']), 'w')
         stream.write(self.header)
         if self.input.rfind('/') != -1:
@@ -155,18 +152,32 @@ class Tabulator(object):
         stream.write('Input BallotInfo File, %s.yaml,\n' % fname)
         stream.write(',,\n')
 
+        s_pvt = open(''.join([self.input,'_report_pvt.csv']), 'w')
+        s_pvt.write(self.header)
+        s_pvt.write('Contest,Precinct,Type,Name,Party,Count,\n')
+
+        s_html = open(''.join([self.input,'_report.html']), 'w')
+
         # Output voter turnout information first
         stream.write(',,Turnout,\n')
         stream.write(',,Reg. Voters,Cards Cast,%Turnout,\n')
+        s_html.write('\n'.join(['<table>',
+         '<tr><td class="contest">TURNOUT</td></tr>', '<tr class="header">',
+         '<td></td>', '<td><span>Reg. Voters</span></td>',
+         '<td><span>Cards Cast&nbsp;</span></td>',
+         '<td><span>% Turnout&nbsp;&nbsp;</span></td>', '</tr>',
+         '<tr><td>Jurisdiction Wide</td></tr>\n']))
         for prec in self.templ['precinct_list']:
             stream.write(','.join([str(prec['display_name']), '\n']))
+            s_html.write(''.join(['<tr><td>&nbsp;&nbsp;',
+             str(prec['display_name']), '</td></tr>\n']))
             for type in ['Polling','Absentee','Early Voting','Other','Totals']:
                 num_voters = prec['registered_voters']
                 cards_cast = 200  # A hardcoded dummy value
                 turnout = (float(cards_cast))/num_voters * 100
                 d_name = prec['display_name']
-                
-                stream.write(',%s,%d,%d,%d,\n' % 
+
+                stream.write(',%s,%d,%d,%.2f,\n' % 
                  (type, num_voters, cards_cast, turnout) )
                 s_pvt.write('*TURNOUT,%d,%s,Reg. Voters,,%d,\n' %
                  (d_name, type, num_voters) )
@@ -174,6 +185,11 @@ class Tabulator(object):
                  (d_name, type, cards_cast) )
                 s_pvt.write('*TURNOUT,%d,%s,%% Turnout,,%.2f,\n' %
                  (d_name, type, turnout) )
+                s_html.write('\n'.join(['<tr>',
+                 '<td>&nbsp;&nbsp;&nbsp;&nbsp;%s</td>' % type,
+                 '<td>%d</td>' % num_voters, '<td>%d</td>' % cards_cast,
+                 '<td>%.2f</td>' % turnout, '</tr>\n']) )
+        s_html.write('</table>\n\n\n')
 
         # Make a list of "candidates" that will be included in every
         #  contest by default
@@ -186,11 +202,19 @@ class Tabulator(object):
             stream.write('\n,,%s,\n' % cont['display_name'].upper())
             stream.write(',,Reg. Voters,Times Counted,Total Votes,')
             stream.write('Times Blank Voted,Times Over Voted,')
+            s_html.write('<table>\n')
+            s_html.write('<tr><td class="contest">%s</td></tr>\n' % co_name.upper())
+            s_html.write( '\n'.join(['<tr class="header">', '<td></td>',
+             '<td><span>Reg. Voters</span></td>', '<td><span>Times Counted</span></td>',
+             '<td><span>Total Votes</span></td>', '<td><span>Blank Votes</span></td>',
+             '<td><span>Over Votes&nbsp;</span></td>\n']) )
             for cand in cont['candidates']:
                 stream.write(cand['display_name'])
+                s_html.write('<td><span>%s</span></td>\n' % cand['display_name'])
                 if cand['display_name'] != 'Write-In Votes':
                     stream.write(',')
             stream.write('\n')
+            s_html.write('</tr>\n<tr><td>Jurisdiction Wide</td></tr>\n')
 
             for prec in self.templ['precinct_list']:
                 pr_name = prec['display_name']
@@ -206,25 +230,35 @@ class Tabulator(object):
                      continue
 
                 stream.write('%d,\n' % pr_name)
+                s_html.write('<tr><td>&nbsp;&nbsp;%d</td></tr>\n' % pr_name)
                 for type in ['Polling','Absentee','Early Voting','Other','Totals']:
                     if sum_list[pr_name][type].has_key(co_name):
                         temp = sum_list[pr_name][type][co_name]
                     else:
                         stream.write(',%s,\n' % type)
+                        s_html.write(''.join(['<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;',
+                         '%s</td></tr>\n' % type]))
                         continue
                     num_voters = (prec['registered_voters'])
                     cards_cast = temp['*TOTAL'] + temp['*BLANK'] + temp['*OVER']
                     stream.write(',%s,%d,%d,' % (type, num_voters, cards_cast))
+                    s_html.write(''.join(['<tr>\n<td>&nbsp;&nbsp;&nbsp;&nbsp;',
+                     '%s</td>\n<td>%d</td>\n<td>%d</td>\n' %
+                     (type, num_voters, cards_cast) ]) )
                     for cand in TBO_list + cont['candidates']:
                         ca_name = cand['display_name']
                         stream.write('%s,' % temp[ca_name])
                         if type != 'Totals' and ca_name != '*TOTAL':
-                            s_pvt.write('%s,%d,%s,%s,%s,%s,\n' % (co_name,
+                            s_pvt.write('%s,%d,%s,%s,%s,%d,\n' % (co_name,
                              pr_name, type, ca_name, cand['party_id'],
                              temp[ca_name]) )
+                        s_html.write('<td>%d</td>\n' % temp[ca_name])
                     stream.write('\n')
-        s_pvt.close()
+                    s_html.write('</tr>\n')
+            s_html.write('</table>\n\n')
         stream.close()
+        s_pvt.close()
+        s_html.close()
 
 def main():
     # Output a usage message if incorrect number of command line args

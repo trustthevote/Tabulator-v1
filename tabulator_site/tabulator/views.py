@@ -220,14 +220,16 @@ def tab_file_handler(request, fname):
         lines = stream.readlines()
     formatted_lines = []
     
-    # If requested file is a .yaml or .xml, fully markup. If not, then
-    #  only do a little bit of formatting
+    # If requested file is a .yaml or .xml, fully markup. If .csv, then
+    #  only do a little bit of formatting. If .html, then do even less.
     if fname.rfind('.yaml') != -1 or fname.rfind('.xml') != -1:
         formatted_lines = mark_up(lines)
-    else:
+    elif fname.rfind('.csv') != -1:
         for line in lines:
             line = line.replace('\n', '<br/>')
-            formatted_lines.append(line.replace(' ', '&nbsp;'))    
+            formatted_lines.append(line.replace(' ', '&nbsp;'))
+    else:
+        formatted_lines = lines
     c = Context({'lines':formatted_lines})
     return render_to_response('tab_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
