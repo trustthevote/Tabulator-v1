@@ -8,6 +8,7 @@ Created: Jul 30, 2009
 Purpose: To generate test data files for the merger and tabulator
 """
 
+from __future__ import with_statement
 import random
 import yaml
 import sys
