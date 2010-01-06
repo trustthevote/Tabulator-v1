@@ -10,6 +10,7 @@ Purpose: A precursor to a fully functional tabulator, this starter
  a file containing "Hello Tabulator" in it.
 """
 
+from __future__ import with_statement
 import sys
 
 class HWTabulator(object):

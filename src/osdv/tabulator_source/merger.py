@@ -9,6 +9,7 @@ Purpose: To define a class that merges two ballot record files
  together into one file.
 """
 
+from __future__ import with_statement
 import yaml
 import sys
 import uuid

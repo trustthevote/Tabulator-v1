@@ -67,6 +67,11 @@
             args.push(fname);
         }
 
+        val = $("[name="options"][type="radio"]:checked").attr("value");
+        console.log(val);
+        if( val == "range" ) {}
+        else if( val == "allOnes" ) {}
+
         //If the filename was not already in use, or the
         // user confirmed the overwrite, then post
         // arguments to the server.
@@ -75,6 +80,7 @@
             location.reload(true);
         });
     });
+    
 {% endblock javascript %}
 
 {% block main %}
@@ -101,10 +107,10 @@
             </select></div>
             <div><label>Output file name:</label><input type="text" id="outputFilename" class="argInputs" /></div>
             <div class="hideUs noDisplay"><label id="add">Additional options:</label>
-                <input type="radio" name="additional" checked="checked"/> None<br />
-                <input type="radio" class="posiLeft" name="additional" /> Make all generated values lie between 0 - 
+                <input type="radio" name="options" value="none" /> None<br />
+                <input type="radio" class="posiLeft" name="options" value="range" /> Make all generated values lie between 0 - 
                     <input type="text" id="dataUpperBound" /><br />
-                <input type="radio" class="posiLeft" name="additional" /> Make all generated values = 1<br />
+                <input type="radio" class="posiLeft" name="options" value="allOnes" /> Make all generated values = 1<br />
             </div>
             <input type="submit" value="Run" id="argsButton" />
         </div>

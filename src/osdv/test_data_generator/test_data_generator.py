@@ -88,7 +88,20 @@ class ProvideRandomBallots(object):
                     replace('\t', '    ').replace('\n</plist>', ''))
 
         elif self.type == 'counts':
-            # Load election specs from given file in yaml format            
+            # Extract and apply flags if there are any
+            if len(args) == 5:
+                if args[4] == '-1':
+                    r_min = 1
+                    r_max = 1
+                elif args[4][0] == '+':
+                    r_min = 0
+                    r_max = int(args[4][1:])
+                args.remove(args[4])
+            else:
+                r_min = 0
+                r_max = 99
+
+            # Load election specs from given file in yaml format
             with open(''.join([args[2],'.yaml']), 'r') as stream:
                 for i in range(0,8):  # Ignore the audit header
                     stream.readline()
@@ -137,9 +150,9 @@ class ProvideRandomBallots(object):
                          str(random.randint(1,5))])
                     for cand in cont['candidates']:
                         if cand['display_name'] == 'Write-In Votes':
-                            cand['count'] = random.randint(1,9)
+                            cand['count'] = random.randint(r_min, r_max)
                         else:
-                            cand['count'] = random.randint(1,99)
+                            cand['count'] = random.randint(r_min, r_max)
                         cont['total_votes'] += cand['count']
                     cont['uncounted_ballots']['blank_votes'] = \
                      random.randint(1,10)
@@ -373,13 +386,25 @@ class ProvideRandomBallots(object):
 def printUsage():
     print 'Usage: test_data_generator.py jurisdiction [OUTPUT ELECTION FILE]'
     print '   OR: test_data_generator.py contestlist [OUTPUT ELECTION FILE]'
-    print '   OR: test_data_generator.py counts [#  OF SAMPLES]',
-    print '[INPUT ELECTION FILE] [OUTPUT SAMPLES FILE]'
+    print '   OR: test_data_generator.py counts [#  OF SAMPLES]'
+    print '       [INPUT ELECTION FILE] [OUTPUT SAMPLES FILE]'
+    print '   OR: test_data_generator.py counts [OPTION] [#  OF SAMPLES]'
+    print '       [INPUT ELECTION FILE] [OUTPUT SAMPLES FILE]'
+    print
+    print
+    print 'Where [OPTION] can consist of one of the following:'
+    print '   -1'
+    print '      All count fields in the generated BCT output will contain'
+    print '      the value 1'
+    print 
+    print '   +[NUMBER]'
+    print '      All count fields in the generated BCT output will contain'
+    print '      a value between 0 and [NUMBER]'
     exit()
 
 def main(): 
     # First make sure that the command line input is valid. If it is not
-    #  then output a usage statement and exit    
+    #  then output a usage statement and exit
     if len(sys.argv) == 1: sys.argv.append('')
     type = sys.argv[1]
     if type == 'jurisdiction':
@@ -389,14 +414,15 @@ def main():
         if len(sys.argv) != 3:
             printUsage()
     elif type == 'counts':
-        if len(sys.argv) != 5:
+        # This condition is complicated by the possibility of BCT flags
+        if len(sys.argv) != 5 and \
+         ( len(sys.argv) != 6 or (not sys.argv[5][0] in ['-','+']) ):
             printUsage()
     else:
         printUsage()
     # Get rid of unneccesary command line arguments and generate random
     #  data of the specified type
-    args = sys.argv[1:]
-    p = ProvideRandomBallots(args)
+    p = ProvideRandomBallots(sys.argv[1:])
 
     if type == 'jurisdiction':
         print 'Done. Generated sample jurisdiction template files',
@@ -412,3 +438,4 @@ def main():
     return 0
     
 if __name__ == '__main__': main()
+
