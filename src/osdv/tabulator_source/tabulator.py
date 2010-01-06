@@ -9,6 +9,7 @@ Purpose: To define a class that takes as input a merged BallotInfo
  file and generates a report
 """
 
+from __future__ import with_statement
 import yaml
 import sys
 from datetime import date
