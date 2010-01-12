@@ -15,7 +15,7 @@ import sys
 import uuid
 from plistlib import writePlistToString as xmlSerialize
 
-import audit_header
+import tabulator_source.audit_header as audit_header
 
 class Merger(object):
 

@@ -15,7 +15,7 @@ import sys
 from datetime import date
 from plistlib import writePlistToString as xmlSerialize
 
-import audit_header
+import tabulator_source.audit_header as audit_header
 
 class Tabulator(object):
     def __init__(self, args):

@@ -11,10 +11,10 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
-import test_data_generator as TDG
-import merger
-import audit_header
-import tabulator
+import test_data_generator.test_data_generator as TDG
+import tabulator_source.merger as merger
+import tabulator_source.audit_header as audit_header
+import tabulator_source.tabulator as tabulator
 
 
 def welcome_handler(request):
