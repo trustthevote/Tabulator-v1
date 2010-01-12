@@ -2,6 +2,7 @@ from __future__ import with_statement
 
 import os
 import json
+from copy import deepcopy
 
 from django.template import Context, loader, RequestContext
 from django.http import HttpResponse, HttpResponseRedirect, HttpRequest
@@ -53,6 +54,7 @@ def tdg_handler(request):
         if request.POST.has_key('arguments_tdg'):
             # Get and deserialize the users arguments from JSON
             args = request.POST.getlist('arguments_tdg')
+            args_copy = deepcopy(args)
             args = json.loads(args[0])
             
             # Make arguments consistent with where data is stored on the
@@ -63,7 +65,7 @@ def tdg_handler(request):
                 args[2] = ''.join([settings.DATA_PATH, 'templates/', args[2]])
                 args[3] = ''.join([settings.DATA_PATH,'bal_count_tot/',args[3]])
             P = TDG.ProvideRandomBallots(args)  # Make a file
-            return HttpResponse()      
+            return HttpResponse()
         # Check to see if client wants to delete file(s)
         elif request.POST.has_key('delete'):
             delete_files(request.POST.getlist('delete'))
@@ -108,7 +110,7 @@ def merge_handler(request):
             fname = args[3]
             args[3] = ''.join([settings.DATA_PATH, 'tab_aggr/', args[3]])
 
-            m = merger.Merger(args[0], args[1], args[2], args[3])
+            m = merger.Merger(*args)
             if m.validate() == True:
                 m.merge(args[3])
             return HttpResponse()
