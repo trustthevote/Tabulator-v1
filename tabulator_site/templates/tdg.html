@@ -82,6 +82,7 @@
         // user confirmed the overwrite, then post
         // arguments to the server.
         args = JSON.stringify(args)
+		$("*").css("cursor", "wait");
         $.post("{{ ROOT }}tdg", {'arguments_tdg':args}, function() {
             location.reload(true);
         });

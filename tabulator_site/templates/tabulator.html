@@ -17,9 +17,11 @@
         template = $("#templateFiles > option[index="+idx+"]").attr("value");        
         idx = $("#mergedFiles").attr("selectedIndex");
         fname = $("#mergedFiles > option[index="+idx+"]").attr("value");        
-        $.post("{{ ROOT }}tabulator", {'arguments':[fname, template]}, function() {
-            location.reload(true);
-        });
+		
+		$("*").css("cursor", "wait");
+		$.post("{{ ROOT }}tabulator", {'arguments':[fname, template]}, function() {
+			location.reload(true);
+		});
     });
 {% endblock javascript %}
 
