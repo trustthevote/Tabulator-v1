@@ -156,9 +156,9 @@ class ProvideRandomBallots(object):
                             cand['count'] = random.randint(r_min, r_max)
                         cont['total_votes'] += cand['count']
                     cont['uncounted_ballots']['blank_votes'] = \
-                     random.randint(r_min,r_max)
+                     random.randint(1,10)
                     cont['uncounted_ballots']['over_votes'] = \
-                     random.randint(r_min,r_max)
+                     random.randint(1,10)
 
                 # Generate a random polling type for this session
                 r = random.randint(0,3)
