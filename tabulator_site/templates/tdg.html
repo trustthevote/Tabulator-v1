@@ -19,8 +19,6 @@
 {% endblock css %}
 
 {% block javascript %}
-	console.log({{last_args}})
-
     //Hide or show the appropriate fields when the user
     // chooses to generate either a jurisdiction/contestlist or
     // random vote counts within the tdg.
@@ -71,18 +69,18 @@
 
         val = $("[name='options'][type='radio']:checked").attr("value");
         if( val == "range" ) {
-			upper = $("#dataUpperBound").attr("value")
-			args.push("+" + upper)
-		}
+            upper = $("#dataUpperBound").attr("value")
+            args.push("+" + upper)
+        }
         else if( val == "allOnes" ) {
-			args.push("-1");
-		}
+            args.push("-1");
+        }
 
         //If the filename was not already in use, or the
         // user confirmed the overwrite, then post
         // arguments to the server.
         args = JSON.stringify(args)
-		$("*").css("cursor", "wait");
+        $("*").css("cursor", "wait");
         $.post("{{ ROOT }}tdg", {'arguments_tdg':args}, function() {
             location.reload(true);
         });
