@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block javascript %}
+    // Handle collapseable text functionality
     $("a").click( function() {
         $(this).parent().children("ul").toggle("slow");
         if( $(this).html().indexOf('▼') != -1 ) {
@@ -9,6 +10,13 @@
         else {
             $(this).html($(this).html().replace('▶', '▼'));
         }
+    });
+    
+    // Handle a click of the download button
+    $("#download").click( function() {
+		absolutePath = "{{ ROOT }}".substring(0,"{{ROOT}}".length-1) + window.location.pathname;
+        //$("form").attr('action','/search/plot/png/').submit().attr('action','/search/plot/svg/')
+        $.post(absolutePath, {'get_file':''}, function(){}, "text" );
     });
 {% endblock javascript %}
 
@@ -29,6 +37,7 @@
             padding:5px;
             width:200px;
             cursor:pointer;
+            float:right;
         }
 
         li, ul {
@@ -56,4 +65,6 @@
     </style>
 {% endblock css %}
 
-    <!--<button id="download" value="Download">Download Files</button>-->
+{% block content %}
+    <button id="download" value="Download">Download File</button>
+{% endblock content %}

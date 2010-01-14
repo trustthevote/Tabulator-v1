@@ -160,21 +160,28 @@ def tdg_file_handler(request, fname):
      that it displays correctly as html, and render it.
     """
 
+    if os.listdir(''.join([settings.DATA_PATH, 'templates/'])).count(fname) == 1:
+        fpath = '%stemplates/%s' % (settings.DATA_PATH,fname)
+    else:
+        fpath = '%sbal_count_tot/%s' % (settings.DATA_PATH,fname)
+
     # Check to see if the client is posting data
     if request.method == 'POST':
         # Check to see if the client wants to log the user out
         if request.POST.has_key('logout_user'):
             logout(request)
             return HttpResponse()
-    if os.listdir(''.join([settings.DATA_PATH, 'templates/'])).count(fname) == 1:
-        fpath = '%stemplates/%s' % (settings.DATA_PATH,fname)
+        if request.POST.has_key('get_file'):
+            response = HttpResponse(open(fpath, 'r'), mimetype="text/plain")
+            response['Content-Disposition'] = \
+             ''.join(['attachment; filename=', fname])
+            return response
     else:
-        fpath = '%sbal_count_tot/%s' % (settings.DATA_PATH,fname)
-    with open(fpath, 'r') as stream:
-        lines = stream.readlines()    
-    c = Context({'lines':mark_up(lines)})
-    return render_to_response('tdg_file.html', c,
-     context_instance=RequestContext(request, processors=[settings_processor]))
+        with open(fpath, 'r') as stream:
+            lines = stream.readlines()    
+        c = Context({'lines':mark_up(lines)})
+        return render_to_response('tdg_file.html', c,
+         context_instance=RequestContext(request, processors=[settings_processor]))
 
 @login_required
 def merge_file_handler(request, fname):
