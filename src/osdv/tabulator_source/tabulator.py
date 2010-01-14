@@ -144,6 +144,7 @@ class Tabulator(object):
          to a file.
         """
 
+        # Open and initialize the files that will be written to
         stream = open(''.join([self.input, '_report.csv']), 'w')
         stream.write(self.header)
         if self.input.rfind('/') != -1:
@@ -152,16 +153,14 @@ class Tabulator(object):
             fname = self.input
         stream.write('Input BallotInfo File, %s.yaml,\n' % fname)
         stream.write(',,\n')
-
         s_pvt = open(''.join([self.input,'_report_pvt.csv']), 'w')
         s_pvt.write(self.header)
         s_pvt.write('Contest,Precinct,Type,Name,Party,Count,\n')
-
         s_html = open(''.join([self.input,'_report.html']), 'w')
 
         # Output voter turnout information first
         stream.write(',,Turnout,\n')
-        stream.write(',,Reg. Voters,Cards Cast,%Turnout,\n')
+        stream.write(',,Reg. Voters,Cards Cast,\n')
         s_html.write('\n'.join(['<table>',
          '<tr><td class="contest">TURNOUT</td></tr>', '<tr class="header">',
          '<td></td>', '<td><span>Reg. Voters</span></td>',
@@ -176,16 +175,14 @@ class Tabulator(object):
                 num_voters = prec['registered_voters']
                 cards_cast = 200  # A hardcoded dummy value
                 turnout = (float(cards_cast))/num_voters * 100
-                d_name = prec['display_name']
+                prec_name = prec['display_name']
 
-                stream.write(',%s,%d,%d,%.2f,\n' % 
-                 (type, num_voters, cards_cast, turnout) )
+                stream.write(',%s,%d,%d,\n' % 
+                 (type, num_voters, cards_cast) )
                 s_pvt.write('*TURNOUT,%d,%s,Reg. Voters,,%d,\n' %
-                 (d_name, type, num_voters) )
+                 (prec_name, type, num_voters) )
                 s_pvt.write('*TURNOUT,%d,%s,Cards Cast,,%d,\n' %
-                 (d_name, type, cards_cast) )
-                s_pvt.write('*TURNOUT,%d,%s,%% Turnout,,%.2f,\n' %
-                 (d_name, type, turnout) )
+                 (prec_name, type, cards_cast) )
                 s_html.write('\n'.join(['<tr>',
                  '<td>&nbsp;&nbsp;&nbsp;&nbsp;%s</td>' % type,
                  '<td>%d</td>' % num_voters, '<td>%d</td>' % cards_cast,
