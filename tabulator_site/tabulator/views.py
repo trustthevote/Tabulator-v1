@@ -171,11 +171,6 @@ def tdg_file_handler(request, fname):
         if request.POST.has_key('logout_user'):
             logout(request)
             return HttpResponse()
-        if request.POST.has_key('get_file'):
-            response = HttpResponse(open(fpath, 'r'), mimetype="text/plain")
-            response['Content-Disposition'] = \
-             ''.join(['attachment; filename=', fname])
-            return response
     else:
         with open(fpath, 'r') as stream:
             lines = stream.readlines()    
@@ -244,6 +239,33 @@ def tab_file_handler(request, fname):
     c = Context({'lines':formatted_lines})
     return render_to_response('tab_file.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))
+
+@login_required
+def download_handler(request, file_and_parent):
+    """
+    Handle a request to download a file
+    """
+
+    fp = file_and_parent
+    parent = fp[:fp.rfind('/')]
+    fname = fp[fp.find('/') + 1:]
+    if parent == 'templates' and \
+     fname not in os.listdir(''.join([settings.DATA_PATH, parent])):
+        fp = '%s/%s' % ('bal_count_tot', fname)
+        
+    # Return a response consistent with the type of file to download
+    print fp
+    path = ''.join([settings.DATA_PATH, fp])
+    if fname.rfind('.csv') != -1:
+        response = HttpResponse(open(path, 'r'), mimetype="text/csv")
+    elif fname.rfind('.xml') != -1:
+        response = HttpResponse(open(path, 'r'), mimetype="text/xml")
+    elif fname.rfind('.html') != -1:
+        response = HttpResponse(open(path, 'r'), mimetype="text/html")
+    else:
+        response = HttpResponse(open(path, 'r'), mimetype="text/plain")
+    response['Content-Disposition'] = ''.join(['attachment; filename=', fname])
+    return response
 
 def indent( str ):
     """

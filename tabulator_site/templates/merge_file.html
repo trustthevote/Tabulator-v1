@@ -1,5 +1,12 @@
 {% extends "files.html" %}
 
+{% block javascript %}
+	{{ block.super }}
+	path = window.location.pathname;
+	//Give the download link a redirect to the currently displayed file
+    $("#downloadLink").attr("href", "/download/tab_aggr/" + path.substring(path.indexOf("/merge/") + 7, path.length));
+{% endblock javascript %}
+
 {% block css %}
     {{ block.super }}
     <style type="text/css">

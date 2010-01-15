@@ -1,5 +1,12 @@
 {% extends "files.html" %}
 
+{% block javascript %}
+	{{ block.super }}
+	path = window.location.pathname;
+	//Give the download link a redirect to the currently displayed file
+    $("#downloadLink").attr("href", "/download/reports" + path.substring(path.indexOf("/tabulator/") + 10, path.length));
+{% endblock javascript %}
+
 {% block menu %}
     <li id="dataTab"><a href='' class="tab">Data</a></li>
 {% endblock menu %}

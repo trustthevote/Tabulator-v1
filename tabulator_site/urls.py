@@ -16,7 +16,8 @@ urlpatterns = patterns('',
     (r'^tabulator/?$', 'tabulator.views.tab_handler'),
     (r'^data/tdg/(?P<fname>.*)$', 'tabulator.views.tdg_file_handler'),
     (r'^data/merge/(?P<fname>.*)$', 'tabulator.views.merge_file_handler'),
-    (r'^data/tabulator/(?P<fname>.*)$', 'tabulator.views.tab_file_handler'),    
+    (r'^data/tabulator/(?P<fname>.*)$', 'tabulator.views.tab_file_handler'),
+    (r'^download/(?P<file_and_parent>.*)$', 'tabulator.views.download_handler'),
     # Uncomment the admin/doc line below and add 'django.contrib.admindocs' 
     # to INSTALLED_APPS to enable admin documentation:
     # (r'^admin/doc/', include('django.contrib.admindocs.urls')),

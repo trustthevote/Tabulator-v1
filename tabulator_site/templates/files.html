@@ -11,12 +11,6 @@
             $(this).html($(this).html().replace('▶', '▼'));
         }
     });
-    
-    // Handle a click of the download button
-    $("#download").click( function() {
-        absolutePath = "{{ ROOT }}".substring(0,"{{ROOT}}".length-1) + window.location.pathname;
-        $.post(absolutePath, {'get_file':''}, function(){}, "text" );
-    });
 {% endblock javascript %}
 
 {% block css %}    
@@ -65,5 +59,5 @@
 {% endblock css %}
 
 {% block content %}
-    <button id="download" value="Download">Download File</button>
+    <a id="downloadLink"><button id="download" value="Download">Download File</button></a>
 {% endblock content %}
