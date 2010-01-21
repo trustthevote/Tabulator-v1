@@ -20,12 +20,12 @@
         $("[type='checkbox']:checked").each(function() {
             this.checked = false; //Uncheck checked boxes
             fName = $(this).attr("name");
-            $("tr[name="+fName+"] > .boxCell").addClass("hide");
-            $("tr[name="+fName+"] > .labelCell").addClass("noDisplay");
-            $("tr[name="+fName+"] > .typeCell").addClass("noDisplay");
-            $("tr[name="+fName+"] > .linkCell").addClass("noDisplay");
-            $("tr[name="+fName+"] > .inputCell").removeClass("noDisplay");
-            $("tr[name="+fName+"] > .buttonCell").removeClass("noDisplay");
+            $("tr[name='" + fName + "'] > .boxCell").addClass("hide");
+            $("tr[name='" + fName + "'] > .labelCell").addClass("noDisplay");
+            $("tr[name='" + fName + "'] > .typeCell").addClass("noDisplay");
+            $("tr[name='" + fName + "'] > .linkCell").addClass("noDisplay");
+            $("tr[name='" + fName + "'] > .inputCell").removeClass("noDisplay");
+            $("tr[name='" + fName + "'] > .buttonCell").removeClass("noDisplay");
         });
     });
 
@@ -34,26 +34,26 @@
     $(".renDone").click( function() {
         //Gather the original filename and the new filename.
         oldName = $(this).attr("name");
-        newName = $("tr[name="+oldName+"] > .inputCell > input").attr("value");
+        newName = $("tr[name='" + oldName + "'] > .inputCell > input").attr("value");
 
         if(!(oldName == newName)) {
             //Change some names/values of corresponding HTML elements
-            $("label[innerHTML="+oldName+"]").attr({innerHTML: newName});
+            $("label[innerHTML='" + oldName + "']").attr({innerHTML: newName});
             $("td.linkCell > a").attr("href", $("td.linkCell > a").attr("href").replace(oldName, newName));
-            $("[name="+oldName+"]").attr("name", newName);
-            $("[id="+oldName+"]").attr({id:newName});
+            $("[name='" + oldName + "']").attr("name", newName);
+            $("[id='" + oldName + "']").attr({id:newName});
 
             //Update the server
             $.post("{{ ROOT }}tdg", {'old_name':oldName, 'new_name':newName});
         }
 
         //Remove the textbox and button, restore the checkbox and links.
-        $("tr[name="+newName+"] > .boxCell").removeClass("hide");
-        $("tr[name="+newName+"] > .labelCell").removeClass("noDisplay");
-        $("tr[name="+newName+"] > .typeCell").removeClass("noDisplay");
+        $("tr[name='" + newName + "'] > .boxCell").removeClass("hide");
+        $("tr[name='" + newName + "'] > .labelCell").removeClass("noDisplay");
+        $("tr[name='" + newName + "'] > .typeCell").removeClass("noDisplay");
         $("td.linkCell > a").attr("href", $("td.linkCell > a").attr("href").replace(oldName, newName));
-        $("tr[name="+newName+"] > .inputCell").addClass("noDisplay");
-        $("tr[name="+newName+"] > .buttonCell").addClass("noDisplay");
+        $("tr[name='" + newName + "'] > .inputCell").addClass("noDisplay");
+        $("tr[name='" + newName + "'] > .buttonCell").addClass("noDisplay");
     });
 {% endblock tdg_tab_js %}
 

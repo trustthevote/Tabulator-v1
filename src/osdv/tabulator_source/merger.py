@@ -144,27 +144,34 @@ class Merger(object):
          contain less.
         """
 
-        election_keys = ['election_name', 'contests', 'type', 'vote_type',
+        election_keys = ['display_name', 'contest_list', 'type', 'vote_type',
          'prec_id', 'number_of_precincts', 'registered_voters']
-        templ_contest_keys = ['contest_id', 'display_name', 'candidates', 'district_id']
-        bct_contest_keys = ['contest_id', 'display_name', 'voting_method_id',
-         'candidates', 'district_id', 'uncounted_ballots', 'total_votes']
+        juris_keys = election_keys + ['jurisdiction_display_name']
+        templ_contest_keys = ['contest_id', 'display_name', 'candidates',
+         'district_id']
+        contest_keys = templ_contest_keys + \
+         ['voting_method_id', 'uncounted_ballots', 'total_votes']
         candidate_keys = ['count', 'display_name', 'ident', 'party_id']
+        templ_candidate_keys = ['display_name', 'ident', 'party_id']
         ub_keys = ['blank_votes', 'over_votes']
         for file in ([self.e], self.b1, self.b2):
             if not isinstance(file, list):
                 return False
             for elec in file:
-                if not self.has_only_keys(elec, election_keys):
-                    return False                
-                if not isinstance(elec['contests'], list):
+                if elec['type'] == 'jurisdiction_slate':
+                    if not self.has_only_keys(elec, juris_keys):
+                        return False                
+                else:
+                    if not self.has_only_keys(elec, election_keys):
+                        return False
+                if not isinstance(elec['contest_list'], list):
                     return False
-                for contest in elec['contests']:
+                for contest in elec['contest_list']:
                     if file == [self.e]:
                         if not self.has_only_keys(contest, templ_contest_keys):
                             return False
                     else:
-                        if not self.has_only_keys(contest, bct_contest_keys):
+                        if not self.has_only_keys(contest, contest_keys):
                             return False
                         if not self.has_only_keys(contest['uncounted_ballots'],
                          ub_keys):
@@ -172,8 +179,13 @@ class Merger(object):
                     if not isinstance(contest['candidates'], list):
                         return False
                     for candidate in contest['candidates']:
-                        if not self.has_only_keys(candidate, candidate_keys):
-                            return False
+                        if file == [self.e]:
+                            if not self.has_only_keys(candidate, 
+                             templ_candidate_keys):
+                                return False
+                        else:
+                            if not self.has_only_keys(candidate,candidate_keys):
+                                return False
         return True
 
     def has_only_keys(self, d, key_list):        
@@ -201,7 +213,7 @@ class Merger(object):
         
         for file in ([self.e], self.b1, self.b2):
             for election in file:
-                if not isinstance(election['election_name'], str):
+                if not isinstance(election['display_name'], str):
                     return False
                 if file == [self.e]:
                     if election['type'] != 'precinct_contestlist' and \
@@ -211,7 +223,7 @@ class Merger(object):
                     if election['type'] != 'ballot_counter_total' and \
                      election['type'] != 'tabulator_aggregation':                        
                         return False
-                    if not isinstance(election['election_name'], str):
+                    if not isinstance(election['display_name'], str):
                         return False
                     if not isinstance(election['number_of_precincts'], int):
                         return False
@@ -222,7 +234,7 @@ class Merger(object):
                     if not isinstance(election['vote_type'], str):
                         return False
 
-                for contest in election['contests']:
+                for contest in election['contest_list']:
                     if file != [self.e]:
                         if not isinstance(contest['voting_method_id'], str):
                             return False
@@ -239,10 +251,11 @@ class Merger(object):
                     if not isinstance(contest['display_name'], str): 
                         return False
                     for candidate in contest['candidates']:
-                        if not isinstance(candidate['count'], int):
-                            return False
-                        if not candidate['count'] >= 0:
-                            return False
+                        if file != [self.e]:
+                            if not isinstance(candidate['count'], int):
+                                return False
+                            if not candidate['count'] >= 0:
+                                return False
                         if not isinstance(candidate['display_name'], str):
                             return False
                         if not isinstance(candidate['ident'], str):
@@ -262,18 +275,19 @@ class Merger(object):
         #  false.
         for file in (self.b1, self.b2):
             for b in file:
-                if b['election_name'] != self.e['election_name']:
+                if b['display_name'] != self.e['display_name']:
                     return False
                 id_list = []
-                for elec_cont in self.e['contests']:
+                for elec_cont in self.e['contest_list']:
                     id_list.append(elec_cont['contest_id'])
-                for bal_cont in b['contests']:
+                for bal_cont in b['contest_list']:
                     if id_list.count(bal_cont['contest_id']) == 0:
                         return False
                     else:
-                        if not self.match_contest(bal_cont, self.e['contests'] \
+                        if not self.match_contest(bal_cont, 
+                         self.e['contest_list']
                          [id_list.index(bal_cont['contest_id'])]):
-                             return False
+                            return False
         return True
 
     def match_contest(self, cont1, cont2):

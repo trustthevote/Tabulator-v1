@@ -46,7 +46,8 @@
             alert("Please provide an output file name");
             return;
         }
-        if($("[name='+fname+']").length != 0) {
+        
+        if($("[name='" + fname + "']").length != 0) {
             if( !(confirm("Overwrite file " + fname + "?")) ) {
                 return;
             }

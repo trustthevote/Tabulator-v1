@@ -54,7 +54,6 @@ def tdg_handler(request):
         if request.POST.has_key('arguments_tdg'):
             # Get and deserialize the users arguments from JSON
             args = request.POST.getlist('arguments_tdg')
-            args_copy = deepcopy(args)
             args = json.loads(args[0])
             
             # Make arguments consistent with where data is stored on the
@@ -62,6 +61,7 @@ def tdg_handler(request):
             if args[0] == 'jurisdiction' or args[0] == 'contestlist':
                 args[1] = ''.join([settings.DATA_PATH, 'templates/', args[1]])
             elif args[0] == 'counts':
+                print args
                 args[2] = ''.join([settings.DATA_PATH, 'templates/', args[2]])
                 args[3] = ''.join([settings.DATA_PATH,'bal_count_tot/',args[3]])
             P = TDG.ProvideRandomBallots(args)  # Make a file

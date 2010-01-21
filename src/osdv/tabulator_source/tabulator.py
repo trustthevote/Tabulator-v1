@@ -94,8 +94,8 @@ class Tabulator(object):
                 sum_list[prec]['Other'] = {}
                 sum_list[prec]['Totals'] = {}
             # Iterate through all of the contests in the given record
-            for i in range(len(rec['contests'])):
-                cont = rec['contests'][i]
+            for i in range(len(rec['contest_list'])):
+                cont = rec['contest_list'][i]
                 co_name = cont['contest_id']
                 # Make a set of keys for the given contest if they don't
                 #  yet exist for the current prec and type
@@ -198,7 +198,7 @@ class Tabulator(object):
                     {'display_name':'*BLANK','party_id':''},
                     {'display_name':'*OVER','party_id':''}]
 
-        for cont in self.templ['contests']:
+        for cont in self.templ['contest_list']:
             co_name = cont['contest_id']
             stream.write('\n,,%s,\n' % cont['display_name'].upper())
             stream.write(',,Reg. Voters,Times Counted,Total Votes,')

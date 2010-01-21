@@ -51,7 +51,9 @@ class ProvideRandomBallots(object):
                          'TTV Tabulator 0.1 JUL-1-2008', [])
             b = self.make_juris()
             b['type'] = 'jurisdiction_slate'
-
+            b['jurisdiction_display_name'] = \
+             args[1][args[1].rfind('/') + 1:len(args[1])].encode("ascii")
+        
             # Dump output into a file in yaml format
             with open(''.join([args[1],'.yaml']), 'w') as stream:
                 stream.write(a.serialize_yaml())
@@ -116,16 +118,17 @@ class ProvideRandomBallots(object):
             for i in range(int(args[1])):
                 b = {}
                 for key in e.keys():
-                    if key != 'contests' and key != 'precinct_list':
+                    if key not in ['contest_list', 'precinct_list',
+                     'jurisdiction_display_name']:
                         b[key] = e[key]
-                b['contests'] = []
+                b['contest_list'] = []
                 b['type'] = 'ballot_counter_total'
                 prec_num = random.randint(1,8)
                 b['prec_id'] = ''.join(['PREC-',str(prec_num)])
                 if e.has_key('precinct_list'):
                     b['registered_voters'] = \
                      e['precinct_list'][prec_num-1]['registered_voters']
-                for j in range(len(e['contests'])):
+                for j in range(len(e['contest_list'])):
                     # If the template was a jurisdiction_slate, then
                     #  do not include contests that were not generated
                     #  in a district in this precinct.
@@ -135,13 +138,13 @@ class ProvideRandomBallots(object):
                             if prec['prec_id'] == b['prec_id']:
                                 for dist in prec['districts']:
                                     if dist['ident'] == \
-                                     e['contests'][j]['district_id']:
+                                     e['contest_list'][j]['district_id']:
                                         valid_contest = True
                                         break
                         if not valid_contest:
                             continue
-                    b['contests'].append(copy.deepcopy(e['contests'][j]))
-                    cont = b['contests'][-1]
+                    b['contest_list'].append(copy.deepcopy(e['contest_list'][j]))
+                    cont = b['contest_list'][-1]
                     if not cont.has_key('total_votes'):
                         cont['total_votes'] = 0
                         cont['uncounted_ballots'] = {}
@@ -256,16 +259,16 @@ class ProvideRandomBallots(object):
 
         # Make the election headliner some random presidential election
         r = random.randint(0,3)
-        b['election_name'] = ''.join([str(r*4+2000),' Presidential'])
+        b['display_name'] = ''.join([str(r*4+2000),' Presidential'])
         b['number_of_precincts'] = 0
         b['vote_type'] = 'NULL'
         b['prec_id'] = 'NULL'
         b['registered_voters'] = 0
         
         # Generate a few contests
-        b['contests'] = []
+        b['contest_list'] = []
         for i in range(10):
-            b['contests'].append(self.random_contest())            
+            b['contest_list'].append(self.random_contest())            
         return b
 
     def random_contest(self):
@@ -345,10 +348,6 @@ class ProvideRandomBallots(object):
         """
         
         cand = {}
-        
-        # Count just gets a null value, since it is irrelevant to the
-        #  specs generated here.
-        cand['count'] = 0
         
         # If the "candidate" to be generated is just a placeholder for
         #  write-in candidates, then use some hardcoded field values
@@ -439,4 +438,3 @@ def main():
     return 0
     
 if __name__ == '__main__': main()
-
