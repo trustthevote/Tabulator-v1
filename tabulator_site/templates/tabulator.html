@@ -10,19 +10,38 @@
 {% endblock css %}
 
 {% block javascript %}
+    refreshCurrentCommand();
+    
     //Post file generation arguments to the server when the
     // user clicks the "run" button.
     $("#argsButton").click( function() {
+		$("*").css("cursor", "wait");
+		$.post("{{ ROOT }}tabulator", {'arguments': getArgList()}, function() {
+			location.reload(true);
+		});
+    });
+
+	//Gather a list of arguments
+	function getArgList() {
         idx = $("#templateFiles").attr("selectedIndex");
         template = $("#templateFiles > option[index="+idx+"]").attr("value");        
         idx = $("#mergedFiles").attr("selectedIndex");
         fname = $("#mergedFiles > option[index="+idx+"]").attr("value");        
-		
-		$("*").css("cursor", "wait");
-		$.post("{{ ROOT }}tabulator", {'arguments':[fname, template]}, function() {
-			location.reload(true);
-		});
-    });
+
+		args = new Array();
+		args = [fname, template];
+
+        return args;
+    }
+    
+	$("#templateFiles").change(function(){refreshCurrentCommand();});
+	$("#mergedFiles").change(function(){refreshCurrentCommand();});
+	
+	//Recalculate and display the list of arguments that will be sent to
+	// the server on a click of the run button.
+	function refreshCurrentCommand() {
+		$("#currentArgs").attr("value", "tabulator " + getArgList().join(" "));
+	}
 {% endblock javascript %}
 
 {% block main %}
@@ -49,6 +68,7 @@
                     {% endfor %}
                 {% endif %}
             </select></div>
+        <div><label>Current command:</label><input type="text" id="currentArgs" READONLY/></div>
         <input type="submit" value="Run" id="argsButton" />
         </div>        
     </div>

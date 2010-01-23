@@ -55,6 +55,7 @@
         $("tr[name='" + newName + "'] > .inputCell").addClass("noDisplay");
         $("tr[name='" + newName + "'] > .buttonCell").addClass("noDisplay");
     });
+    
 {% endblock tdg_tab_js %}
 
 {% block css %}
@@ -83,5 +84,7 @@
         }
         
         #delButton { margin: 3px }
+        
+        #currentArgs { width: 30em }
     </style>
 {% endblock css %}

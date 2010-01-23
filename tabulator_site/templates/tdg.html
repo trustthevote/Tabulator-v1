@@ -19,10 +19,13 @@
 {% endblock css %}
 
 {% block javascript %}
+    refreshCurrentCommand();
+    
     //Hide or show the appropriate fields when the user
     // chooses to generate either a jurisdiction/contestlist or
     // random vote counts within the tdg.
     $("#genMode").change( function() {
+		refreshCurrentCommand();
         idx = $("#genMode").attr("selectedIndex");
         val = $("#genMode > option[index="+idx+"]").attr("value");
         if(val=="jurisdiction" || val=="contestlist") {
@@ -36,8 +39,6 @@
     //Post file generation arguments to the server when the
     // user clicks the "run" button.
     $("#argsButton").click( function() {
-        args = new Array();
-
         //Check to see if the user gave an output filename
         // that is already in use. If so, then prompt to
         // confirm overwrite. Also check for a null filename.
@@ -53,10 +54,24 @@
             }
         }
 
-        //Gather a list of arguments, the size of which
-        // depends on the type of data to generate.
+        //If the filename was not already in use, or the
+        // user confirmed the overwrite, then post
+        // arguments to the server.
+        args = JSON.stringify(getArgList());
+        $("*").css("cursor", "wait");
+        $.post("{{ ROOT }}tdg", {'arguments_tdg':args}, function() {
+            location.reload(true);
+        });
+    });
+
+	//Gather a list of arguments, the size of which
+	// depends on the type of data to generate.
+	function getArgList() {
+        args = new Array();
+
         idx = $("#genMode").attr("selectedIndex");
         val = $("#genMode > option[index="+idx+"]").attr("value");
+        fname = $("#outputFilename").attr("value");
         args.push(val);
         if( (val=="jurisdiction") || (val=="contestlist") ) {
             args.push(fname);
@@ -70,22 +85,28 @@
 
         val = $("[name='options'][type='radio']:checked").attr("value");
         if( val == "range" ) {
-            upper = $("#dataUpperBound").attr("value")
-            args.push("+" + upper)
+            upper = $("#dataUpperBound").attr("value");
+            args.push("+" + upper);
         }
         else if( val == "allOnes" ) {
             args.push("-1");
         }
-
-        //If the filename was not already in use, or the
-        // user confirmed the overwrite, then post
-        // arguments to the server.
-        args = JSON.stringify(args)
-        $("*").css("cursor", "wait");
-        $.post("{{ ROOT }}tdg", {'arguments_tdg':args}, function() {
-            location.reload(true);
-        });
-    });
+        
+        return args;
+    }
+    
+	$("#outputFilename").keyup(function(){refreshCurrentCommand();});
+	$("#howMany").keyup(function(){refreshCurrentCommand();});
+	$("#templateFile").change(function(){refreshCurrentCommand();});
+	$("#add").change(function(){refreshCurrentCommand();});
+	$("#dataUpperBound").keyup(function(){refreshCurrentCommand();});
+	$("[name=options]").click(function(){refreshCurrentCommand();});
+	
+	//Recalculate and display the list of arguments that will be sent to
+	// the server on a click of the run button.
+	function refreshCurrentCommand() {
+		$("#currentArgs").attr("value", "test_data_generator " + getArgList().join(" "));
+	}
     
 {% endblock javascript %}
 
@@ -118,6 +139,7 @@
                     <input type="text" id="dataUpperBound" /><br />
                 <input type="radio" class="posiLeft" name="options" value="allOnes" /> Make all generated vote count values = 1<br />
             </div>
+            <div><label>Current command:</label><input type="text" id="currentArgs" READONLY/></div>
             <input type="submit" value="Run" id="argsButton" />
         </div>
     </div>

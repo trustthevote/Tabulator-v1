@@ -10,6 +10,8 @@
 {% endblock css %}
 
 {% block javascript %}
+    refreshCurrentCommand();
+    
     //Post file generation arguments to the server when the
     // user clicks the "run" button.
     $("#argsButton").click( function() {
@@ -27,7 +29,20 @@
             }
         }
 
-        args = new Array();
+        //If the filename was not already in use, or the
+        // user confirmed the overwrite, then post
+        // arguments to the server.
+        args = JSON.stringify(getArgList())
+		$("*").css("cursor", "wait");
+        $.post("{{ ROOT }}merger", {'arguments':args}, function() {
+            location.reload(true);
+        });
+    });
+
+	//Gather a list of arguments
+	function getArgList() {
+		args = new Array();
+        fname = $("#mergeName").attr("value");
         idx = $("#templateFile").attr("selectedIndex");
         args.push($("#templateFile > option[index="+idx+"]").attr("value"));
         idx = $("#inputFile1").attr("selectedIndex");
@@ -35,16 +50,19 @@
         idx = $("#inputFile2").attr("selectedIndex");
         args.push($("#inputFile2 > option[index="+idx+"]").attr("value"));
         args.push(fname);
-
-        //If the filename was not already in use, or the
-        // user confirmed the overwrite, then post
-        // arguments to the server.
-        args = JSON.stringify(args)
-		$("*").css("cursor", "wait");
-        $.post("{{ ROOT }}merger", {'arguments':args}, function() {
-            location.reload(true);
-        });
-    });
+        return args;
+    }
+    
+	$("#templateFile").change(function(){refreshCurrentCommand();});
+	$("#inputFile1").change(function(){refreshCurrentCommand();});
+	$("#inputFile2").change(function(){refreshCurrentCommand();});
+	$("#mergeName").keyup(function(){refreshCurrentCommand();});
+	
+	//Recalculate and display the list of arguments that will be sent to
+	// the server on a click of the run button.
+	function refreshCurrentCommand() {
+		$("#currentArgs").attr("value", "merger " + getArgList().join(" "));
+	}
 {% endblock javascript %}
 
 {% block main %}
@@ -83,6 +101,7 @@
             </select></div>
             <div><label>Merged output file:</label>
             <input type="text" id="mergeName" class="argInputs" /></div>
+            <div><label>Current command:</label><input type="text" id="currentArgs" READONLY/></div>
             <input type="submit" value="Run" id="argsButton" />
         </div>
     </div>

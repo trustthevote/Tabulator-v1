@@ -386,10 +386,10 @@ class ProvideRandomBallots(object):
 def printUsage():
     print 'Usage: test_data_generator.py jurisdiction [OUTPUT ELECTION FILE]'
     print '   OR: test_data_generator.py contestlist [OUTPUT ELECTION FILE]'
-    print '   OR: test_data_generator.py counts [#  OF SAMPLES]'
+    print '   OR: test_data_generator.py counts [# OF SAMPLES]'
     print '       [INPUT ELECTION FILE] [OUTPUT SAMPLES FILE]'
-    print '   OR: test_data_generator.py counts [OPTION] [#  OF SAMPLES]'
-    print '       [INPUT ELECTION FILE] [OUTPUT SAMPLES FILE]'
+    print '   OR: test_data_generator.py counts [# OF SAMPLES]'
+    print '       [INPUT ELECTION FILE] [OUTPUT SAMPLES FILE] [OPTION]'
     print
     print
     print 'Where [OPTION] can consist of one of the following:'
