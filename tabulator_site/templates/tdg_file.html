@@ -1,9 +1,9 @@
 {% extends "files.html" %}
 
 {% block javascript %}
-	{{ block.super }}
-	path = window.location.pathname;
-	//Give the download link a redirect to the currently displayed file
+    {{ block.super }}
+    path = window.location.pathname;
+    //Give the download link a redirect to the currently displayed file
     $("#downloadLink").attr("href", "/download/templates/" + path.substring(path.indexOf("/tdg/") + 5, path.length));
 {% endblock javascript %}
 

@@ -19,13 +19,13 @@
 {% endblock css %}
 
 {% block javascript %}
-    refreshCurrentCommand();
-    
+    refreshCurrentCommand("test_data_generator");
+
     //Hide or show the appropriate fields when the user
     // chooses to generate either a jurisdiction/contestlist or
     // random vote counts within the tdg.
     $("#genMode").change( function() {
-		refreshCurrentCommand();
+        refreshCurrentCommand("test_data_generator");
         idx = $("#genMode").attr("selectedIndex");
         val = $("#genMode > option[index="+idx+"]").attr("value");
         if(val=="jurisdiction" || val=="contestlist") {
@@ -64,9 +64,9 @@
         });
     });
 
-	//Gather a list of arguments, the size of which
-	// depends on the type of data to generate.
-	function getArgList() {
+    //Gather a list of arguments, the size of which
+    // depends on the type of data to generate.
+    function getArgList() {
         args = new Array();
 
         idx = $("#genMode").attr("selectedIndex");
@@ -94,20 +94,13 @@
         
         return args;
     }
-    
-	$("#outputFilename").keyup(function(){refreshCurrentCommand();});
-	$("#howMany").keyup(function(){refreshCurrentCommand();});
-	$("#templateFile").change(function(){refreshCurrentCommand();});
-	$("#add").change(function(){refreshCurrentCommand();});
-	$("#dataUpperBound").keyup(function(){refreshCurrentCommand();});
-	$("[name=options]").click(function(){refreshCurrentCommand();});
-	
-	//Recalculate and display the list of arguments that will be sent to
-	// the server on a click of the run button.
-	function refreshCurrentCommand() {
-		$("#currentArgs").attr("value", "test_data_generator " + getArgList().join(" "));
-	}
-    
+
+    $("#outputFilename").keyup(function(){refreshCurrentCommand("test_data_generator");});
+    $("#howMany").keyup(function(){refreshCurrentCommand("test_data_generator");});
+    $("#templateFile").change(function(){refreshCurrentCommand("test_data_generator");});
+    $("#add").change(function(){refreshCurrentCommand("test_data_generator");});
+    $("#dataUpperBound").keyup(function(){refreshCurrentCommand("test_data_generator");});
+    $("[name=options]").click(function(){refreshCurrentCommand("test_data_generator");});
 {% endblock javascript %}
 
 {% block main %}
@@ -139,7 +132,8 @@
                     <input type="text" id="dataUpperBound" /><br />
                 <input type="radio" class="posiLeft" name="options" value="allOnes" /> Make all generated vote count values = 1<br />
             </div>
-            <div><label>Current command:</label><input type="text" id="currentArgs" READONLY/></div>
+            <div><label>Current command:</label><input type="text" id="currentArgs" READONLY/></input></div>
+            <div id="wTest" class="noDisplay"></div>
             <input type="submit" value="Run" id="argsButton" />
         </div>
     </div>

@@ -10,7 +10,7 @@
 {% endblock css %}
 
 {% block javascript %}
-    refreshCurrentCommand();
+    refreshCurrentCommand("merger");
     
     //Post file generation arguments to the server when the
     // user clicks the "run" button.
@@ -33,15 +33,15 @@
         // user confirmed the overwrite, then post
         // arguments to the server.
         args = JSON.stringify(getArgList())
-		$("*").css("cursor", "wait");
+        $("*").css("cursor", "wait");
         $.post("{{ ROOT }}merger", {'arguments':args}, function() {
             location.reload(true);
         });
     });
 
-	//Gather a list of arguments
-	function getArgList() {
-		args = new Array();
+    //Gather a list of arguments
+    function getArgList() {
+        args = new Array();
         fname = $("#mergeName").attr("value");
         idx = $("#templateFile").attr("selectedIndex");
         args.push($("#templateFile > option[index="+idx+"]").attr("value"));
@@ -53,16 +53,11 @@
         return args;
     }
     
-	$("#templateFile").change(function(){refreshCurrentCommand();});
-	$("#inputFile1").change(function(){refreshCurrentCommand();});
-	$("#inputFile2").change(function(){refreshCurrentCommand();});
-	$("#mergeName").keyup(function(){refreshCurrentCommand();});
-	
-	//Recalculate and display the list of arguments that will be sent to
-	// the server on a click of the run button.
-	function refreshCurrentCommand() {
-		$("#currentArgs").attr("value", "merger " + getArgList().join(" "));
-	}
+    $("#templateFile").change(function(){refreshCurrentCommand("merger");});
+    $("#inputFile1").change(function(){refreshCurrentCommand("merger");});
+    $("#inputFile2").change(function(){refreshCurrentCommand("merger");});
+    $("#mergeName").keyup(function(){refreshCurrentCommand("merger");});
+    
 {% endblock javascript %}
 
 {% block main %}
@@ -102,6 +97,7 @@
             <div><label>Merged output file:</label>
             <input type="text" id="mergeName" class="argInputs" /></div>
             <div><label>Current command:</label><input type="text" id="currentArgs" READONLY/></div>
+            <div id="wTest" class="noDisplay"></div>
             <input type="submit" value="Run" id="argsButton" />
         </div>
     </div>

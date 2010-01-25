@@ -56,6 +56,18 @@
         $("tr[name='" + newName + "'] > .buttonCell").addClass("noDisplay");
     });
     
+    //Recalculate and display the list of arguments that will be sent to
+    // the server on a click of the run button. Resize the textbox to
+    // the correct width.
+    function refreshCurrentCommand(appName) {
+        args = appName + " " + getArgList().join(" ")
+        $("#currentArgs").attr("value", args);
+        
+        $("#wTest").html(args);
+        $("#currentArgs").width( $( "#wTest").width()+5 );
+        console.log($( "#wTest").width());
+    }
+
 {% endblock tdg_tab_js %}
 
 {% block css %}
@@ -85,6 +97,6 @@
         
         #delButton { margin: 3px }
         
-        #currentArgs { width: 30em }
+        #currentArgs { max-width: 500px }
     </style>
 {% endblock css %}

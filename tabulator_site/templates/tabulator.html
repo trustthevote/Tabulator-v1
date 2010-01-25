@@ -10,38 +10,33 @@
 {% endblock css %}
 
 {% block javascript %}
-    refreshCurrentCommand();
+    refreshCurrentCommand("tabulator");
     
     //Post file generation arguments to the server when the
     // user clicks the "run" button.
     $("#argsButton").click( function() {
-		$("*").css("cursor", "wait");
-		$.post("{{ ROOT }}tabulator", {'arguments': getArgList()}, function() {
-			location.reload(true);
-		});
+        $("*").css("cursor", "wait");
+        $.post("{{ ROOT }}tabulator", {'arguments': getArgList()}, function() {
+            location.reload(true);
+        });
     });
 
-	//Gather a list of arguments
-	function getArgList() {
+    //Gather a list of arguments
+    function getArgList() {
         idx = $("#templateFiles").attr("selectedIndex");
         template = $("#templateFiles > option[index="+idx+"]").attr("value");        
         idx = $("#mergedFiles").attr("selectedIndex");
         fname = $("#mergedFiles > option[index="+idx+"]").attr("value");        
 
-		args = new Array();
-		args = [fname, template];
+        args = new Array();
+        args = [fname, template];
 
         return args;
     }
     
-	$("#templateFiles").change(function(){refreshCurrentCommand();});
-	$("#mergedFiles").change(function(){refreshCurrentCommand();});
-	
-	//Recalculate and display the list of arguments that will be sent to
-	// the server on a click of the run button.
-	function refreshCurrentCommand() {
-		$("#currentArgs").attr("value", "tabulator " + getArgList().join(" "));
-	}
+    $("#templateFiles").change(function(){refreshCurrentCommand("tabulator");});
+    $("#mergedFiles").change(function(){refreshCurrentCommand("tabulator");});
+
 {% endblock javascript %}
 
 {% block main %}
@@ -69,6 +64,7 @@
                 {% endif %}
             </select></div>
         <div><label>Current command:</label><input type="text" id="currentArgs" READONLY/></div>
+        <div id="wTest" class="noDisplay"></div>
         <input type="submit" value="Run" id="argsButton" />
         </div>        
     </div>

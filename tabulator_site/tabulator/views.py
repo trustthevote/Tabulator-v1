@@ -52,7 +52,7 @@ def tdg_handler(request):
     if request.method == 'POST':
         # Check to see if the client wants to generate a file
         if request.POST.has_key('arguments_tdg'):
-            # Get and deserialize the users arguments from JSON
+            # Get and deserialize the user's arguments from JSON
             args = request.POST.getlist('arguments_tdg')
             args = json.loads(args[0])
             
