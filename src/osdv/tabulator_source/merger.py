@@ -13,8 +13,8 @@ from __future__ import with_statement
 import yaml
 import sys
 import uuid
-from plistlib import writePlistToString as xmlSerialize
 
+from tabulator_source.xml_serializer import xml_serialize as xml_serialize
 import tabulator_source.audit_header as audit_header
 
 class Merger(object):
@@ -343,8 +343,7 @@ class Merger(object):
             stream.write(a.serialize_xml())
             for file in (self.b1, self.b2):
                 for record in file:
-                    stream.writelines(xmlSerialize(record)[173:]. \
-                        replace('\t', '    ').replace('\n</plist>', ''))
+                    stream.writelines(xml_serialize(record, 0))
 
 def main():
     # Output a usage message if incorrect number of command line args

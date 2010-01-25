@@ -13,8 +13,8 @@ from __future__ import with_statement
 import yaml
 import sys
 from datetime import date
-from plistlib import writePlistToString as xmlSerialize
 
+from tabulator_source.xml_serializer import xml_serialize as xml_serialize
 import tabulator_source.audit_header as audit_header
 
 class Tabulator(object):
@@ -61,8 +61,7 @@ class Tabulator(object):
 
         # Dump output into a file in XML file
         with open(''.join([self.input,'_report.xml']), 'w') as stream:
-            stream.writelines(xmlSerialize(b)[173:]. \
-                replace('\t', '    ').replace('\n</plist>', ''))
+            stream.writelines(xml_serialize(b, 0))
 
     def sumation(self):
         """

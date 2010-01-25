@@ -14,8 +14,8 @@ import yaml
 import sys
 import copy
 import uuid
-from plistlib import writePlistToString as xmlSerialize
 
+from tabulator_source.xml_serializer import xml_serialize as xml_serialize
 import audit_header
 
 class ProvideRandomBallots(object):
@@ -62,8 +62,7 @@ class ProvideRandomBallots(object):
             # Dump output into a file in XML file
             with open(''.join([args[1],'.xml']), 'w') as stream:
                 stream.write(a.serialize_xml())
-                stream.writelines(xmlSerialize(b)[173:]. \
-                    replace('\t', '    ').replace('\n</plist>', ''))
+                stream.writelines(xml_serialize(b, 0))
 
         elif self.type == 'contestlist':
         # Generate a sample election and output it to the location
@@ -87,8 +86,7 @@ class ProvideRandomBallots(object):
             # Dump output into a file in XML file
             with open(''.join([args[1], '.xml']), 'w') as stream:
                 stream.write(a.serialize_xml())
-                stream.writelines(xmlSerialize(b)[173:]. \
-                    replace('\t', '    ').replace('\n</plist>', ''))
+                stream.writelines(xml_serialize(b, 0))
 
         elif self.type == 'counts':
             # Extract and apply flags if there are any
@@ -191,8 +189,7 @@ class ProvideRandomBallots(object):
             with open(''.join([args[3],'.xml']), 'w') as stream:
                 stream.write(a.serialize_xml())
                 for record in b_list:
-                    stream.writelines(xmlSerialize(record)[173:]. \
-                        replace('\t', '    ').replace('\n</plist>', ''))
+                    stream.writelines(xml_serialize(record, 0))
         else:
             raise StandardError('Incorrect data generation type')
 
