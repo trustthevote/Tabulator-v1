@@ -20,11 +20,14 @@
 
 {% block javascript %}
     refreshCurrentCommand("test_data_generator");
+    hideOrShowFields();
 
+    $("#genMode").change( function() {hideOrShowFields()} );
+    
     //Hide or show the appropriate fields when the user
     // chooses to generate either a jurisdiction/contestlist or
     // random vote counts within the tdg.
-    $("#genMode").change( function() {
+    function hideOrShowFields() {
         refreshCurrentCommand("test_data_generator");
         idx = $("#genMode").attr("selectedIndex");
         val = $("#genMode > option[index="+idx+"]").attr("value");
@@ -34,7 +37,7 @@
         if(val=="counts") {
             $(".hideUs").removeClass('noDisplay');
         }
-    });
+    };
 
     //Post file generation arguments to the server when the
     // user clicks the "run" button.

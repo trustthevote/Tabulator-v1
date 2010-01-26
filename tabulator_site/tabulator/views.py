@@ -61,7 +61,6 @@ def tdg_handler(request):
             if args[0] == 'jurisdiction' or args[0] == 'contestlist':
                 args[1] = ''.join([settings.DATA_PATH, 'templates/', args[1]])
             elif args[0] == 'counts':
-                print args
                 args[2] = ''.join([settings.DATA_PATH, 'templates/', args[2]])
                 args[3] = ''.join([settings.DATA_PATH,'bal_count_tot/',args[3]])
             P = TDG.ProvideRandomBallots(args)  # Make a file
@@ -254,7 +253,6 @@ def download_handler(request, file_and_parent):
         fp = '%s/%s' % ('bal_count_tot', fname)
         
     # Return a response consistent with the type of file to download
-    print fp
     path = ''.join([settings.DATA_PATH, fp])
     if fname.rfind('.csv') != -1:
         response = HttpResponse(open(path, 'r'), mimetype="text/csv")
