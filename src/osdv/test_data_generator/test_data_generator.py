@@ -50,7 +50,6 @@ class ProvideRandomBallots(object):
                          'Pito Salas', 'TTV Tabulator TAB02', 
                          'TTV Tabulator 0.1 JUL-1-2008', [])
             b = self.make_juris()
-            b['type'] = 'jurisdiction_slate'
             b['jurisdiction_display_name'] = \
              args[1][args[1].rfind('/') + 1:len(args[1])].encode("ascii")
         
@@ -76,7 +75,6 @@ class ProvideRandomBallots(object):
                          'Pito Salas', 'TTV Tabulator TAB02', 
                          'TTV Tabulator 0.1 JUL-1-2008', [])
             b = self.random_elec()
-            b['type'] = 'precinct_contestlist'
 
             # Dump output into a file in yaml format
             with open(''.join([args[1],'.yaml']), 'w') as stream:
@@ -120,9 +118,8 @@ class ProvideRandomBallots(object):
                      'jurisdiction_display_name']:
                         b[key] = e[key]
                 b['contest_list'] = []
-                b['type'] = 'ballot_counter_total'
                 prec_num = random.randint(1,8)
-                b['prec_id'] = ''.join(['PREC-',str(prec_num)])
+                b['prec_ident'] = ''.join(['PREC-',str(prec_num)])
                 if e.has_key('precinct_list'):
                     b['registered_voters'] = \
                      e['precinct_list'][prec_num-1]['registered_voters']
@@ -133,10 +130,10 @@ class ProvideRandomBallots(object):
                     if e.has_key('precinct_list'):
                         valid_contest = False
                         for prec in e['precinct_list']:
-                            if prec['prec_id'] == b['prec_id']:
-                                for dist in prec['districts']:
+                            if prec['ident'] == b['prec_ident']:
+                                for dist in prec['district_list']:
                                     if dist['ident'] == \
-                                     e['contest_list'][j]['district_id']:
+                                     e['contest_list'][j]['district_ident']:
                                         valid_contest = True
                                         break
                         if not valid_contest:
@@ -148,7 +145,7 @@ class ProvideRandomBallots(object):
                         cont['uncounted_ballots'] = {}
                         cont['uncounted_ballots']['blank_votes'] = 0
                         cont['uncounted_ballots']['over_votes'] = 0
-                        cont['voting_method_id'] = ''.join(['VOTM-',
+                        cont['voting_method_ident'] = ''.join(['VOTM-',
                          str(random.randint(1,5))])
                     for cand in cont['candidates']:
                         if cand['display_name'] == 'Write-In Votes':
@@ -207,8 +204,8 @@ class ProvideRandomBallots(object):
             b['precinct_list'].append({})
             prec = b['precinct_list'][i - 1]
             prec['display_name'] = random.randint(1000,9999)
-            prec['prec_id'] = ''.join(['PREC-',str(i)])
-            prec['districts'] = []
+            prec['ident'] = ''.join(['PREC-',str(i)])
+            prec['district_list'] = []
             prec['voting places'] = []
             prec['voting places'].append({})
             prec['voting places'][0]['ballot_counters'] = random.randint(1,5)
@@ -222,21 +219,21 @@ class ProvideRandomBallots(object):
         n2 = 'Random Creek Drainage District'
         n3 = 'State House District 11'
         n4 = 'State House District 12'
-        l[0]['districts'].append({'display_name':n1, 'ident':'DIST-1'})
-        l[0]['districts'].append({'display_name':n3, 'ident':'DIST-3'})
-        l[1]['districts'].append({'display_name':n1, 'ident':'DIST-1'})
-        l[1]['districts'].append({'display_name':n4, 'ident':'DIST-4'})
-        l[2]['districts'].append({'display_name':n1, 'ident':'DIST-1'})
-        l[2]['districts'].append({'display_name':n2, 'ident':'DIST-2'})
-        l[2]['districts'].append({'display_name':n4, 'ident':'DIST-4'})
-        l[3]['districts'].append({'display_name':n3, 'ident':'DIST-3'})
-        l[4]['districts'].append({'display_name':n2, 'ident':'DIST-2'})
-        l[4]['districts'].append({'display_name':n3, 'ident':'DIST-3'})
-        l[5]['districts'].append({'display_name':n1, 'ident':'DIST-1'})
-        l[5]['districts'].append({'display_name':n2, 'ident':'DIST-2'})
-        l[5]['districts'].append({'display_name':n4, 'ident':'DIST-4'})
-        l[6]['districts'].append({'display_name':n2, 'ident':'DIST-2'})
-        l[7]['districts'].append({'display_name':n4, 'ident':'DIST-4'})        
+        l[0]['district_list'].append({'display_name':n1, 'ident':'DIST-1'})
+        l[0]['district_list'].append({'display_name':n3, 'ident':'DIST-3'})
+        l[1]['district_list'].append({'display_name':n1, 'ident':'DIST-1'})
+        l[1]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
+        l[2]['district_list'].append({'display_name':n1, 'ident':'DIST-1'})
+        l[2]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
+        l[2]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
+        l[3]['district_list'].append({'display_name':n3, 'ident':'DIST-3'})
+        l[4]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
+        l[4]['district_list'].append({'display_name':n3, 'ident':'DIST-3'})
+        l[5]['district_list'].append({'display_name':n1, 'ident':'DIST-1'})
+        l[5]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
+        l[5]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
+        l[6]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
+        l[7]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})        
 
         return b
 
@@ -258,8 +255,6 @@ class ProvideRandomBallots(object):
         r = random.randint(0,3)
         b['display_name'] = ''.join([str(r*4+2000),' Presidential'])
         b['number_of_precincts'] = 0
-        b['vote_type'] = 'NULL'
-        b['prec_id'] = 'NULL'
         b['registered_voters'] = 0
         
         # Generate a few contests
@@ -301,13 +296,13 @@ class ProvideRandomBallots(object):
                 if self.already_used_dreps.count(r) == 0:
                     self.already_used_dreps.append(r)
                     if r == 1:
-                        cont['contest_id'] = 'Rep1stDistrict'
+                        cont['ident'] = 'Rep1stDistrict'
                     elif r == 2:
-                        cont['contest_id'] = 'Rep2ndDistrict'
+                        cont['ident'] = 'Rep2ndDistrict'
                     elif r == 3:
-                        cont['contest_id'] = 'Rep3rdDistrict'
+                        cont['ident'] = 'Rep3rdDistrict'
                     else:
-                        cont['contest_id'] = ''.join(['Rep',str(r),
+                        cont['ident'] = ''.join(['Rep',str(r),
                          'thDistrict'])
                     break
         elif r == 2:
@@ -321,21 +316,21 @@ class ProvideRandomBallots(object):
                 if self.already_used_streps.count(r) == 0:
                     self.already_used_streps.append(r)
                     if r == 1:
-                        cont['contest_id'] = 'StateRep1stHouse'
+                        cont['ident'] = 'StateRep1stHouse'
                     elif r == 2:
-                        cont['contest_id'] = 'StateRep2ndHouse'
+                        cont['ident'] = 'StateRep2ndHouse'
                     elif r == 3:
-                        cont['contest_id'] = 'StateRep3rdHouse'
+                        cont['ident'] = 'StateRep3rdHouse'
                     else:
-                        cont['contest_id'] = ''.join(['StateRep',str(r),
+                        cont['ident'] = ''.join(['StateRep',str(r),
                          'thHouse'])
                     break
         else:
             cont['display_name'] = 'Supreme Court Justice'
-            cont['contest_id'] = 'JustSupCrt'
+            cont['ident'] = 'JustSupCrt'
             self.already_used_supreme = True
     
-        cont['district_id'] = ''.join(['DIST-',str(random.randint(1,4))])
+        cont['district_ident'] = ''.join(['DIST-',str(random.randint(1,4))])
         return cont
 
     def random_candidate(self, write_in):
@@ -351,7 +346,7 @@ class ProvideRandomBallots(object):
         if write_in:
             cand['display_name'] = "Write-In Votes"
             cand['ident'] = 'CAND-000'
-            cand['party_id'] = 'PART-0'
+            cand['party_ident'] = 'PART-0'
         else:
             cand['display_name'] = self.random_fullname()
             while True:
@@ -360,7 +355,7 @@ class ProvideRandomBallots(object):
                     self.already_used_cand_idents.append(r)
                     cand['ident'] = ''.join(['CAND-',str(r)])
                     break
-            cand['party_id'] = ''.join(['PART-',str(random.randint(1,9))])
+            cand['party_ident'] = ''.join(['PART-',str(random.randint(1,9))])
         
         return cand
 

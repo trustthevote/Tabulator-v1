@@ -265,6 +265,14 @@ def download_handler(request, file_and_parent):
     response['Content-Disposition'] = ''.join(['attachment; filename=', fname])
     return response
 
+@login_required
+def upload_handler(request):
+	"""
+	Handle a request to upload a file
+	"""
+	
+	return HttpResponse()
+
 def indent( str ):
     """
     Helper function for mark_up. Find the combined number of spaces and

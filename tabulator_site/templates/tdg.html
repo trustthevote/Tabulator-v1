@@ -11,8 +11,12 @@
             margin-left:180px;
         }
         
-        #dataUpperBound{
+        #dataUpperBound {
             width:4em;
+        }
+
+        #uploadFileForm {
+            padding:20px 1px 1px 3px;
         }
         
     </style>
@@ -182,6 +186,10 @@
         <input type = "submit" value = "Delete" id = "delButton" />
         <input type = "submit" value = "Rename" id = "renButton" />
     </div>
+    <form id="uploadFileForm" enctype="multipart/form-data" method="post" action="/upload">
+        <input type="submit" name="uploaded_file" value="Upload File">
+    </form>
+
 {% endblock main %}
 
 {% block sidebar %}

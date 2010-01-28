@@ -74,13 +74,13 @@ class Tabulator(object):
         # If the template is a precinct_contestlist, then populate its
         #  precinct_list with only the one precinct
         if self.template_type == 'precinct_contestlist':
-            self.templ['precinct_list']=[{'display_name':self.templ['prec_id']}]
+            self.templ['precinct_list']=[{'display_name':self.templ['prec_ident']}]
 
         # Iterate through all ballot_counter records given as input
         for rec in self.b:
             # Find the precinct associated with the current record
             for precinct in self.templ['precinct_list']:
-                if precinct['prec_id'] == rec['prec_id']:
+                if precinct['ident'] == rec['prec_ident']:
                     prec = precinct['display_name']
             type = rec['vote_type']
             # Make a set of keys for the given precinct if they don't
@@ -95,7 +95,7 @@ class Tabulator(object):
             # Iterate through all of the contests in the given record
             for i in range(len(rec['contest_list'])):
                 cont = rec['contest_list'][i]
-                co_name = cont['contest_id']
+                co_name = cont['ident']
                 # Make a set of keys for the given contest if they don't
                 #  yet exist for the current prec and type
                 if not sum_list[prec][type].has_key(co_name):
@@ -193,12 +193,12 @@ class Tabulator(object):
 
         # Make a list of "candidates" that will be included in every
         #  contest by default
-        TBO_list = [{'display_name':'*TOTAL','party_id':''},
-                    {'display_name':'*BLANK','party_id':''},
-                    {'display_name':'*OVER','party_id':''}]
+        TBO_list = [{'display_name':'*TOTAL','party_ident':''},
+                    {'display_name':'*BLANK','party_ident':''},
+                    {'display_name':'*OVER','party_ident':''}]
 
         for cont in self.templ['contest_list']:
-            co_name = cont['contest_id']
+            co_name = cont['ident']
             stream.write('\n,,%s,\n' % cont['display_name'].upper())
             stream.write(',,Reg. Voters,Times Counted,Total Votes,')
             stream.write('Times Blank Voted,Times Over Voted,')
@@ -250,7 +250,7 @@ class Tabulator(object):
                         stream.write('%s,' % temp[ca_name])
                         if type != 'Totals' and ca_name != '*TOTAL':
                             s_pvt.write('%s,%d,%s,%s,%s,%d,\n' % (co_name,
-                             pr_name, type, ca_name, cand['party_id'],
+                             pr_name, type, ca_name, cand['party_ident'],
                              temp[ca_name]) )
                         s_html.write('<td>%d</td>\n' % temp[ca_name])
                     stream.write('\n')
