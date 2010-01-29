@@ -61,7 +61,7 @@
     // the correct width.
     function refreshCurrentCommand(appName) {
         args = appName + " " + getArgList().join(" ")
-        $("#currentArgs").attr("value", args);
+        $("#currentArgs").html(args);
         
         $("#wTest").html(args);
         $("#currentArgs").width( $( "#wTest").width()+5 );
@@ -71,23 +71,35 @@
 
 {% block css %}
     <style type="text/css">
-        input[type="checkbox"] {margin-top:5px}
+        input[type="checkbox"] {margin-top:5px;}
         
-        option {font-family: Arial, sans-serif}
+        option {font-family: Arial, sans-serif;}
         
-        .labelCell > label {width: 100%; padding-right: 1em}
+        .labelCell > label {
+            width: 100%;
+            padding-right: 1em;
+        }
         
-        .typeCell > label {width: 100%; padding-right: 1em}
+        .typeCell > label {
+            width: 100%;
+            padding-right: 1em;
+        }
         
-        .linkCell {width: 30px}
+        .linkCell {width: 30px;}
 
-        div.args div {font-weight:bold; padding-bottom:10px}
+        div.args div {
+            font-weight:bold;
+            padding-bottom:10px;
+        }
         
-        .hide {visibility:hidden}
+        .hide {visibility:hidden;}
         
-        .noDisplay {display:none}
+        .noDisplay {display:none;}
         
-        a.fileLinks {color:blue; cursor:pointer}
+        a.fileLinks {
+            color:blue;
+            cursor:pointer;
+        }
     
         #files td {
             height:10px;
@@ -96,6 +108,13 @@
         
         #delButton { margin: 3px }
         
-        #currentArgs { max-width: 500px }
+        #currentArgs {
+            max-width: 500px;
+            font-family: monospace;
+        }
+        
+        #argsButton {
+            float:none;
+        }
     </style>
 {% endblock css %}

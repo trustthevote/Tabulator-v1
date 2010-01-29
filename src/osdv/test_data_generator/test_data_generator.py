@@ -104,6 +104,9 @@ class ProvideRandomBallots(object):
             with open(''.join([args[2],'.yaml']), 'r') as stream:
                 for i in range(0,8):  # Ignore the audit header
                     stream.readline()
+                #test = stream.readlines()
+                #for line in test:
+                #    print line,
                 e = yaml.load(stream)
 
             # Make the number of random ballot_info records specified by
@@ -118,7 +121,7 @@ class ProvideRandomBallots(object):
                      'jurisdiction_display_name']:
                         b[key] = e[key]
                 b['contest_list'] = []
-                prec_num = random.randint(1,8)
+                prec_num = random.randint(1, e['number_of_precincts'])
                 b['prec_ident'] = ''.join(['PREC-',str(prec_num)])
                 if e.has_key('precinct_list'):
                     b['registered_voters'] = \

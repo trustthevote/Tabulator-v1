@@ -267,11 +267,11 @@ def download_handler(request, file_and_parent):
 
 @login_required
 def upload_handler(request):
-	"""
-	Handle a request to upload a file
-	"""
-	
-	return HttpResponse()
+    """
+    Handle a request to upload a file
+    """
+    
+    return HttpResponse()
 
 def indent( str ):
     """
