@@ -15,8 +15,12 @@
             width:4em;
         }
 
-        #uploadFileForm {
-            padding:20px 1px 1px 3px;
+        #uploadDiv {
+            padding: 20px 0px 0px 0px;
+        }
+        
+        #uploadFile, #uploadButton {
+            height: 23px;
         }
         
     </style>
@@ -186,9 +190,13 @@
         <input type = "submit" value = "Delete" id = "delButton" />
         <input type = "submit" value = "Rename" id = "renButton" />
     </div>
-    <form id="uploadFileForm" enctype="multipart/form-data" method="post" action="/upload">
-        <input type="submit" name="uploaded_file" value="Upload File">
-    </form>
+    <div id="uploadDiv">
+        <h2>Upload New File</h2>
+        <form id="uploadFileForm" enctype="multipart/form-data" method="post" action="/upload">
+            <input type="file" id="uploadFile" />
+            <input type="submit" id="uploadButton" value="Upload" />
+        </form>
+    </div>
 
 {% endblock main %}
 

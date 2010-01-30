@@ -271,7 +271,15 @@ def upload_handler(request):
     Handle a request to upload a file
     """
     
-    return HttpResponse()
+    if request.method == 'POST':
+        if 'file' in request.FILES:
+            file = request.FILES['file']
+            fname = file['filename']
+
+            with open('%stemplates/%s' % (settings.DATA_PATH, fname), 'wb') as stream:
+                stream.write(file['content'])
+
+    return HttpResponseRedirect("/tdg")
 
 def indent( str ):
     """
