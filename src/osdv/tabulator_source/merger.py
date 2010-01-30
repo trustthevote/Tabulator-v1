@@ -170,45 +170,35 @@ class Merger(object):
                 if file == [self.e]:
                     if self.templ_type == 'jurisdiction_slate':
                         if not self.has_only_keys(elec, juris_keys):
-                            print '1'
                             return False
                     elif self.templ_type == 'precinct_contestlist':
                         if not self.has_only_keys(elec, pcl_keys):
-                            print '2'
                             return False
                 else:
                     if not self.has_only_keys(elec, bct_keys):
-                        print '3'
                         return False
                 if not isinstance(elec['contest_list'], list):
-                    print '4'
                     return False
                 for contest in elec['contest_list']:
                     if file == [self.e]:
                         if not self.has_only_keys(contest, templ_contest_keys):
-                            print '5'
                             return False
                     else:
                         if not self.has_only_keys(contest, contest_keys):
-                            print '6'
                             return False
                         if not self.has_only_keys(contest['uncounted_ballots'],
                          ub_keys):
-                            print '7'
                             return False
                     if not isinstance(contest['candidates'], list):
-                        print '8'
                         return False
                     for candidate in contest['candidates']:
                         if file == [self.e]:
                             if not self.has_only_keys(candidate, 
                              templ_candidate_keys):
                                 print candidate
-                                print '9'
                                 return False
                         else:
                             if not self.has_only_keys(candidate,candidate_keys):
-                                print '10'
                                 return False
         return True
 
