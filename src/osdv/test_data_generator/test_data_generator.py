@@ -121,8 +121,8 @@ class ProvideRandomBallots(object):
                      'jurisdiction_display_name']:
                         b[key] = e[key]
                 b['contest_list'] = []
-                prec_num = random.randint(1, e['number_of_precincts'])
-                b['prec_ident'] = ''.join(['PREC-',str(prec_num)])
+                prec_num = random.randint(0, e['number_of_precincts'] - 1)
+                b['prec_ident'] = e['precinct_list'][prec_num]
                 if e.has_key('precinct_list'):
                     b['registered_voters'] = \
                      e['precinct_list'][prec_num-1]['registered_voters']
