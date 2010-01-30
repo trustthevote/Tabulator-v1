@@ -160,8 +160,8 @@ class Merger(object):
          'district_ident']
         contest_keys = templ_contest_keys + \
          ['voting_method_ident', 'uncounted_ballots', 'total_votes']
-        candidate_keys = ['count', 'display_name', 'ident', 'party_ident']
         templ_candidate_keys = ['display_name', 'ident', 'party_ident']
+        candidate_keys = templ_candidate_keys + ['count']
         ub_keys = ['blank_votes', 'over_votes']
         for file in ([self.e], self.b1, self.b2):
             if not isinstance(file, list):
@@ -170,34 +170,45 @@ class Merger(object):
                 if file == [self.e]:
                     if self.templ_type == 'jurisdiction_slate':
                         if not self.has_only_keys(elec, juris_keys):
-                            return False                
+                            print '1'
+                            return False
                     elif self.templ_type == 'precinct_contestlist':
                         if not self.has_only_keys(elec, pcl_keys):
-                            return False                
+                            print '2'
+                            return False
                 else:
                     if not self.has_only_keys(elec, bct_keys):
+                        print '3'
                         return False
                 if not isinstance(elec['contest_list'], list):
+                    print '4'
                     return False
                 for contest in elec['contest_list']:
                     if file == [self.e]:
                         if not self.has_only_keys(contest, templ_contest_keys):
+                            print '5'
                             return False
                     else:
                         if not self.has_only_keys(contest, contest_keys):
+                            print '6'
                             return False
                         if not self.has_only_keys(contest['uncounted_ballots'],
                          ub_keys):
+                            print '7'
                             return False
                     if not isinstance(contest['candidates'], list):
+                        print '8'
                         return False
                     for candidate in contest['candidates']:
                         if file == [self.e]:
                             if not self.has_only_keys(candidate, 
                              templ_candidate_keys):
+                                print candidate
+                                print '9'
                                 return False
                         else:
                             if not self.has_only_keys(candidate,candidate_keys):
+                                print '10'
                                 return False
         return True
 
