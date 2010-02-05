@@ -23,7 +23,7 @@ class Tabulator(object):
         # Load ballot records from yaml file
         self.input = args[0]
         try:
-            stream = open(''.join([self.input,'.yaml']), 'r')
+            stream = open(''.join([self.input,'.yml']), 'r')
         except IOError:
             print(''.join(['Unable to open ',self.input,'\n']))
             raise
@@ -34,7 +34,7 @@ class Tabulator(object):
 
         # Load the jurisdiction slate or precinct contestlist template
         try:
-            stream = open(''.join([args[1],'.yaml']), 'r')
+            stream = open(''.join([args[1],'.yml']), 'r')
         except IOError:
             print(''.join(['Unable to open ',self.input,'\n']))
             raise
@@ -56,7 +56,7 @@ class Tabulator(object):
         self.serialize_csv_pvt_html(b)
 
         # Dump output into a file in yaml format
-        with open(''.join([self.input,'_report.yaml']), 'w') as stream:
+        with open(''.join([self.input,'_report.yml']), 'w') as stream:
             yaml.dump(b, stream)
 
         # Dump output into a file in XML file
@@ -149,7 +149,7 @@ class Tabulator(object):
             fname = self.input[self.input.rfind('/') + 1:]
         else:
             fname = self.input
-        stream.write('Input BallotInfo File, %s.yaml,\n' % fname)
+        stream.write('Input BallotInfo File, %s.yml,\n' % fname)
         stream.write(',,\n')
 
         s_pvt = open(''.join([self.input,'_report_pvt.csv']), 'w')
@@ -270,7 +270,7 @@ def main():
 
     print 'SOVC report created in %s_report.csv, %s_report_pvt.csv,\n' % \
      (sys.argv[1], sys.argv[1])
-    print '%s_report.yaml, and %s_report.xml\n' % (sys.argv[1], sys.argv[1])
+    print '%s_report.yml, and %s_report.xml\n' % (sys.argv[1], sys.argv[1])
 
     return 0
 

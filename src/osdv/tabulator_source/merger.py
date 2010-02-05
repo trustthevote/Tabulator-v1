@@ -29,7 +29,7 @@ class Merger(object):
         self.rstream = open(''.join([merge_output,'.log']), 'w')
         # Load ballot records from yaml file
         try:
-            stream = open(''.join([record1,'.yaml']), 'r')
+            stream = open(''.join([record1,'.yml']), 'r')
         except IOError:
             self.rstream.write(''.join(['Unable to open ',record1,'\n']))
             print(''.join(['Unable to open ',record1,'\n']))
@@ -42,7 +42,7 @@ class Merger(object):
             self.b1 = list(yaml.load_all(stream))
             stream.close()
         try:
-            stream = open(''.join([record2,'.yaml']), 'r')
+            stream = open(''.join([record2,'.yml']), 'r')
         except IOError:
             self.rstream.write(''.join(['Unable to open ',record2,'\n']))
             print(''.join(['Unable to open ',record2,'\n']))
@@ -57,7 +57,7 @@ class Merger(object):
 
         # Get the election specs from file
         try:
-            stream = open(''.join([election,'.yaml']), 'r')
+            stream = open(''.join([election,'.yml']), 'r')
         except IOError:
             self.rstream.write(''.join(['Unable to open ',record2,'\n']))
             print(''.join(['Unable to open ',record2,'\n']))
@@ -338,7 +338,7 @@ class Merger(object):
                      'TTV Tabulator 0.1 JUL-1-2008', self.new_prov)
 
         # Dump merge into a file in yaml format
-        with open(''.join([merged_output,'.yaml']), 'w') as stream:
+        with open(''.join([merged_output,'.yml']), 'w') as stream:
             stream.write(a.serialize_yaml())
             yaml.dump_all(self.b1, stream)
             stream.write('---\n')
@@ -366,8 +366,8 @@ def main():
     with open(''.join([sys.argv[4],'.log']), 'a') as strm:
         print 'Successfully merged %s and %s' % (sys.argv[2],sys.argv[3]),
         strm.write('Successfully merged %s and %s' % (sys.argv[2],sys.argv[3]))
-        print 'together\nThe result is stored in %s.yaml' % sys.argv[4]
-        strm.write('together\nThe result is stored in %s.yaml' % sys.argv[4])
+        print 'together\nThe result is stored in %s.yml' % sys.argv[4]
+        strm.write('together\nThe result is stored in %s.yml' % sys.argv[4])
         print 'and %s.xml' % sys.argv[4]
         strm.write('and %s.xml\n' % sys.argv[4])
         print 'A log for this run was created in %s.log' % sys.argv[4]

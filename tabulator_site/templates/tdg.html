@@ -157,7 +157,7 @@
                     <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
                     <td class="labelCell"><label>{{ file }}</label></td>
                     <td class="typeCell"><label>(jurisdiction-slate)</label></td>
-                    <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yaml">yaml</a></td>
+                    <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yml">yaml</a></td>
                     <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>
                     <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>
                     <td class="buttonCell noDisplay"><input type="submit" class="renDone" name="{{ file }}" value="Done" /></td>
@@ -168,7 +168,7 @@
                     <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
                     <td class="labelCell"><label>{{ file }}</label></td>
                     <td class="typeCell"><label>(precinct-contestlist)</label></td>
-                    <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yaml">yaml</a></td>
+                    <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yml">yaml</a></td>
                     <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>
                     <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>
                     <td class="buttonCell noDisplay"><input type="submit" class="renDone" name="{{ file }}" value="Done" /></td>
@@ -179,7 +179,7 @@
                     <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
                     <td class="labelCell"><label>{{ file }}</label></td>
                     <td class="typeCell"><label>(ballot-counter-total)</label></td>
-                    <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yaml">yaml</a></td>
+                    <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yml">yaml</a></td>
                     <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>
                     <td class="inputCell noDisplay"><input type="text" value={{ file }} class="renText" name="{{ file }}" /></td>
                     <td class="buttonCell noDisplay"><input type="submit" class="renDone" name="{{ file }}" value="Done" /></td>
@@ -191,7 +191,8 @@
         <input type = "submit" value = "Rename" id = "renButton" />
     </div>
     <form id="uploadFileForm" enctype="multipart/form-data" method="post" action="/upload">
-        <input type="file" id="uploadedFile" />
+    <!--<form id="uploadFileForm" method="post" action="/upload">-->
+        <input type="file" name="uploaded_file" id="uploadedFile" />
         <input type="submit" id="uploadButton" value="Upload Template" />
     </form>
 

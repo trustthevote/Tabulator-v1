@@ -10,12 +10,16 @@ from django.shortcuts import render_to_response
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django import forms
 
 import test_data_generator.test_data_generator as TDG
 import tabulator_source.merger as merger
 import tabulator_source.audit_header as audit_header
 import tabulator_source.tabulator as tabulator
 
+
+class FileForm(forms.Form):
+    file = forms.Field(widget=forms.FileInput, required=False)
 
 def welcome_handler(request):
     """
@@ -78,8 +82,9 @@ def tdg_handler(request):
             logout(request)
             return HttpResponse()
     c = get_file_data()
+    c['upload_form'] = FileForm()
     return render_to_response('tdg.html', c,
-     context_instance=RequestContext(request, processors=[settings_processor]))
+    context_instance=RequestContext(request, processors=[settings_processor]))
 
 @login_required
 def merge_handler(request):
@@ -98,11 +103,11 @@ def merge_handler(request):
             #  stored on the server, as given by DATA_PATH
             args[0] = ''.join([settings.DATA_PATH, 'templates/', args[0]])
 
-            if os.listdir(''.join([settings.DATA_PATH,'bal_count_tot/'])).count(''.join([args[1],'.yaml'])) == 1:
+            if os.listdir(''.join([settings.DATA_PATH,'bal_count_tot/'])).count(''.join([args[1],'.yml'])) == 1:
                 args[1] = ''.join([settings.DATA_PATH, 'bal_count_tot/', args[1]])
             else:
                 args[1] = ''.join([settings.DATA_PATH, 'tab_aggr/', args[1]])
-            if os.listdir(''.join([settings.DATA_PATH, 'bal_count_tot/'])).count(''.join([args[2], '.yaml'])) == 1:
+            if os.listdir(''.join([settings.DATA_PATH, 'bal_count_tot/'])).count(''.join([args[2], '.yml'])) == 1:
                 args[2] = ''.join([settings.DATA_PATH, 'bal_count_tot/', args[2]])
             else:
                 args[2] = ''.join([settings.DATA_PATH, 'tab_aggr/', args[2]])
@@ -225,9 +230,9 @@ def tab_file_handler(request, fname):
         lines = stream.readlines()
     formatted_lines = []
     
-    # If requested file is a .yaml or .xml, fully markup. If .csv, then
+    # If requested file is a .yml or .xml, fully markup. If .csv, then
     #  only do a little bit of formatting. If .html, then do even less.
-    if fname.rfind('.yaml') != -1 or fname.rfind('.xml') != -1:
+    if fname.rfind('.yml') != -1 or fname.rfind('.xml') != -1:
         formatted_lines = mark_up(lines)
     elif fname.rfind('.csv') != -1:
         for line in lines:
@@ -273,16 +278,18 @@ def upload_handler(request):
 
     if request.method == 'POST':
         print 'Post method in upload handler'
-        if 'file' in request.FILES:
+        post_copy = request.POST.copy()
+        post_copy.update(request.FILES)
+        print post_copy
+        
+        if 'uploaded_file' in post_copy:
             print 'File found in http request'
-            file = request.FILES['file']
+            file_ = post_copy['uploaded_file']
 
-            filesize = len(file['content'])
-            filetype = file['content-type']
-            filename = file['filename']
-     
-            with open(''.join([DATA_PATH, filename]), 'wb') as fd:
-                fd.write(file['content'])
+            with open(''.join([settings.DATA_PATH, 'templates/', file_.name]),
+             'wb') as fd:
+                for chunk in file_.chunks():
+                    fd.write(chunk)
 
     return HttpResponseRedirect('/tdg')
 
@@ -343,13 +350,13 @@ def get_file_data():
     if os.listdir(settings.DATA_PATH).count('reports') == 0:
         os.mkdir( ''.join([settings.DATA_PATH, 'reports/']) )
 
-    # Get a list of files so far generated, by type. Leave off the .yaml
+    # Get a list of files so far generated, by type. Leave off the .yml
     #  and .xml file extensions, as well as redundancies.
     templates = os.listdir( ''.join([settings.DATA_PATH, 'templates/']) )
     juris_files = []
     prec_files = []
     for i in range(0, len(templates)):
-        if templates[i][len(templates[i]) - 5:] == '.yaml':
+        if templates[i][len(templates[i]) - 5:] == '.yml':
             a = audit_header.AuditHeader()
             with open( '%stemplates/%s' % (settings.DATA_PATH,
              templates[i]),'r' ) as s:
@@ -401,13 +408,13 @@ def delete_files(files):
          count( ''.join([file, '_report.csv']) ) == 1:
             os.system('rm -f %sreports/%s_report*' % (settings.DATA_PATH, file))
         if os.listdir( ''.join([settings.DATA_PATH, 'templates/']) ). \
-         count( ''.join([file, '.yaml']) ) == 1:
+         count( ''.join([file, '.yml']) ) == 1:
             os.system('rm -f %stemplates/%s.*' % (settings.DATA_PATH, file))
         if os.listdir( ''.join([settings.DATA_PATH, 'bal_count_tot/']) ). \
-         count( ''.join([file, '.yaml']) ) == 1:
+         count( ''.join([file, '.yml']) ) == 1:
             os.system('rm -f %sbal_count_tot/%s.*' % (settings.DATA_PATH, file))
         if os.listdir( ''.join([settings.DATA_PATH, 'tab_aggr/']) ). \
-         count( ''.join([file, '.yaml']) ) == 1:
+         count( ''.join([file, '.yml']) ) == 1:
             os.system('rm -f %stab_aggr/%s.*' % (settings.DATA_PATH, file))
         if os.listdir( ''.join([settings.DATA_PATH, 'tab_aggr/']) ). \
          count( ''.join([file, '.log']) ) == 1:
@@ -426,24 +433,24 @@ def rename_file(data):
         os.rename( '%sreports/%s_report.csv' % (settings.DATA_PATH, old_name),
             '%sreports/%s_report.csv' % (settings.DATA_PATH, new_name))
     elif os.listdir( ''.join([settings.DATA_PATH, 'templates/']) ). \
-     count( ''.join([old_name, '.yaml']) ) == 1:
-        os.rename( '%stemplates/%s.yaml' % (settings.DATA_PATH, old_name),
-            '%stemplates/%s.yaml' % (settings.DATA_PATH, new_name))
+     count( ''.join([old_name, '.yml']) ) == 1:
+        os.rename( '%stemplates/%s.yml' % (settings.DATA_PATH, old_name),
+            '%stemplates/%s.yml' % (settings.DATA_PATH, new_name))
         os.rename( '%stemplates/%s.xml' % (settings.DATA_PATH, old_name),
             '%stemplates/%s.xml' % (settings.DATA_PATH, new_name))
     elif os.listdir( ''.join([settings.DATA_PATH, 'bal_count_tot/']) ). \
-     count( ''.join([old_name, '.yaml']) ) == 1:
-        os.rename( '%sbal_count_tot/%s.yaml' % (settings.DATA_PATH, old_name),
-            '%sbal_count_tot/%s.yaml' % (settings.DATA_PATH, new_name))
+     count( ''.join([old_name, '.yml']) ) == 1:
+        os.rename( '%sbal_count_tot/%s.yml' % (settings.DATA_PATH, old_name),
+            '%sbal_count_tot/%s.yml' % (settings.DATA_PATH, new_name))
         os.rename( '%sbal_count_tot/%s.xml' % (settings.DATA_PATH, old_name),
             '%sbal_count_tot/%s.xml' % (settings.DATA_PATH, new_name))
     else:
         os.rename( '%stab_aggr/%s.log' % (settings.DATA_PATH, old_name),
             '%stab_aggr/%s.log' % (settings.DATA_PATH, new_name))
         if os.listdir( ''.join([settings.DATA_PATH + 'tab_aggr/']) ). \
-         count( ''.join([old_name, '.yaml']) ) == 1:
-            os.rename( '%stab_aggr/%s.yaml' % (settings.DATA_PATH, old_name),
-                '%stab_aggr/%s.yaml' % (settings.DATA_PATH, new_name))
+         count( ''.join([old_name, '.yml']) ) == 1:
+            os.rename( '%stab_aggr/%s.yml' % (settings.DATA_PATH, old_name),
+                '%stab_aggr/%s.yml' % (settings.DATA_PATH, new_name))
             os.rename( '%stab_aggr/%s.xml' % (settings.DATA_PATH, old_name),
                 '%stab_aggr/%s.xml' % (settings.DATA_PATH, new_name))
     return

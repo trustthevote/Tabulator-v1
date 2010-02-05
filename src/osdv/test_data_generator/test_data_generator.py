@@ -54,7 +54,7 @@ class ProvideRandomBallots(object):
              args[1][args[1].rfind('/') + 1:len(args[1])].encode("ascii")
         
             # Dump output into a file in yaml format
-            with open(''.join([args[1],'.yaml']), 'w') as stream:
+            with open(''.join([args[1],'.yml']), 'w') as stream:
                 stream.write(a.serialize_yaml())
                 yaml.dump(b, stream)
             
@@ -77,7 +77,7 @@ class ProvideRandomBallots(object):
             b = self.random_elec()
 
             # Dump output into a file in yaml format
-            with open(''.join([args[1],'.yaml']), 'w') as stream:
+            with open(''.join([args[1],'.yml']), 'w') as stream:
                 stream.write(a.serialize_yaml())
                 yaml.dump(b, stream)
 
@@ -101,7 +101,7 @@ class ProvideRandomBallots(object):
                 r_max = 99
 
             # Load election specs from given file in yaml format
-            with open(''.join([args[2],'.yaml']), 'r') as stream:
+            with open(''.join([args[2],'.yml']), 'r') as stream:
                 for i in range(0,8):  # Ignore the audit header
                     stream.readline()
                 #test = stream.readlines()
@@ -183,7 +183,7 @@ class ProvideRandomBallots(object):
                          'TTV Tabulator 0.1 JUL-1-2008', [])
 
             # Dump output into a file in yaml format
-            with open(''.join([args[3],'.yaml']), 'w') as stream:
+            with open(''.join([args[3],'.yml']), 'w') as stream:
                 stream.write(a.serialize_yaml())
                 yaml.dump_all(b_list, stream)
 
@@ -423,11 +423,11 @@ def main():
 
     if type == 'jurisdiction':
         print 'Done. Generated sample jurisdiction template files',
-        print '%s.yaml and %s.xml\n' % (sys.argv[2], sys.argv[2])
+        print '%s.yml and %s.xml\n' % (sys.argv[2], sys.argv[2])
 
     elif type == 'contestlist':
         print 'Done. Generated sample contestlist template files',
-        print '%s.yaml and %s.xml\n' % (sys.argv[2], sys.argv[2])
+        print '%s.yml and %s.xml\n' % (sys.argv[2], sys.argv[2])
     else:
         print 'Done. Generated sample ballot files',
         print '%s.yaml and %s.xml\n' % (sys.argv[4], sys.argv[4])

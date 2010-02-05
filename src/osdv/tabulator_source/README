@@ -29,7 +29,7 @@ test_data_generator.py:
        mean that all of the members of the ballot_info data structure like
        dist_id, voting_method_id, name, etc. are initialized, with the
        exception of the vote counts for each candidate. In this example
-       `sampleelection.yaml` and `sampleelection.xml` are the names of the
+       `sampleelection.yml` and `sampleelection.xml` are the names of the
        output file created/overwritten.
 
    2.) python test_data_generator.py jurisdiction samplejuris
@@ -37,17 +37,17 @@ test_data_generator.py:
        in yaml and xml as in 1.). The difference is that a jurisdiction
        structure contains not only an election template, but also a sample
        jurisdiction consisting of multiple sample precincts and districts. In
-       this example `samplejuris.yaml` and `samplejuris.xml` are created.
+       this example `samplejuris.yml` and `samplejuris.xml` are created.
 
-   3.) python test_data_generator.py counts 2 sampleelection sampleballots.yaml
+   3.) python test_data_generator.py counts 2 sampleelection sampleballots.yml
        This syntax uses an election template (which will have been generated
        already by the first syntactical form) to generate a given number of
        ballot_info records that fit the template, with random values
        given to each candidates' counts field. The results are outputted
        into yaml and xml formats. In this example, the number of records
        generated in the output file is 2, the election template is stored in
-       `sampleelection.yaml` and `sampleelection.xml`, and the results are
-       outputted into files `sampleballots.yaml` and `sampleballots.xml`.
+       `sampleelection.yml` and `sampleelection.xml`, and the results are
+       outputted into files `sampleballots.yml` and `sampleballots.xml`.
 
 
 hello_world_tabulator.py:
@@ -66,13 +66,13 @@ merger.py:
    python merger.py election sampleballots1 sampleballots2 merged
 
    In this example, all of the data members in the election template stored in
-    `election.yaml` are compared to the data members of the records in
-    `sampleballots1.yaml` and `sampleballots2.yaml`. If the sample ballot
+    `election.yml` are compared to the data members of the records in
+    `sampleballots1.yml` and `sampleballots2.yml`. If the sample ballot
     record files do not exist or are not consistent with the election template,
     an error message is outputted to the screen, and the program terminates. If
     the sample ballot files are valid, this information is also recorded in
     `report`, and all of the records of both files are concatenated together
-    and dumped into `merged.yaml` and `merged.xml` in this example.
+    and dumped into `merged.yml` and `merged.xml` in this example.
 
 
 tabulator.py:
