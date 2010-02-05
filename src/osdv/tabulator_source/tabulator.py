@@ -74,8 +74,7 @@ class Tabulator(object):
         # If the template is a precinct_contestlist, then populate its
         #  precinct_list with only the one precinct
         if self.template_type == 'precinct_contestlist':
-            self.templ['precinct_list'] = \
-             [{'display_name':self.templ['prec_ident']}]
+            self.templ['precinct_list']=[{'display_name':self.templ['prec_ident']}]
 
         # Iterate through all ballot_counter records given as input
         for rec in self.b:
@@ -176,15 +175,15 @@ class Tabulator(object):
                 num_voters = prec['registered_voters']
                 cards_cast = 200  # A hardcoded dummy value
                 turnout = (float(cards_cast))/num_voters * 100
-                d_name = str(prec['display_name'])
+                d_name = prec['display_name']
 
                 stream.write(',%s,%d,%d,%.2f,\n' % 
                  (type, num_voters, cards_cast, turnout) )
-                s_pvt.write('*TURNOUT,%s,%s,Reg. Voters,,%d,\n' %
+                s_pvt.write('*TURNOUT,%d,%s,Reg. Voters,,%d,\n' %
                  (d_name, type, num_voters) )
-                s_pvt.write('*TURNOUT,%s,%s,Cards Cast,,%d,\n' %
+                s_pvt.write('*TURNOUT,%d,%s,Cards Cast,,%d,\n' %
                  (d_name, type, cards_cast) )
-                s_pvt.write('*TURNOUT,%s,%s,%% Turnout,,%.2f,\n' %
+                s_pvt.write('*TURNOUT,%d,%s,%% Turnout,,%.2f,\n' %
                  (d_name, type, turnout) )
                 s_html.write('\n'.join(['<tr>',
                  '<td>&nbsp;&nbsp;&nbsp;&nbsp;%s</td>' % type,
@@ -218,7 +217,7 @@ class Tabulator(object):
             s_html.write('</tr>\n<tr><td>Jurisdiction Wide</td></tr>\n')
 
             for prec in self.templ['precinct_list']:
-                pr_name = str(prec['display_name'])
+                pr_name = prec['display_name']
                 # If no voting data is available for the given precinct
                 #  and contest combination, then go on to the next
                 #  precinct.
@@ -230,8 +229,8 @@ class Tabulator(object):
                  not sum_list[pr_name]['Totals'].has_key(co_name)):
                      continue
 
-                stream.write('%s,\n' % pr_name)
-                s_html.write('<tr><td>&nbsp;&nbsp;%s</td></tr>\n' % pr_name)
+                stream.write('%d,\n' % pr_name)
+                s_html.write('<tr><td>&nbsp;&nbsp;%d</td></tr>\n' % pr_name)
                 for type in ['Polling','Absentee','Early Voting','Other','Totals']:
                     if sum_list[pr_name][type].has_key(co_name):
                         temp = sum_list[pr_name][type][co_name]
@@ -250,7 +249,7 @@ class Tabulator(object):
                         ca_name = cand['display_name']
                         stream.write('%s,' % temp[ca_name])
                         if type != 'Totals' and ca_name != '*TOTAL':
-                            s_pvt.write('%s,%s,%s,%s,%s,%d,\n' % (co_name,
+                            s_pvt.write('%s,%d,%s,%s,%s,%d,\n' % (co_name,
                              pr_name, type, ca_name, cand['party_ident'],
                              temp[ca_name]) )
                         s_html.write('<td>%d</td>\n' % temp[ca_name])

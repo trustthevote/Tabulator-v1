@@ -15,12 +15,12 @@
             width:4em;
         }
 
-        #uploadDiv {
-            padding: 20px 0px 0px 0px;
+        #uploadFileForm {
+            padding:20px 1px 1px 3px;
         }
         
-        #uploadFile, #uploadButton {
-            height: 23px;
+        #uploadButton {
+            height:2em;
         }
         
     </style>
@@ -150,7 +150,7 @@
     </div>
 
     <div id="generatedFiles" class="fileManager">
-        <h2>Manage Test Data</h2>
+        <h2>Manage Test Data / Upload Template</h2>
         <table id="files">
             {% for file in juris_files %}
                 <tr name="{{ file }}">
@@ -190,13 +190,10 @@
         <input type = "submit" value = "Delete" id = "delButton" />
         <input type = "submit" value = "Rename" id = "renButton" />
     </div>
-    <div id="uploadDiv">
-        <h2>Upload New File</h2>
-        <form id="uploadFileForm" enctype="multipart/form-data" method="post" action="/upload">
-            <input type="file" id="uploadFile" />
-            <input type="submit" id="uploadButton" value="Upload" />
-        </form>
-    </div>
+    <form id="uploadFileForm" enctype="multipart/form-data" method="post" action="/upload">
+        <input type="file" id="uploadedFile" />
+        <input type="submit" id="uploadButton" value="Upload Template" />
+    </form>
 
 {% endblock main %}
 

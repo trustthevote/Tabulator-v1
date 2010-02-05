@@ -195,7 +195,6 @@ class Merger(object):
                         if file == [self.e]:
                             if not self.has_only_keys(candidate, 
                              templ_candidate_keys):
-                                print candidate
                                 return False
                         else:
                             if not self.has_only_keys(candidate,candidate_keys):
