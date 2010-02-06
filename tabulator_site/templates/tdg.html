@@ -11,7 +11,7 @@
             margin-left:180px;
         }
         
-        #dataUpperBound {
+        .smallNums {
             width:4em;
         }
 
@@ -32,18 +32,20 @@
 
     $("#genMode").change( function() {hideOrShowFields()} );
     
-    //Hide or show the appropriate fields when the user
-    // chooses to generate either a jurisdiction/contestlist or
-    // random vote counts within the tdg.
+    //Hide or show the appropriate fields, depending on whether the user
+    // is trying to generate a jurisdiction slate, a contestlist, or a
+    // ballot counter total file.
     function hideOrShowFields() {
         refreshCurrentCommand("test_data_generator");
         idx = $("#genMode").attr("selectedIndex");
         val = $("#genMode > option[index="+idx+"]").attr("value");
-        if(val=="jurisdiction" || val=="contestlist") {
-            $(".hideUs").addClass('noDisplay');
+        if(val == "jurisdiction" || val == "contestlist") {
+            $(".bctFields").addClass('noDisplay');
+            $(".templateFields").removeClass('noDisplay');
         }
-        if(val=="counts") {
-            $(".hideUs").removeClass('noDisplay');
+        else if(val == "counts") {
+            $(".bctFields").removeClass('noDisplay');
+            $(".templateFields").addClass('noDisplay');
         }
     };
 
@@ -105,6 +107,19 @@
         
         return args;
     }
+    
+    //Perform validation checks when the user tries to upload a file
+    $("#uploadFileForm").submit( function() {
+        fname = $("#uploadedFile").attr("value");
+        if(fname == '') {
+            alert("Please select a file to upload");
+            return false;
+        }
+        else if(fname.slice(fname.lastIndexOf('.')) != '.yml') {
+            alert("Only .yml files may be uploaded");
+            return false;
+        }
+    });
 
     $("#outputFilename").keyup(function(){refreshCurrentCommand("test_data_generator");});
     $("#howMany").keyup(function(){refreshCurrentCommand("test_data_generator");});
@@ -124,25 +139,54 @@
                 <option value="contestlist">Precinct Contestlist</option>
                 <option value="counts">Ballot Counter Total</option>
             </select></div>
-            <div class="hideUs noDisplay"><label>Number of records in file:</label>
-                <input type="text" id="howMany" class="argInputs" /></div>
-            <div class="hideUs noDisplay"><label for="templateFile">Jurisdiction Slate file:</label>
-            <select id="templateFile" class="argInputs">
-                {% if not template_files %}
-                    <option value="null">(None generated)</option>
-                {% else %}
-                    {% for file in template_files %}
-                        <option value="{{ file }}">{{ file }}</option>
-                    {% endfor %}
-                {% endif %}
-            </select></div>
+            
+            <!--Election Template Fields-->
+            <span class="templateFields">
+                <div>
+                    <label for="contestField">Number of contests:</label>
+                    <input type="text" id="contestField"/>
+                </div>
+                <div><label id="candidateMenu">Number of candidates:</label>
+                    <input type="radio" name="candMenu" value="none" checked="checked"/> Specific Number:
+                        <input type="text" class="smallNums" id="contNum" /><br />
+                    <input type="radio" class="posiLeft" name="candMenu" value="range" /> Between:
+                        <input type="text" class="smallNums" id="candLowerBound" /> and 
+                        <input type="text" class="smallNums" id="candUpperBound" /><br />
+                </div>
+                <div><label id="jurisMenu">Districts / Precincts</label>
+                    <input type="radio" name="jurisMenu" value="none" checked="checked"/> Use default 'Jurisdiction of Random'<br />
+                    <input type="radio" class="posiLeft" name="jurisMenu" value="range" /> Generate 
+                        <input type="text" class="smallNums" id="distNum" /> districts and 
+                        <input type="text" class="smallNums" id="precNum" /> precincts<br />
+                </div>
+            </span>
+
+            <!--Ballot Counter Total Fields-->
+            <span class="bctFields">
+                <div><label>Number of records in file:</label>
+                    <input type="text" id="howMany" class="argInputs" />
+                </div>
+                <div><label for="templateFile">Jurisdiction Slate file:</label>
+                    <select id="templateFile" class="argInputs">
+                        {% if not template_files %}
+                            <option value="null">(None generated)</option>
+                        {% else %}
+                            {% for file in template_files %}
+                                <option value="{{ file }}">{{ file }}</option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+                <div ><label id="add">Additional options:</label>
+                    <input type="radio" name="options" value="none" checked="checked"/> None<br />
+                    <input type="radio" class="posiLeft" name="options" value="range" /> Make all generated vote count values lie between 0 -
+                        <input type="text" class="smallNums" id="dataUpperBound" /><br />
+                    <input type="radio" class="posiLeft" name="options" value="allOnes" /> Make all generated vote count values = 1<br />
+                </div>
+            </span>
+            
             <div><label>Output file name:</label><input type="text" id="outputFilename" class="argInputs" /></div>
-            <div class="hideUs noDisplay"><label id="add">Additional options:</label>
-                <input type="radio" name="options" value="none" checked="checked"/> None<br />
-                <input type="radio" class="posiLeft" name="options" value="range" /> Make all generated vote count values lie between 0 - 
-                    <input type="text" id="dataUpperBound" /><br />
-                <input type="radio" class="posiLeft" name="options" value="allOnes" /> Make all generated vote count values = 1<br />
-            </div>
+
             <div><label>Current command:</label><span id="currentArgs"></span></div>
             <div id="wTest" class="noDisplay"></div>
             <input type="submit" value="Run" id="argsButton" />
@@ -191,7 +235,6 @@
         <input type = "submit" value = "Rename" id = "renButton" />
     </div>
     <form id="uploadFileForm" enctype="multipart/form-data" method="post" action="/upload">
-    <!--<form id="uploadFileForm" method="post" action="/upload">-->
         <input type="file" name="uploaded_file" id="uploadedFile" />
         <input type="submit" id="uploadButton" value="Upload Template" />
     </form>

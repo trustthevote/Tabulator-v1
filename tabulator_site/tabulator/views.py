@@ -280,18 +280,20 @@ def upload_handler(request):
         post_copy = request.POST.copy()
         post_copy.update(request.FILES)
         
+        # Check to see if a file was uploaded
         if 'uploaded_file' in post_copy:
             file_ = post_copy['uploaded_file']
             n = file_.name
 
+            # Uploaded file should have a .yml file extension
             if len(n) >= len('.yml') and n[len(n) - len('.yml'):] == '.yml':
-            # Add file content validation?
-            # Add file size validation
 
-                with open(''.join([settings.DATA_PATH, 'templates/', n]),
-                 'wb') as fd:
-                    for chunk in file_.chunks():
-                        fd.write(chunk)
+                # Uploaded file should be no bigger than a megabyte
+                meg = 1024*1024
+                if file_.size <= meg:
+                    with open(''.join([settings.DATA_PATH, \
+                     'templates/', n]), 'wb') as fd:
+                        fd.write(file_.read())
 
     return HttpResponseRedirect('/tdg')
 
