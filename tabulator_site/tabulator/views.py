@@ -277,19 +277,21 @@ def upload_handler(request):
     """
 
     if request.method == 'POST':
-        print 'Post method in upload handler'
         post_copy = request.POST.copy()
         post_copy.update(request.FILES)
-        print post_copy
         
         if 'uploaded_file' in post_copy:
-            print 'File found in http request'
             file_ = post_copy['uploaded_file']
+            n = file_.name
 
-            with open(''.join([settings.DATA_PATH, 'templates/', file_.name]),
-             'wb') as fd:
-                for chunk in file_.chunks():
-                    fd.write(chunk)
+            if len(n) >= len('.yml') and n[len(n) - len('.yml'):] == '.yml':
+            # Add file content validation?
+            # Add file size validation
+
+                with open(''.join([settings.DATA_PATH, 'templates/', n]),
+                 'wb') as fd:
+                    for chunk in file_.chunks():
+                        fd.write(chunk)
 
     return HttpResponseRedirect('/tdg')
 
@@ -356,15 +358,17 @@ def get_file_data():
     juris_files = []
     prec_files = []
     for i in range(0, len(templates)):
-        if templates[i][len(templates[i]) - 5:] == '.yml':
+        if templates[i][len(templates[i]) - len('.yml'):] == '.yml':
             a = audit_header.AuditHeader()
             with open( '%stemplates/%s' % (settings.DATA_PATH,
              templates[i]),'r' ) as s:
                 a.load_from_file(s)
             if a.type == 'jurisdiction_slate':
-                juris_files.append(templates[i][:len(templates[i]) - 5])
+                juris_files.append \
+                 (templates[i][:len(templates[i]) - len('.yml')])
             else:
-                prec_files.append(templates[i][:len(templates[i]) - 5])
+                prec_files.append \
+                 (templates[i][:len(templates[i]) - len('.yml')])
         templates[i] = templates[i][:templates[i].rfind('.')]
     template_files = set(templates)
     bal_files = os.listdir( ''.join([settings.DATA_PATH, 'bal_count_tot/']) )

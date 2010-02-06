@@ -31,6 +31,4 @@ def xml_serialize(dict_, indent):
                     result.append( '%s ' % s )
             else:
                 result.append( '%s%s\n' % (spaces, s) )
-    if indent == 0:
-        print result
     return result
