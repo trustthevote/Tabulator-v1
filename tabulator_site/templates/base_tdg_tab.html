@@ -34,26 +34,53 @@
     $(".renDone").click( function() {
         //Gather the original filename and the new filename.
         oldName = $(this).attr("name");
-        newName = $("tr[name='" + oldName + "'] > .inputCell > input").attr("value");
+        newName = $("tr[name='" + oldName + "'] > .inputCell > input").val();
 
         if(!(oldName == newName)) {
             //Change some names/values of corresponding HTML elements
-            $("label[innerHTML='" + oldName + "']").attr({innerHTML: newName});
-            $("td.linkCell > a").attr("href", $("td.linkCell > a").attr("href").replace(oldName, newName));
-            $("[name='" + oldName + "']").attr("name", newName);
-            $("[id='" + oldName + "']").attr({id:newName});
-
-            //Update the server
+            $("label[innerHTML='" + oldName + "']").html(newName);
+            $("tr[name='" + oldName + "'] > td.linkCell > a").each( function() {
+                $(this).attr("href", $(this).attr("href").replace(oldName, newName));
+            });            
+            $("td [id='" + oldName + "']").attr('id', newName);
+            $("td [value='" + oldName + "']").val(newName);
+            $("td label[name='" + oldName + "']").html(newName);
+            $("td [name='" + oldName + "']").attr('name', newName);
+            $("td [class~='" + oldName + "']").addClass(newName);
+            $("td [class~='" + oldName + "']").removeClass(oldName);
+            $("tr[name='" + oldName + "']").attr('name', newName);
+            
+            //Update the server of the name change
             $.post("{{ ROOT }}tdg", {'old_name':oldName, 'new_name':newName});
         }
 
         //Remove the textbox and button, restore the checkbox and links.
         $("tr[name='" + newName + "'] > .boxCell").removeClass("hide");
+        $("tr[name='" + newName + "'] > .linkCell").removeClass("noDisplay");
         $("tr[name='" + newName + "'] > .labelCell").removeClass("noDisplay");
         $("tr[name='" + newName + "'] > .typeCell").removeClass("noDisplay");
-        $("td.linkCell > a").attr("href", $("td.linkCell > a").attr("href").replace(oldName, newName));
         $("tr[name='" + newName + "'] > .inputCell").addClass("noDisplay");
         $("tr[name='" + newName + "'] > .buttonCell").addClass("noDisplay");
+    });
+    
+    //Validate generation form arguments
+    $("#generationForm").submit( function() {
+        //Check to see if the user gave an output filename
+        // that is already in use. If so, then prompt to
+        // confirm overwrite. Also check for a null filename.
+        fname = $("#outputFilename").val();
+        if( fname == '' ) {
+            alert("Please provide an output file name");
+            return false;
+        }
+        
+        if($("[name='" + fname + "']").length != 0) {
+            if( !(confirm("Overwrite file " + fname + "?")) ) {
+                return false;
+            }
+        }
+
+        $("*").css("cursor", "wait");
     });
     
     //Recalculate and display the list of arguments that will be sent to
@@ -62,9 +89,7 @@
     function refreshCurrentCommand(appName) {
         args = appName + " " + getArgList().join(" ")
         $("#currentArgs").html(args);
-        
-        $("#wTest").html(args);
-        $("#currentArgs").width( $( "#wTest").width()+5 );
+        $("#argsField").val(args);
     }
 
 {% endblock tdg_tab_js %}

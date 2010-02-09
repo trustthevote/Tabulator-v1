@@ -56,9 +56,9 @@ def tdg_handler(request):
     if request.method == 'POST':
         # Check to see if the client wants to generate a file
         if request.POST.has_key('arguments_tdg'):
-            # Get and deserialize the user's arguments from JSON
-            args = request.POST.getlist('arguments_tdg')
-            args = json.loads(args[0])
+            #Get the arguments from the user's request
+            args = request.POST.getlist('arguments_tdg')[0]
+            args = args.split(' ')[1:]
             
             # Make arguments consistent with where data is stored on the
             #  server, using DATA_PATH from settings.py
@@ -68,7 +68,6 @@ def tdg_handler(request):
                 args[2] = ''.join([settings.DATA_PATH, 'templates/', args[2]])
                 args[3] = ''.join([settings.DATA_PATH,'bal_count_tot/',args[3]])
             P = TDG.ProvideRandomBallots(args)  # Make a file
-            return HttpResponse()
         # Check to see if client wants to delete file(s)
         elif request.POST.has_key('delete'):
             delete_files(request.POST.getlist('delete'))
@@ -96,9 +95,10 @@ def merge_handler(request):
     if request.method == 'POST':
         # Check to see if client wants to merge files
         if request.POST.has_key('arguments'):
-            # Get and deserialize the users arguments from JSON
-            args = request.POST.getlist('arguments')            
-            args = json.loads(args[0])
+            #Get the arguments from the user's request
+            args = request.POST.getlist('arguments')[0]
+            args = args.split(' ')[1:]
+            
             # Arguments will be made consistent with where data is
             #  stored on the server, as given by DATA_PATH
             args[0] = ''.join([settings.DATA_PATH, 'templates/', args[0]])
@@ -117,7 +117,6 @@ def merge_handler(request):
             m = merger.Merger(*args)
             if m.validate() == True:
                 m.merge(args[3])
-            return HttpResponse()
         # Check to see if client wants to delete file(s)
         elif request.POST.has_key('delete'):
             delete_files(request.POST.getlist('delete'))
@@ -144,7 +143,9 @@ def tab_handler(request):
     if request.method == 'POST':
         # Check to see if client wants to merge files
         if request.POST.has_key('arguments'):
-            args = request.POST.getlist('arguments')
+            #Get the arguments from the user's request
+            args = request.POST.getlist('arguments')[0]
+            args = args.split(' ')[1:]
 
             args[0] = ''.join([settings.DATA_PATH, 'tab_aggr/', args[0]])
             args[1] = ''.join([settings.DATA_PATH, 'templates/', args[1]])
@@ -152,7 +153,6 @@ def tab_handler(request):
             t = tabulator.Tabulator(args)
             # Move the newly generated reports into the reports/ folder
             os.system('mv %s_report* %sreports/' % (args[0], settings.DATA_PATH))
-            return HttpResponse()
     c = get_file_data()
     return render_to_response('tabulator.html', c,
      context_instance=RequestContext(request, processors=[settings_processor]))

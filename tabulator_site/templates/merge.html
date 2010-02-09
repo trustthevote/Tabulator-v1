@@ -11,52 +11,24 @@
 
 {% block javascript %}
     refreshCurrentCommand("merger");
-    
-    //Post file generation arguments to the server when the
-    // user clicks the "run" button.
-    $("#argsButton").click( function() {
-        //Check to see if the user gave an output filename
-        // that is already in use. If so, then prompt to
-        // confirm overwrite. Also check for a null filename.
-        fname = $("#mergeName").attr("value");
-        if( fname == '') {
-            alert("Please provide an output file name");
-            return;
-        }
-        if($("input[type='text'][name="+fname+"]").length != 0) {
-            if( !(confirm("Overwrite file " + fname + "?")) ) {
-                return;
-            }
-        }
-
-        //If the filename was not already in use, or the
-        // user confirmed the overwrite, then post
-        // arguments to the server.
-        args = JSON.stringify(getArgList())
-        $("*").css("cursor", "wait");
-        $.post("{{ ROOT }}merger", {'arguments':args}, function() {
-            location.reload(true);
-        });
-    });
 
     //Gather a list of arguments
     function getArgList() {
         args = new Array();
-        fname = $("#mergeName").attr("value");
-        idx = $("#templateFile").attr("selectedIndex");
-        args.push($("#templateFile > option[index="+idx+"]").attr("value"));
-        idx = $("#inputFile1").attr("selectedIndex");
-        args.push($("#inputFile1 > option[index="+idx+"]").attr("value"));
-        idx = $("#inputFile2").attr("selectedIndex");
-        args.push($("#inputFile2 > option[index="+idx+"]").attr("value"));
-        args.push(fname);
+        index = $("#templateFile").attr("selectedIndex");
+        args.push($("#templateFile > option[index="+index+"]").val());
+        index = $("#inputFile1").attr("selectedIndex");
+        args.push($("#inputFile1 > option[index="+index+"]").val());
+        index = $("#inputFile2").attr("selectedIndex");
+        args.push($("#inputFile2 > option[index="+index+"]").val());
+        args.push($("#outputFilename").val());
         return args;
     }
     
     $("#templateFile").change(function(){refreshCurrentCommand("merger");});
     $("#inputFile1").change(function(){refreshCurrentCommand("merger");});
     $("#inputFile2").change(function(){refreshCurrentCommand("merger");});
-    $("#mergeName").keyup(function(){refreshCurrentCommand("merger");});
+    $("#outputFilename").keyup(function(){refreshCurrentCommand("merger");});
     
 {% endblock javascript %}
 
@@ -95,10 +67,12 @@
                 {% endif %}
             </select></div>
             <div><label>Merged output file:</label>
-            <input type="text" id="mergeName" class="argInputs" /></div>
+            <input type="text" id="outputFilename" class="argInputs" /></div>
             <div><label>Current command:</label><span id="currentArgs"></span></div>
-            <div id="wTest" class="noDisplay"></div>
-            <input type="submit" value="Run" id="argsButton" />
+            <form id="generationForm" action="/merger" method=post>
+                <input type="text" id="argsField" class="noDisplay" name="arguments"/>
+                <input type="submit" value="Run" id="argsButton" />
+            </form>
         </div>
     </div>
 
@@ -108,7 +82,7 @@
             {% for file in tab_files %}
                 <tr name="{{ file }}">
                     <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
-                    <td class="labelCell"><label>{{ file }}</label></td>
+                    <td class="labelCell"><label name="{{ file }}">{{ file }}</label></td>
                     <td class="typeCell"><label>(tabulator-aggregation)</label></td>
                     <td class="linkCell"><a href="{{ ROOT }}data/merge/{{ file }}.yml">yaml</a></td>
                     <td class="linkCell"><a href="{{ ROOT }}data/merge/{{ file }}.xml">xml</a></td>

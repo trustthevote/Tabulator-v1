@@ -37,8 +37,8 @@
     // ballot counter total file.
     function hideOrShowFields() {
         refreshCurrentCommand("test_data_generator");
-        idx = $("#genMode").attr("selectedIndex");
-        val = $("#genMode > option[index="+idx+"]").attr("value");
+        index = $("#genMode").attr("selectedIndex");
+        val = $("#genMode > option[index="+index+"]").val();
         if(val == "jurisdiction" || val == "contestlist") {
             $(".bctFields").addClass('noDisplay');
             $(".templateFields").removeClass('noDisplay');
@@ -49,56 +49,28 @@
         }
     };
 
-    //Post file generation arguments to the server when the
-    // user clicks the "run" button.
-    $("#argsButton").click( function() {
-        //Check to see if the user gave an output filename
-        // that is already in use. If so, then prompt to
-        // confirm overwrite. Also check for a null filename.
-        fname = $("#outputFilename").attr("value");
-        if( fname == '' ) {
-            alert("Please provide an output file name");
-            return;
-        }
-        
-        if($("[name='" + fname + "']").length != 0) {
-            if( !(confirm("Overwrite file " + fname + "?")) ) {
-                return;
-            }
-        }
-
-        //If the filename was not already in use, or the
-        // user confirmed the overwrite, then post
-        // arguments to the server.
-        args = JSON.stringify(getArgList());
-        $("*").css("cursor", "wait");
-        $.post("{{ ROOT }}tdg", {'arguments_tdg':args}, function() {
-            location.reload(true);
-        });
-    });
-
     //Gather a list of arguments, the size of which
     // depends on the type of data to generate.
     function getArgList() {
         args = new Array();
 
-        idx = $("#genMode").attr("selectedIndex");
-        val = $("#genMode > option[index="+idx+"]").attr("value");
-        fname = $("#outputFilename").attr("value");
+        index = $("#genMode").attr("selectedIndex");
+        val = $("#genMode > option[index="+index+"]").val();
+        fname = $("#outputFilename").val();
         args.push(val);
         if( (val=="jurisdiction") || (val=="contestlist") ) {
             args.push(fname);
         }
         if(val=="counts") {
-            args.push($("#howMany").attr("value"));
-            idx = $("#templateFile").attr("selectedIndex");
-            args.push($("#templateFile > option[index="+idx+"]").attr("value"));
+            args.push($("#howMany").val());
+            index = $("#templateFile").attr("selectedIndex");
+            args.push($("#templateFile > option[index="+index+"]").val());
             args.push(fname);
         }
 
-        val = $("[name='options'][type='radio']:checked").attr("value");
+        val = $("[name='options'][type='radio']:checked").val();
         if( val == "range" ) {
-            upper = $("#dataUpperBound").attr("value");
+            upper = $("#dataUpperBound").val();
             args.push("+" + upper);
         }
         else if( val == "allOnes" ) {
@@ -110,7 +82,7 @@
     
     //Perform validation checks when the user tries to upload a file
     $("#uploadFileForm").submit( function() {
-        fname = $("#uploadedFile").attr("value");
+        fname = $("#uploadedFile").val();
         if(fname == '') {
             alert("Please select a file to upload");
             return false;
@@ -164,7 +136,7 @@
             <!--Ballot Counter Total Fields-->
             <span class="bctFields">
                 <div><label>Number of records in file:</label>
-                    <input type="text" id="howMany" class="argInputs" />
+                    <input type="text" id="howMany" class="argInputs" value="1"/>
                 </div>
                 <div><label for="templateFile">Jurisdiction Slate file:</label>
                     <select id="templateFile" class="argInputs">
@@ -188,8 +160,10 @@
             <div><label>Output file name:</label><input type="text" id="outputFilename" class="argInputs" /></div>
 
             <div><label>Current command:</label><span id="currentArgs"></span></div>
-            <div id="wTest" class="noDisplay"></div>
-            <input type="submit" value="Run" id="argsButton" />
+            <form id="generationForm" action="/tdg" method=post>
+                <input type="text" id="argsField" class="noDisplay" name="arguments_tdg"/>
+                <input type="submit" value="Run" id="argsButton" />
+            </form>
         </div>
     </div>
 
@@ -199,7 +173,7 @@
             {% for file in juris_files %}
                 <tr name="{{ file }}">
                     <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
-                    <td class="labelCell"><label>{{ file }}</label></td>
+                    <td class="labelCell"><label name="{{ file }}">{{ file }}</label></td>
                     <td class="typeCell"><label>(jurisdiction-slate)</label></td>
                     <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yml">yaml</a></td>
                     <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>
@@ -210,7 +184,7 @@
             {% for file in prec_files %}
                 <tr name="{{ file }}">
                     <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
-                    <td class="labelCell"><label>{{ file }}</label></td>
+                    <td class="labelCell"><label name="{{ file }}">{{ file }}</label></td>
                     <td class="typeCell"><label>(precinct-contestlist)</label></td>
                     <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yml">yaml</a></td>
                     <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>
@@ -221,7 +195,7 @@
             {% for file in bal_files %}
                 <tr name="{{ file }}">
                     <td class="boxCell"><input type="checkbox" class="fileBoxes" name="{{ file }}" id="{{ file }}" /></td>
-                    <td class="labelCell"><label>{{ file }}</label></td>
+                    <td class="labelCell"><label name="{{ file }}">{{ file }}</label></td>
                     <td class="typeCell"><label>(ballot-counter-total)</label></td>
                     <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.yml">yaml</a></td>
                     <td class="linkCell"><a href="{{ ROOT }}data/tdg/{{ file }}.xml">xml</a></td>

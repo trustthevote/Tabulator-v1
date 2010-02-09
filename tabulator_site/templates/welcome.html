@@ -6,8 +6,8 @@
     //Post login arguments to the server when the user clicks the
     // "log in" button.
     $("#loginButton").click( function() {
-        uname = $("#unameField").attr("value");
-        pword = $("#pwordField").attr("value");
+        uname = $("#unameField").val();
+        pword = $("#pwordField").val();
         $.post("{{ HOME }}", {'username':uname, 'password': pword},            
             function(data) {                
                 if(data) {
