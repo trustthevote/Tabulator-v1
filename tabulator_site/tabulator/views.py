@@ -103,11 +103,13 @@ def merge_handler(request):
             #  stored on the server, as given by DATA_PATH
             args[0] = ''.join([settings.DATA_PATH, 'templates/', args[0]])
 
-            if os.listdir(''.join([settings.DATA_PATH,'bal_count_tot/'])).count(''.join([args[1],'.yml'])) == 1:
+            if os.listdir(''.join([settings.DATA_PATH,'bal_count_tot/'])).\
+             count(''.join([args[1],'.yml'])) == 1:
                 args[1] = ''.join([settings.DATA_PATH, 'bal_count_tot/', args[1]])
             else:
                 args[1] = ''.join([settings.DATA_PATH, 'tab_aggr/', args[1]])
-            if os.listdir(''.join([settings.DATA_PATH, 'bal_count_tot/'])).count(''.join([args[2], '.yml'])) == 1:
+            if os.listdir(''.join([settings.DATA_PATH, 'bal_count_tot/'])).\
+             count(''.join([args[2], '.yml'])) == 1:
                 args[2] = ''.join([settings.DATA_PATH, 'bal_count_tot/', args[2]])
             else:
                 args[2] = ''.join([settings.DATA_PATH, 'tab_aggr/', args[2]])

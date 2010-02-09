@@ -38,45 +38,87 @@
     function hideOrShowFields() {
         refreshCurrentCommand("test_data_generator");
         index = $("#genMode").attr("selectedIndex");
-        val = $("#genMode > option[index="+index+"]").val();
-        if(val == "jurisdiction" || val == "contestlist") {
-            $(".bctFields").addClass('noDisplay');
-            $(".templateFields").removeClass('noDisplay');
-        }
-        else if(val == "counts") {
+        genType = $("#genMode > option[index="+index+"]").val();
+        if(genType == "counts") {
             $(".bctFields").removeClass('noDisplay');
             $(".templateFields").addClass('noDisplay');
         }
+        else {
+            $(".bctFields").addClass('noDisplay');
+            $(".templateFields").removeClass('noDisplay');
+            if( genType == "jurisdiction" )
+                $("#jurisMenu").removeClass('noDisplay');
+            else
+                $("#jurisMenu").addClass('noDisplay');
+        }
     };
 
-    //Gather a list of arguments, the size of which
-    // depends on the type of data to generate.
+    //Gather a list of arguments for the command line app
     function getArgList() {
         args = new Array();
 
         index = $("#genMode").attr("selectedIndex");
-        val = $("#genMode > option[index="+index+"]").val();
+        genType = $("#genMode > option[index="+index+"]").val();
         fname = $("#outputFilename").val();
-        args.push(val);
-        if( (val=="jurisdiction") || (val=="contestlist") ) {
-            args.push(fname);
-        }
-        if(val=="counts") {
+        args.push(genType);
+
+        //Get ballot counter total arguments
+        if( genType == "counts" ) {
             args.push($("#howMany").val());
             index = $("#templateFile").attr("selectedIndex");
             args.push($("#templateFile > option[index="+index+"]").val());
             args.push(fname);
+
+            val = $("[name='options'][type='radio']:checked").val();
+            if( val == "range" ) {
+                upper = $("#dataUpperBound").val();
+                if( upper > 0 ) {
+                    args.push("+" + upper);
+                }
+            }
+            else if( val == "allOnes" ) {
+                args.push("-1");
+            }
         }
 
-        val = $("[name='options'][type='radio']:checked").val();
-        if( val == "range" ) {
-            upper = $("#dataUpperBound").val();
-            args.push("+" + upper);
+        //Get election template generation arguments
+        else {
+            args.push(fname);
+            val = $("#contestField").val();
+            if( val > 0 ) {
+                args.push("-C" + val);
+            }
+            val = $("[name=candMenu][type='radio']:checked").val();
+            console.log(val);
+            
+            if( val == "specific" ) {
+                spec = $("#candSpec").val();
+                if( spec > 0 )
+                    args.push("-c" + spec);
+            }
+            else {
+                clb = $("#candLowerBound").val();
+                cub = $("#candUpperBound").val();
+                console.log(cub + ' ' + clb);
+                if( clb > 0 && cub*1 > clb*1 ) {
+                    args.push("-cl" + clb);
+                    args.push("-cu" + cub);
+                }
+            }
+
+            if( genType == "jurisdiction" ) {
+                val = $("[name=jurisMenu][type='radio']:checked").val();
+                if( val == "range" ) {
+                    dVal = $("#distNum").val()
+                    pVal = $("#precNum").val()
+                    if( dVal > 0 && pVal > 0 ) {
+                        args.push("-d" + dVal);
+                        args.push("-p" + pVal);
+                    }
+                }
+            }
         }
-        else if( val == "allOnes" ) {
-            args.push("-1");
-        }
-        
+
         return args;
     }
     
@@ -94,11 +136,22 @@
     });
 
     $("#outputFilename").keyup(function(){refreshCurrentCommand("test_data_generator");});
+    
     $("#howMany").keyup(function(){refreshCurrentCommand("test_data_generator");});
     $("#templateFile").change(function(){refreshCurrentCommand("test_data_generator");});
     $("#add").change(function(){refreshCurrentCommand("test_data_generator");});
     $("#dataUpperBound").keyup(function(){refreshCurrentCommand("test_data_generator");});
     $("[name=options]").click(function(){refreshCurrentCommand("test_data_generator");});
+    
+    $("#contestField").keyup(function(){refreshCurrentCommand("test_data_generator");});
+    $("[name=candMenu]").click(function(){refreshCurrentCommand("test_data_generator");});
+    $("#candSpec").keyup(function(){refreshCurrentCommand("test_data_generator");});
+    $("#candLowerBound").keyup(function(){refreshCurrentCommand("test_data_generator");});
+    $("#candUpperBound").keyup(function(){refreshCurrentCommand("test_data_generator");});
+    $("[name=jurisMenu]").click(function(){refreshCurrentCommand("test_data_generator");});
+    $("#distNum").keyup(function(){refreshCurrentCommand("test_data_generator");});
+    $("#precNum").keyup(function(){refreshCurrentCommand("test_data_generator");});
+    
 {% endblock javascript %}
 
 {% block main %}
@@ -116,16 +169,16 @@
             <span class="templateFields">
                 <div>
                     <label for="contestField">Number of contests:</label>
-                    <input type="text" id="contestField"/>
+                    <input type="text" id="contestField" value="10"/>
                 </div>
                 <div><label id="candidateMenu">Number of candidates:</label>
-                    <input type="radio" name="candMenu" value="none" checked="checked"/> Specific Number:
-                        <input type="text" class="smallNums" id="contNum" /><br />
+                    <input type="radio" name="candMenu" value="specific" checked="checked"/> Specific Number:
+                        <input type="text" class="smallNums" id="candSpec" value="3"/><br />
                     <input type="radio" class="posiLeft" name="candMenu" value="range" /> Between:
                         <input type="text" class="smallNums" id="candLowerBound" /> and 
                         <input type="text" class="smallNums" id="candUpperBound" /><br />
                 </div>
-                <div><label id="jurisMenu">Districts / Precincts</label>
+                <div id="jurisMenu"><label>Districts / Precincts</label>
                     <input type="radio" name="jurisMenu" value="none" checked="checked"/> Use default 'Jurisdiction of Random'<br />
                     <input type="radio" class="posiLeft" name="jurisMenu" value="range" /> Generate 
                         <input type="text" class="smallNums" id="distNum" /> districts and 
@@ -152,7 +205,7 @@
                 <div ><label id="add">Additional options:</label>
                     <input type="radio" name="options" value="none" checked="checked"/> None<br />
                     <input type="radio" class="posiLeft" name="options" value="range" /> Make all generated vote count values lie between 0 -
-                        <input type="text" class="smallNums" id="dataUpperBound" /><br />
+                        <input type="text" class="smallNums" id="dataUpperBound" value="100"/><br />
                     <input type="radio" class="posiLeft" name="options" value="allOnes" /> Make all generated vote count values = 1<br />
                 </div>
             </span>
