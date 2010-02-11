@@ -89,7 +89,6 @@
                 args.push("-C" + val);
             }
             val = $("[name=candMenu][type='radio']:checked").val();
-            console.log(val);
             
             if( val == "specific" ) {
                 spec = $("#candSpec").val();
@@ -99,8 +98,7 @@
             else {
                 clb = $("#candLowerBound").val();
                 cub = $("#candUpperBound").val();
-                console.log(cub + ' ' + clb);
-                if( clb > 0 && cub*1 > clb*1 ) {
+                if( clb > 0 && cub * 1 > clb * 1 ) {
                     args.push("-cl" + clb);
                     args.push("-cu" + cub);
                 }

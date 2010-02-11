@@ -37,7 +37,11 @@ class ProvideRandomBallots(object):
         self.fname_list = []
         self.lname_list = []
 
-        self.type = args[0]
+        self.args = args
+        self.params = {}
+        self.process_flags()
+
+        self.type = self.args[0]
         if self.type == 'jurisdiction':
         # Generate a sample jurisdiction_slate and output it to the
         #  location specified by the user in the command line, in yaml
@@ -50,16 +54,16 @@ class ProvideRandomBallots(object):
                          'Pito Salas', 'TTV Tabulator TAB02', 
                          'TTV Tabulator 0.1 JUL-1-2008', [])
             b = self.make_juris()
-            b['jurisdiction_display_name'] = \
-             args[1][args[1].rfind('/') + 1:len(args[1])].encode("ascii")
-        
+            b['jurisdiction_display_name'] = (self.args[1]\
+             [self.args[1].rfind('/') + 1:len(self.args[1])]).encode("ascii")
+
             # Dump output into a file in yaml format
-            with open(''.join([args[1],'.yml']), 'w') as stream:
+            with open(''.join([self.args[1],'.yml']), 'w') as stream:
                 stream.write(a.serialize_yaml())
                 yaml.dump(b, stream)
-            
+
             # Dump output into a file in XML file
-            with open(''.join([args[1],'.xml']), 'w') as stream:
+            with open(''.join([self.args[1],'.xml']), 'w') as stream:
                 stream.write(a.serialize_xml())
                 stream.writelines(xml_serialize(b, 0))
 
@@ -77,31 +81,21 @@ class ProvideRandomBallots(object):
             b = self.random_elec()
 
             # Dump output into a file in yaml format
-            with open(''.join([args[1],'.yml']), 'w') as stream:
+            with open(''.join([self.args[1],'.yml']), 'w') as stream:
                 stream.write(a.serialize_yaml())
                 yaml.dump(b, stream)
 
             # Dump output into a file in XML file
-            with open(''.join([args[1], '.xml']), 'w') as stream:
+            with open(''.join([self.args[1], '.xml']), 'w') as stream:
                 stream.write(a.serialize_xml())
                 stream.writelines(xml_serialize(b, 0))
 
         elif self.type == 'counts':
-            # Extract and apply flags if there are any
-            if len(args) == 5:
-                if args[4] == '-1':
-                    r_min = 1
-                    r_max = 1
-                elif args[4][0] == '+':
-                    r_min = 0
-                    r_max = int(args[4][1:])
-                args.remove(args[4])
-            else:
-                r_min = 0
-                r_max = 99
-
+            r_min = self.params['counts_min']
+            r_max = self.params['counts_max']
+            
             # Load election specs from given file in yaml format
-            with open(''.join([args[2],'.yml']), 'r') as stream:
+            with open(''.join([self.args[2],'.yml']), 'r') as stream:
                 for i in range(0,8):  # Ignore the audit header
                     stream.readline()
                 e = yaml.load(stream)
@@ -111,7 +105,7 @@ class ProvideRandomBallots(object):
             #  assign the vote counts of each candidate a value between 
             #  0 and 99.
             b_list = []
-            for i in range(int(args[1])):
+            for i in range(int(self.args[1])):
                 b = {}
                 for key in e.keys():
                     if key not in ['contest_list', 'precinct_list',
@@ -178,12 +172,12 @@ class ProvideRandomBallots(object):
                          'TTV Tabulator 0.1 JUL-1-2008', [])
 
             # Dump output into a file in yaml format
-            with open(''.join([args[3],'.yml']), 'w') as stream:
+            with open(''.join([self.args[3],'.yml']), 'w') as stream:
                 stream.write(a.serialize_yaml())
                 yaml.dump_all(b_list, stream)
 
             # Dump output into a file in XML file
-            with open(''.join([args[3],'.xml']), 'w') as stream:
+            with open(''.join([self.args[3],'.xml']), 'w') as stream:
                 stream.write(a.serialize_xml())
                 for record in b_list:
                     stream.writelines(xml_serialize(record, 0))
@@ -197,43 +191,46 @@ class ProvideRandomBallots(object):
 
         b = self.random_elec()
         b['precinct_list'] = []
-        
-        # Make some precincts, currently with mostly hardcoded values
-        b['number_of_precincts'] = 8
-        for i in range(1,9):
-            b['precinct_list'].append({})
-            prec = b['precinct_list'][i - 1]
-            prec['display_name'] = random.randint(1000,9999)
-            prec['ident'] = ''.join(['PREC-',str(i)])
-            prec['district_list'] = []
-            prec['voting places'] = []
-            prec['voting places'].append({})
-            prec['voting places'][0]['ballot_counters'] = random.randint(1,5)
-            prec['voting places'][0]['ident'] = ''.join(['VLPC-',str(i)])
-            prec['registered_voters'] = random.randint(900,1100)
-            b['registered_voters'] += prec['registered_voters']
 
-        # Give the precincts some hardcoded districts
-        l = b['precinct_list']
-        n1 = 'City of Random'
-        n2 = 'Random Creek Drainage District'
-        n3 = 'State House District 11'
-        n4 = 'State House District 12'
-        l[0]['district_list'].append({'display_name':n1, 'ident':'DIST-1'})
-        l[0]['district_list'].append({'display_name':n3, 'ident':'DIST-3'})
-        l[1]['district_list'].append({'display_name':n1, 'ident':'DIST-1'})
-        l[1]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
-        l[2]['district_list'].append({'display_name':n1, 'ident':'DIST-1'})
-        l[2]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
-        l[2]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
-        l[3]['district_list'].append({'display_name':n3, 'ident':'DIST-3'})
-        l[4]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
-        l[4]['district_list'].append({'display_name':n3, 'ident':'DIST-3'})
-        l[5]['district_list'].append({'display_name':n1, 'ident':'DIST-1'})
-        l[5]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
-        l[5]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
-        l[6]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
-        l[7]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})        
+        if num_dists != -1 and num_precs == -1:
+            # Make some precincts using hardcoded values
+            b['number_of_precincts'] = 8
+            for i in range(1,9):
+                b['precinct_list'].append({})
+                prec = b['precinct_list'][i - 1]
+                prec['display_name'] = random.randint(1000,9999)
+                prec['ident'] = ''.join(['PREC-',str(i)])
+                prec['district_list'] = []
+                prec['voting places'] = []
+                prec['voting places'].append({})
+                prec['voting places'][0]['ballot_counters']=random.randint(1,5)
+                prec['voting places'][0]['ident'] = ''.join(['VLPC-',str(i)])
+                prec['registered_voters'] = random.randint(900,1100)
+                b['registered_voters'] += prec['registered_voters']
+
+            # Give the precincts some hardcoded districts
+            l = b['precinct_list']
+            n1 = 'City of Random'
+            n2 = 'Random Creek Drainage District'
+            n3 = 'State House District 11'
+            n4 = 'State House District 12'
+            l[0]['district_list'].append({'display_name':n1, 'ident':'DIST-1'})
+            l[0]['district_list'].append({'display_name':n3, 'ident':'DIST-3'})
+            l[1]['district_list'].append({'display_name':n1, 'ident':'DIST-1'})
+            l[1]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
+            l[2]['district_list'].append({'display_name':n1, 'ident':'DIST-1'})
+            l[2]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
+            l[2]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
+            l[3]['district_list'].append({'display_name':n3, 'ident':'DIST-3'})
+            l[4]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
+            l[4]['district_list'].append({'display_name':n3, 'ident':'DIST-3'})
+            l[5]['district_list'].append({'display_name':n1, 'ident':'DIST-1'})
+            l[5]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
+            l[5]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
+            l[6]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
+            l[7]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
+        else:
+            pass
 
         return b
 
@@ -257,9 +254,9 @@ class ProvideRandomBallots(object):
         b['number_of_precincts'] = 0
         b['registered_voters'] = 0
         
-        # Generate a few contests
+        # Generate some contests
         b['contest_list'] = []
-        for i in range(10):
+        for i in range(self.params['num_conts']):
             b['contest_list'].append(self.random_contest())            
         return b
 
@@ -272,8 +269,8 @@ class ProvideRandomBallots(object):
 
         # Generate a few candidates per contest
         cont['candidates'] = []
-        r = random.randint(2,4)
-        for i in range(0,r):            
+        r = random.randint(self.params['cands_min'],self.params['cands_max'])
+        for i in range(0,r):
             cont['candidates'].append(self.random_candidate(False))
         cont['candidates'].append(self.random_candidate(True))
 
@@ -374,6 +371,73 @@ class ProvideRandomBallots(object):
             return fullname
         else:
             return(self.random_fullname())      
+
+            if len(self.args) == 5:
+                if self.args[4] == '-1':
+                    r_min = 1
+                    r_max = 1
+                elif self.args[4][0] == '+':
+                    r_min = 0
+                    r_max = int(self.args[4][1:])
+                self.args.remove(self.args[4])
+            else:
+                r_min = 0
+                r_max = 99
+
+    def process_flags(self):
+        """
+        Process and remove test data generation flags from argument
+         list, and set defaults if no flags are given for a specific
+         parameter.
+        """
+        
+        print self.args
+        print range(len(self.args))
+        for i in range(len(self.args)):
+            print i
+            arg = self.args[i]
+            if arg == '-1':
+                self.params['counts_min'] = 1
+                self.params['counts_max'] = 1
+                self.args.pop(i)
+            elif arg[0] == '+':
+                self.params['counts_min'] = 0
+                self.params['counts_max'] = int(arg[1:])
+                self.args.pop(i)
+            elif arg[:2] == '-C':
+                self.params['num_conts'] = int(arg[2:])
+                self.args.pop(i)
+            elif arg[:2] == '-c':
+                self.params['cands_min'] = int(arg[2:])
+                self.params['cands_max'] = int(arg[2:])
+                self.args.pop(i)
+            elif arg[:3] == '-cl':
+                self.params['cands_min'] = int(arg[3:])
+                self.args.pop(i)
+            elif arg[:3] == '-cu':
+                self.params['cands_max'] = int(arg[3:])
+                self.args.pop(i)
+            elif arg[:2] == '-d':
+                self.params['num_dists'] = int(arg[2:])
+                self.args.pop(i)
+            elif arg[:2] == '-p':
+                self.params['num_precs'] = int(arg[2:])
+                self.args.pop(i)
+        
+        if not self.params.has_key('counts_min'):
+            self.params['counts_min'] = 0
+        if not self.params.has_key('counts_max'):
+            self.params['counts_max'] = 100
+        if not self.params.has_key('num_conts'):
+            self.params['num_conts'] = 10
+        if not self.params.has_key('cands_min'):
+            self.params['cands_min'] = 2
+        if not self.params.has_key('cands_max'):
+            self.params['cands_max'] = 4
+        if not self.params.has_key('num_dists'):
+            self.params['num_dists'] = -1
+        if not self.params.has_key('num_precs'):
+            self.params['num_precs'] = -1
 
 def printUsage():
     print 'Usage: test_data_generator.py jurisdiction [OUTPUT ELECTION FILE]'
