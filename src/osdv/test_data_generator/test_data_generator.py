@@ -33,13 +33,15 @@ class ProvideRandomBallots(object):
         self.already_used_dreps = []
         self.already_used_names = []
         self.already_used_cand_idents = []
+        self.already_used_dist_names = []
         self.already_used_supreme = False
         self.fname_list = []
         self.lname_list = []
 
         self.args = args
         self.params = {}
-        self.process_flags()
+        for arg in self.process_flags():
+            self.args.remove(arg)
 
         self.type = self.args[0]
         if self.type == 'jurisdiction':
@@ -190,24 +192,27 @@ class ProvideRandomBallots(object):
         """
 
         b = self.random_elec()
+
+        # Make some precincts
         b['precinct_list'] = []
+        b['number_of_precincts'] = self.params['num_precs']
+        for i in range(1, b['number_of_precincts'] + 1):
+            b['precinct_list'].append({})
+            prec = b['precinct_list'][i - 1]
+            prec['display_name'] = random.randint(1000,9999)
+            prec['ident'] = ''.join(['PREC-',str(i)])
+            prec['district_list'] = []
+            prec['voting places'] = []
+            prec['voting places'].append({})
+            prec['voting places'][0]['ballot_counters']=random.randint(1,5)
+            prec['voting places'][0]['ident'] = ''.join(['VLPC-',str(i)])
+            prec['registered_voters'] = random.randint(900,1100)
+            b['registered_voters'] += prec['registered_voters']
 
-        if num_dists != -1 and num_precs == -1:
-            # Make some precincts using hardcoded values
-            b['number_of_precincts'] = 8
-            for i in range(1,9):
-                b['precinct_list'].append({})
-                prec = b['precinct_list'][i - 1]
-                prec['display_name'] = random.randint(1000,9999)
-                prec['ident'] = ''.join(['PREC-',str(i)])
-                prec['district_list'] = []
-                prec['voting places'] = []
-                prec['voting places'].append({})
-                prec['voting places'][0]['ballot_counters']=random.randint(1,5)
-                prec['voting places'][0]['ident'] = ''.join(['VLPC-',str(i)])
-                prec['registered_voters'] = random.randint(900,1100)
-                b['registered_voters'] += prec['registered_voters']
-
+        # If the user does not specify either the number of districts
+        #  or the number of precincts that should be randomly generated,
+        #  use default districts.
+        if self.params['num_dists'] == -1 or self.params['num_precs'] == 8:
             # Give the precincts some hardcoded districts
             l = b['precinct_list']
             n1 = 'City of Random'
@@ -229,9 +234,50 @@ class ProvideRandomBallots(object):
             l[5]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
             l[6]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
             l[7]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
+        # Otherwise, generate the number of districts that the user
+        #  specified. and assign them to the already generated precincts
         else:
-            pass
-
+            dist_list = []
+            d_names = ['President', 'US Representative', 'House District',
+             'Senate District', 'Soil & Water District', 'Harbor District',
+             'School District']
+            d_names_append10 = ['US Representative District', 'House District',
+             'Senate District']
+            for i in range(self.params['num_dists']):
+                d = {}
+                while True:
+                    name = random.choice(d_names)
+                    if name in d_names_append10:
+                        name = '%s %s' % (name, str(random.randint(1, 10)))
+                    elif name == 'School District':
+                        name = '%s %s' % (name, str(random.randint(1, 5)))
+                    if not name in self.already_used_dist_names:
+                        self.already_used_dist_names.append(name)
+                        break
+                d['display_name'] = name
+                d['ident'] = ''.join(['DIST-', str(i + 1)])
+                dist_list.append(d)
+            print self.params['num_dists']
+            print dist_list
+            for i in range(len(b['precinct_list'])):
+                d1 = random.choice(range(self.params['num_dists']))
+                while True:
+                    d2 = random.choice(range(self.params['num_dists']))
+                    while True:
+                        d3 = random.choice(range(self.params['num_dists']))
+                        if d3 != d2 and d3 != d1:
+                            break
+                    if d2 != d1:
+                        break
+                """
+                print dist_list[d1]
+                print dist_list[d2]
+                print dist_list[d3]
+                print
+                """
+                b['precinct_list'][i]['district_list'].append(dist_list[d1])
+                b['precinct_list'][i]['district_list'].append(dist_list[d2])
+                b['precinct_list'][i]['district_list'].append(dist_list[d3])
         return b
 
     def random_elec(self):
@@ -370,59 +416,44 @@ class ProvideRandomBallots(object):
             self.already_used_names.append(fullname)
             return fullname
         else:
-            return(self.random_fullname())      
-
-            if len(self.args) == 5:
-                if self.args[4] == '-1':
-                    r_min = 1
-                    r_max = 1
-                elif self.args[4][0] == '+':
-                    r_min = 0
-                    r_max = int(self.args[4][1:])
-                self.args.remove(self.args[4])
-            else:
-                r_min = 0
-                r_max = 99
+            return(self.random_fullname())
 
     def process_flags(self):
         """
-        Process and remove test data generation flags from argument
-         list, and set defaults if no flags are given for a specific
-         parameter.
+        Process and tag for removal test data generation flags from
+         argument list, and set defaults if no flags are given for a
+         specific parameter.
         """
         
-        print self.args
-        print range(len(self.args))
-        for i in range(len(self.args)):
-            print i
-            arg = self.args[i]
+        remove_me = []
+        for arg in self.args:
             if arg == '-1':
                 self.params['counts_min'] = 1
                 self.params['counts_max'] = 1
-                self.args.pop(i)
+                remove_me.append(arg)
             elif arg[0] == '+':
                 self.params['counts_min'] = 0
                 self.params['counts_max'] = int(arg[1:])
-                self.args.pop(i)
+                remove_me.append(arg)
             elif arg[:2] == '-C':
                 self.params['num_conts'] = int(arg[2:])
-                self.args.pop(i)
+                remove_me.append(arg)
+            elif arg[:3] == '-cl':
+                self.params['cands_min'] = int(arg[3:])
+                remove_me.append(arg)
+            elif arg[:3] == '-cu':
+                self.params['cands_max'] = int(arg[3:])
+                remove_me.append(arg)
             elif arg[:2] == '-c':
                 self.params['cands_min'] = int(arg[2:])
                 self.params['cands_max'] = int(arg[2:])
-                self.args.pop(i)
-            elif arg[:3] == '-cl':
-                self.params['cands_min'] = int(arg[3:])
-                self.args.pop(i)
-            elif arg[:3] == '-cu':
-                self.params['cands_max'] = int(arg[3:])
-                self.args.pop(i)
+                remove_me.append(arg)
             elif arg[:2] == '-d':
                 self.params['num_dists'] = int(arg[2:])
-                self.args.pop(i)
+                remove_me.append(arg)
             elif arg[:2] == '-p':
                 self.params['num_precs'] = int(arg[2:])
-                self.args.pop(i)
+                remove_me.append(arg)
         
         if not self.params.has_key('counts_min'):
             self.params['counts_min'] = 0
@@ -437,7 +468,9 @@ class ProvideRandomBallots(object):
         if not self.params.has_key('num_dists'):
             self.params['num_dists'] = -1
         if not self.params.has_key('num_precs'):
-            self.params['num_precs'] = -1
+            self.params['num_precs'] = 8
+
+        return remove_me
 
 def printUsage():
     print 'Usage: test_data_generator.py jurisdiction [OUTPUT ELECTION FILE]'
