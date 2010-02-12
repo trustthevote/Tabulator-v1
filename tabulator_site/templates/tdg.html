@@ -109,7 +109,7 @@
                 if( val == "range" ) {
                     dVal = $("#distNum").val()
                     pVal = $("#precNum").val()
-                    if( dVal > 0 && pVal > 0 ) {
+                    if( dVal * 1 > 2 && pVal > 0 ) {
                         args.push("-d" + dVal);
                         args.push("-p" + pVal);
                     }
