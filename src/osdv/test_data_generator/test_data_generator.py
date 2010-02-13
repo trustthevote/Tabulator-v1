@@ -234,7 +234,6 @@ class ProvideRandomBallots(object):
             l[5]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
             l[6]['district_list'].append({'display_name':n2, 'ident':'DIST-2'})
             l[7]['district_list'].append({'display_name':n4, 'ident':'DIST-4'})
-
         # Otherwise, generate the number of districts that the user
         #  specified. and assign them to the already generated precincts
         else:
@@ -244,7 +243,6 @@ class ProvideRandomBallots(object):
              'School District']
             d_names_append10 = ['US Representative District', 'House District',
              'Senate District']
-
             for i in range(self.params['num_dists']):
                 d = {}
                 while True:
@@ -259,7 +257,8 @@ class ProvideRandomBallots(object):
                 d['display_name'] = name
                 d['ident'] = ''.join(['DIST-', str(i + 1)])
                 dist_list.append(d)
-
+            print self.params['num_dists']
+            print dist_list
             for i in range(len(b['precinct_list'])):
                 d1 = random.choice(range(self.params['num_dists']))
                 while True:
@@ -271,10 +270,9 @@ class ProvideRandomBallots(object):
                     if d2 != d1:
                         break
 
-                d_list = b['precinct_list'][i]['district_list']
-                d_list.append(copy.deepcopy(dist_list[d1]))
-                d_list.append(copy.deepcopy(dist_list[d2]))
-                d_list.append(copy.deepcopy(dist_list[d3]))
+                b['precinct_list'][i]['district_list'].append(dist_list[d1])
+                b['precinct_list'][i]['district_list'].append(dist_list[d2])
+                b['precinct_list'][i]['district_list'].append(dist_list[d3])
         return b
 
     def random_elec(self):

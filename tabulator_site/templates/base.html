@@ -7,12 +7,6 @@
         <script type="text/javascript">
             //When the DOM loads, activate some event handler functions
             $(document).ready(function() {
-                //When the user clicks the logout link, log them out
-                $("#logoutLink").click( function() {
-                    $.post(".", {'logout_user':''});
-                    window.location.href = "{{ HOME }}"
-                });
-
                 {% block javascript %}{% endblock %}
                 {% block tdg_tab_js %}{% endblock %}
             });
@@ -217,7 +211,7 @@
     <body>
         <div id="slash">
             {% if user.is_authenticated %}
-                <div id=logout>You are logged in as {{ user.username }} | <a id="logoutLink">Logout</a></div>
+                <div id=logout>You are logged in as {{ user.username }} | <a href="{{ ROOT }}logout" id="logoutLink">Logout</a></div>
             {% endif %}
         </div>
         <div id="header">
