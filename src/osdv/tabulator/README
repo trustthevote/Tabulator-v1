@@ -1,0 +1,101 @@
+Note: The source files listed below were developed using Python 2.6.2. They will
+       require at least 2.6 to run, but will not run with backwards
+       incompatible Python 3.0.
+
+A python yaml library is also required for serialization/deserialization, and
+ any such library should work. These source files were developed with PyYaml
+ version 3.08, which is available at http://www.pyyaml.org.
+
+
+
+audit_header.py:
+
+   This is the implementation of the audit header class used by 
+    test_data_generator.py and tabulator.py. The specs for this class came from
+    http://wiki.trustthevote.org/index.php/AuditHeader. This is the only source
+    file here that is not stand-alone executable.
+   
+
+test_data_generator.py:
+
+   This allows the user to generate random election templates, or random vote
+    counts using an already generated election template. There are two
+    syntactical forms for command line arguments to test_data_generator.py,
+    I'll demonstrate them by example:
+
+   1.) python test_data_generator.py contestlist sampleelection:
+       This generates a sample election template, and outputs the result into
+       two separate formats, one in yaml and another in xml. By "template", I
+       mean that all of the members of the ballot_info data structure like
+       dist_id, voting_method_id, name, etc. are initialized, with the
+       exception of the vote counts for each candidate. In this example
+       `sampleelection.yml` and `sampleelection.xml` are the names of the
+       output file created/overwritten.
+
+   2.) python test_data_generator.py jurisdiction samplejuris
+       This generates a sample jurisdiction template, and outputs the result
+       in yaml and xml as in 1.). The difference is that a jurisdiction
+       structure contains not only an election template, but also a sample
+       jurisdiction consisting of multiple sample precincts and districts. In
+       this example `samplejuris.yml` and `samplejuris.xml` are created.
+
+   3.) python test_data_generator.py counts 2 sampleelection sampleballots.yml
+       This syntax uses an election template (which will have been generated
+       already by the first syntactical form) to generate a given number of
+       ballot_info records that fit the template, with random values
+       given to each candidates' counts field. The results are outputted
+       into yaml and xml formats. In this example, the number of records
+       generated in the output file is 2, the election template is stored in
+       `sampleelection.yml` and `sampleelection.xml`, and the results are
+       outputted into files `sampleballots.yml` and `sampleballots.xml`.
+
+
+hello_world_tabulator.py:
+
+   This app is a precursor to a fully functional tabulator. It simply takes four
+    command line arguments, the last of which will be treated as a filename that
+    receives the output "Hello world."
+
+
+merger.py:
+
+   This file merges multiple samples of data generated with the counts parameter
+    from test_data_generator.py. It is called from the command line with 4
+    command-line arguments, like so:
+
+   python merger.py election sampleballots1 sampleballots2 merged
+
+   In this example, all of the data members in the election template stored in
+    `election.yml` are compared to the data members of the records in
+    `sampleballots1.yml` and `sampleballots2.yml`. If the sample ballot
+    record files do not exist or are not consistent with the election template,
+    an error message is outputted to the screen, and the program terminates. If
+    the sample ballot files are valid, this information is also recorded in
+    `report`, and all of the records of both files are concatenated together
+    and dumped into `merged.yml` and `merged.xml` in this example.
+
+
+tabulator.py:
+
+   The tabulator simply takes a merged file as input, and generates an SOVC
+    (Summary of Vote Counts) report in [INPUT]_report.csv. Jurisdiction-wide
+    reporting, in which vote counts are broken down by precinct, is currently
+    under development.
+
+Here is an example of how test_data_generator.py, merger.py, and tabulator.py
+ can be tested together with a sequence of commands, assuming that both are in
+ the user's present working directory:
+
+   python test_data_generator.py election sampleelection
+   python test_data_generator.py counts 2 election sampleballots1
+   python test_data_generator.py counts 2 election sampleballots2
+   python merger.py election sampleballots1 sampleballots2 merged
+   python tabulator.py merged
+
+   These commands generate an election template, then generate two ballot record
+    files that conform to the format of that sample election, then merge the two
+    ballot record files together. Finally, an SOVC report is generated.
+
+
+Written by Mike Anderson
+Last updated Oct 24, 2009.
