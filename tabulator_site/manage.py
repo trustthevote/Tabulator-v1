@@ -2,7 +2,7 @@
 from django.core.management import execute_manager
 import sys
 
-sys.path.append('../src/osdv/')
+sys.path.append('../src/osdv/tabulator/')
 
 try:
     import settings # Assumed to be in the same directory.
