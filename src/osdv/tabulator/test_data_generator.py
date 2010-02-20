@@ -469,21 +469,54 @@ class ProvideRandomBallots(object):
 
 def printUsage():
     print 'Usage: test_data_generator.py jurisdiction [OUTPUT ELECTION FILE]'
+    print '       [-TEMPLATE FLAGS]'
     print '   OR: test_data_generator.py contestlist [OUTPUT ELECTION FILE]'
+    print '       [-TEMPLATE FLAGS]'
     print '   OR: test_data_generator.py counts [# OF SAMPLES]'
     print '       [INPUT ELECTION FILE] [OUTPUT SAMPLES FILE]'
     print '   OR: test_data_generator.py counts [# OF SAMPLES]'
-    print '       [INPUT ELECTION FILE] [OUTPUT SAMPLES FILE] [OPTION]'
+    print '       [INPUT ELECTION FILE] [OUTPUT SAMPLES FILE] [-BCT FLAGS]'
     print
     print
-    print 'Where [OPTION] can consist of one of the following:'
+    print '[-TEMPLATE FLAGS] can consist of any combination of the following:'
+    print '   -cn'
+    print '       Specifies the number of candidates n generated within each'
+    print '       contest.'
+    print '   -cln'
+    print '       Specifies a lower bound n for the number of candidates'
+    print '       generated within each contest. Defaults are used if -cu is'
+    print '       not also included, or if the given lower bound is larger'
+    print '       than the given upper bound. Default value is 2.'
+    print '   -cun'
+    print '       Specifies an upper bound n for the number of candidates'
+    print '       generated within each contest. Defaults are used if -cl is'
+    print '       not also included, or if the given lower bound is larger'
+    print '       than the given upper bound. Default value is 4.'
+    print '   -Cn'
+    print '      Specifies the number of contests n generated. Default value'
+    print '      is 10.'
+    print '   -dn'
+    print '      Specifies the number of districts n generated. Defaults are'
+    print '      used if -p is not also included. Default value is 8, as in'
+    print '      the example jurisdiction found here:'
+    print '      "http://wiki.trustthevote.org/index.php/'
+    print '      Rough_Notes_about_Jurisdiction,_District,_and_Precinct."'
+    print '   -pn'
+    print '      Specifies the number of precincts n generated. Defaults are'
+    print '      used if -d is not also included. Default value is 3, as in'
+    print '      the example jurisdiction found here:'
+    print '      "http://wiki.trustthevote.org/index.php/'
+    print '      Rough_Notes_about_Jurisdiction,_District,_and_Precinct.'
+    print
+    print
+    print '[-BCT FLAGS] can consist of one of the following:'
     print '   -1'
     print '      All count fields in the generated BCT output will contain'
     print '      the value 1'
     print 
-    print '   +[NUMBER]'
+    print '   +n'
     print '      All count fields in the generated BCT output will contain'
-    print '      a value between 0 and [NUMBER]'
+    print '      a value between 0 and n'
     exit()
 
 def main(): 
@@ -492,13 +525,16 @@ def main():
     if len(sys.argv) == 1: sys.argv.append('')
     type = sys.argv[1]
     if type == 'jurisdiction':
-        if len(sys.argv) != 3:
+        if len(sys.argv) < 3:
             printUsage()
+        elif len(sys.argv) > 3:
+            for i in range(3, len(sys.argv)):
+                if sys.argv[i][0] != '-':
+                    printUsage()
     elif type == 'contestlist':
         if len(sys.argv) != 3:
             printUsage()
     elif type == 'counts':
-        # This condition is complicated by the possibility of BCT flags
         if len(sys.argv) != 5 and \
          ( len(sys.argv) != 6 or (not sys.argv[5][0] in ['-','+']) ):
             printUsage()
