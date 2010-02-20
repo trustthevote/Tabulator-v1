@@ -8,8 +8,10 @@
         checkedFiles = new Array();
         $("[type='checkbox']:checked").each(function() {
             checkedFiles.push(this.id);
+            $("option[value='" + this.id + "']").hide();
             $(this).parent().parent().remove();
         });
+        
         $.post("{{ ROOT }}delete", {'delete':checkedFiles});
     });
 
@@ -49,6 +51,7 @@
             $("td [class~='" + oldName + "']").addClass(newName);
             $("td [class~='" + oldName + "']").removeClass(oldName);
             $("tr[name='" + oldName + "']").attr('name', newName);
+            $("option[value='" + oldName + "']").val(newName);
             
             //Update the server of the name change
             $.post("{{ ROOT }}rename", {'old_name':oldName, 'new_name':newName});
