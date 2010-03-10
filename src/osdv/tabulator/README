@@ -1,101 +1,219 @@
 Note: The source files listed below were developed using Python 2.6.2. They will
-       require at least 2.6 to run, but will not run with backwards
-       incompatible Python 3.0.
+      require at least 2.6 to run, but will not run with backwards
+      incompatible Python 3.0.
 
 A python yaml library is also required for serialization/deserialization, and
- any such library should work. These source files were developed with PyYaml
- version 3.08, which is available at http://www.pyyaml.org.
+any such library should work. These source files were developed with PyYaml
+version 3.08, which is available at http://www.pyyaml.org.
 
 
+TEST DATA GENERATOR
 
-audit_header.py:
+The test data generator is responsible for randomly generating data for three 
+types of files:
 
-   This is the implementation of the audit header class used by 
-    test_data_generator.py and tabulator.py. The specs for this class came from
-    http://wiki.trustthevote.org/index.php/AuditHeader. This is the only source
-    file here that is not stand-alone executable.
-   
+   * Jurisdiction slates, which logically represent the precincts, districts,
+     and contests associated with a randomly generated jurisdiction.
+   * Precinct contestlists, which logically represent the contests associated 
+     with a randomly generated precinct (think jurisdiction slate, but without
+     precinct and district information).
+   * Ballot counter totals, which logically represent a set of contests pulled
+     from a sample election (i.e., a jurisdiction slate or precinct 
+     contestlist), filled in with voting count data for every candidate. 
 
-test_data_generator.py:
+Generating Jurisdiction Slates
 
-   This allows the user to generate random election templates, or random vote
-    counts using an already generated election template. There are two
-    syntactical forms for command line arguments to test_data_generator.py,
-    I'll demonstrate them by example:
+USAGE: test_data_generator.py jurisdiction output_name [FLAGS]
+test_data_generator.py generates jurisdiction slates in yaml and xml formats.
+If no extra arguments are given, hardcoded default values specify the number
+of contests, the number of candidates per contest, the number of districts,
+and the number of precincts that the output files will contain. These fields
+can also be specified with the following flags:
 
-   1.) python test_data_generator.py contestlist sampleelection:
-       This generates a sample election template, and outputs the result into
-       two separate formats, one in yaml and another in xml. By "template", I
-       mean that all of the members of the ballot_info data structure like
-       dist_id, voting_method_id, name, etc. are initialized, with the
-       exception of the vote counts for each candidate. In this example
-       `sampleelection.yml` and `sampleelection.xml` are the names of the
-       output file created/overwritten.
+   -cn
+       Specifies the exact number of candidates n generated within each 
+       contest. 
 
-   2.) python test_data_generator.py jurisdiction samplejuris
-       This generates a sample jurisdiction template, and outputs the result
-       in yaml and xml as in 1.). The difference is that a jurisdiction
-       structure contains not only an election template, but also a sample
-       jurisdiction consisting of multiple sample precincts and districts. In
-       this example `samplejuris.yml` and `samplejuris.xml` are created.
+   -cln
+       Specifies a lower bound n for the number of candidates generated within
+       each contest. Defaults are used if -cu is not also included, or if the
+       given lower bound is larger than the given upper bound. Default value is
+       2. 
 
-   3.) python test_data_generator.py counts 2 sampleelection sampleballots.yml
-       This syntax uses an election template (which will have been generated
-       already by the first syntactical form) to generate a given number of
-       ballot_info records that fit the template, with random values
-       given to each candidates' counts field. The results are outputted
-       into yaml and xml formats. In this example, the number of records
-       generated in the output file is 2, the election template is stored in
-       `sampleelection.yml` and `sampleelection.xml`, and the results are
-       outputted into files `sampleballots.yml` and `sampleballots.xml`.
+   -cun
+       Specifies an upper bound n for the number of candidates generated within
+       each contest. Defaults are used if -cl is not also included, or if the 
+       given lower bound is larger than the given upper bound. Default value is
+       4. 
+
+   -Cn
+       Specifies the number of contests n generated. Default value is 10. 
+
+   -dn
+       Specifies the number of districts n generated. Defaults are used if -p 
+       is not also included. Default value is 8, as in the example jurisdiction 
+       found here: http://wiki.trustthevote.org/index.php/Rough_Notes_about_Jurisdiction,_District,_and_Precinct. 
+
+   -pn
+       Specifies the number of precincts n generated. Defaults are used if -d 
+       is not also included. Default value is 3, as in the example jurisdiction 
+       found here: http://wiki.trustthevote.org/index.php/Rough_Notes_about_Jurisdiction,_District,_and_Precinct. 
+
+Generating Precinct Contestlists
+
+USAGE: test_data_generator.py contestlist output_name [FLAGS]
+test_data_generator.py allows the user to generate precinct contestlists in a
+similar way as jurisdiction slates, in yaml and xml formats. The user can stick 
+with hardcoded default values for the number of contests and the number of 
+candidates per contest, or can customise generation with the following command-
+line flags:
+
+   -cn
+       Specifies the exact number of candidates n generated within each 
+       contest. 
+
+   -cln
+       Specifies a lower bound n for the number of candidates generated within
+       each contest. Defaults are used if -cu is not also included, or if the 
+       given lower bound is larger than the given upper bound. Default value is
+       2. 
+
+   -cun
+       Specifies an upper bound n for the number of candidates generated within
+       each contest. Defaults are used if -cl is not also included, or if the 
+       given lower bound is larger than the given upper bound. Default value is
+       4. 
+
+   -Cn
+       Specifies the number of contests n generated. Default value is 10. 
+
+Generating Ballot Counter Totals
+
+USAGE: test_data_generator.py counts number_of_records election_template
+output_name [FLAGS]
+test_data_generator.py generates ballot counter totals in yaml and xml formats. 
+Since ballot counter totals can be thought of as election templates filled in 
+with random vote count data, users have the following options to customise how
+voting counts are generated:
+
+   -1
+       Each candidate in every contest gets a vote count of exactly 1. 
+
+   +n
+       Specifies the number of vote counts generated for each candidate to be 
+       between 0 and n inclusive, default value is 100. 
+
+Some examples
+
+    test_data_generator.py jurisdiction sample_juris
+        Generates a jurisdiction slate with the default number of contests, 
+        candidates, districts, and precincts. Result is outputted into 
+        "sample_juris.yml" and "sample_juris.xml". 
+
+    test_data_generator.py jurisdiction juris1 -cl1 cl8
+        Generates a jurisdiction slate with anywhere between 1 and 8 random  
+        candidates per contest, with the default number of contests, districts, 
+        and precincts. Result is outputted into "juris1.yml" and "juris1.xml". 
+
+    test_data_generator.py jurisdiction j1 -C5 -d10
+        Generates a jurisdiction slate with 5 contests, and the default number 
+        of candidates and precincts. Since the number of precincts is not 
+        specified with the number of districts, default values are used for 
+        district generation. Result is outputted into "j1.yml" and "j1.xml". 
+
+    test_data_generator.py contestlist prec1
+        Generates a precinct contestlist with the default number of contests 
+        and candidates. Result is outputted into "prec1.yml" and "prec1.xml". 
+
+    test_data_generator.py contestlist precinct1 -c5
+        Generates a precinct contestlist with the default number of contests 
+        and candidates. Result is outputted into "precinct1.yml" and 
+        "precinct1.xml". 
+
+    test_data_generator.py counts 2 juris1 bcts
+        Generates two ballot counter total records for an election template 
+        named juris1. Each candidate gets between 0 and 100 votes inclusive. 
+        Results are outputted into "bcts.yml" and "bcts.xml". 
+
+    test_data_generator.py counts 1 prec5 bal_count +250
+        Generates a ballot counter total record for an election template named
+        prec5. Each candidate gets between 0 and 250 votes inclusive. Result 
+        is outputted into "bal_count.yml" and "bal_count.xml". 
 
 
-hello_world_tabulator.py:
+MERGER
 
-   This app is a precursor to a fully functional tabulator. It simply takes four
-    command line arguments, the last of which will be treated as a filename that
-    receives the output "Hello world."
+USAGE: merger.py election_template bct_file1 bct_file2 output_name
+merger.py takes as input an election template, and two files which each 
+contain one or more ballot counter total records. The merger ensures the given
+data is valid and consistent by checking to see that the following conditions
+are met:
+
+    * The GUIDS of the given election template and all ballot counter total 
+      records must be unique. Duplicate records cannot be merged together.
+    * The election template and BCT records must contain all of the fields that 
+      are associated with a ballot info structure, candidates, contests, vote 
+      count information, and so on. Data with extra fields is not allowed, nor 
+      is data with missing fields.
+    * Each field must contain values of the proper type, a candidate name must 
+      be a string, vote counts must be integers, and so on.
+    * The BCTs given must be consistent with the election template given. 
+      Contest names, candidate names, all of the various id fields, etc. must 
+      match. 
+
+If the inputted data passes validation, the ballot counter total records in 
+both files are concatenated together into one structure, and the results are 
+outputted into yaml and xml formats. In addition, the merger creates a log of how successful the run was. Note that files generated by the merger can also be given as input to the merger to further
+
+Example
+
+    merger.py juris3 bcts1 bcts2 merged_file
+        Attempts to merge the contents of the bcts1 and bcts2 files together, 
+        using the election template juris3. If the pass validation and the 
+        attempt was successful, the result is outputted into "merged_file.yaml" 
+        and "merged_file.xml". A log recording if and when the validation 
+        process failed is created in "merged_file.log". 
 
 
-merger.py:
+TABULATOR
 
-   This file merges multiple samples of data generated with the counts parameter
-    from test_data_generator.py. It is called from the command line with 4
-    command-line arguments, like so:
+USAGE: tabulator.py election_template merged_file
+tabulator.py takes as input a file with a set of bct records merged together, 
+and aggregates all of that information together to generate reports in a number
+of different formats:
 
-   python merger.py election sampleballots1 sampleballots2 merged
+    * Yaml and xml reports show voting data broken down by precinct, then by voting type (absentee, early voting, etc.), then by contest and candidate.
+    * One csv format displays the aggregated data as a pivot table, where each row of data contains the vote count data associated with a unique 5-tuple: a contest, precinct name, voting type, candidate name, and candidate party.
+    * A second csv format displays as a group of tables, each representing a contest. Each column in a table represents a candidate.
+    * The final format visualises the data using auto-generated html that makes it a highly readable web page. A group of tables is generated, as with the second csv format. 
 
-   In this example, all of the data members in the election template stored in
-    `election.yml` are compared to the data members of the records in
-    `sampleballots1.yml` and `sampleballots2.yml`. If the sample ballot
-    record files do not exist or are not consistent with the election template,
-    an error message is outputted to the screen, and the program terminates. If
-    the sample ballot files are valid, this information is also recorded in
-    `report`, and all of the records of both files are concatenated together
-    and dumped into `merged.yml` and `merged.xml` in this example.
+Example
+
+    tabulator.py juris1 merged1
+        Aggregates the BCT data from merged1, and uses the election template 
+        juris1, to generate reports. The results are outputted into 
+        "merged1_report.yml", "merged1_report.xml", "merged1_report_pvt.csv", 
+        "merged1_report.csv", and "merged1_report.yml". 
 
 
-tabulator.py:
+AUDIT HEADERS
 
-   The tabulator simply takes a merged file as input, and generates an SOVC
-    (Summary of Vote Counts) report in [INPUT]_report.csv. Jurisdiction-wide
-    reporting, in which vote counts are broken down by precinct, is currently
-    under development.
+All of the files generated by the test data generator and the merger contain 
+an audit header, which holds meta-data about the file it's included in. The 
+audit header contains the following fields:
 
-Here is an example of how test_data_generator.py, merger.py, and tabulator.py
- can be tested together with a sequence of commands, assuming that both are in
- the user's present working directory:
-
-   python test_data_generator.py election sampleelection
-   python test_data_generator.py counts 2 election sampleballots1
-   python test_data_generator.py counts 2 election sampleballots2
-   python merger.py election sampleballots1 sampleballots2 merged
-   python tabulator.py merged
-
-   These commands generate an election template, then generate two ballot record
-    files that conform to the format of that sample election, then merge the two
-    ballot record files together. Finally, an SOVC report is generated.
+    * A GUID that uniquely identifies the file.
+    * A creation date.
+    * The type of data contained within the file (jurisdiction slate, precinct 
+      contestlist, etc.).
+    * The operator of the machine which generated the file.
+    * Information that uniquely identifies the hardware of the machine that 
+      generated the file.
+    * The name and version number of the software used to generate the file.
+    * The provenance of the file, if it was generated by the merger. This field 
+      contains the GUIDs of each ballot counter total or merger file used as 
+      input in the merging process. 
 
 
 Written by Mike Anderson
-Last updated Oct 24, 2009.
+Last Updated: 03/10/10
